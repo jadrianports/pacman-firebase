@@ -45,4 +45,4 @@ TODO.md
 
 /.venv/
 /.idea/
-/.pycache/
+/__pycache__/

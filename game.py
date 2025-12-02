@@ -5,6 +5,7 @@ import pygame
 import math
 from settings import *
 from pacman import Pacman
+from ghosts import Ghost
 
 pygame.init()
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -13,17 +14,9 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 level = copy.deepcopy(boards)
 color = 'blue'
 PI = math.pi
-
-# instantiate Pacman object
+###    instantiate Pacman object ###
 player = Pacman()
 
-# ghost images (kept as before)
-blinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/red.png'), (45, 45))
-pinky_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/pink.png'), (45, 45))
-inky_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/blue.png'), (45, 45))
-clyde_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/orange.png'), (45, 45))
-spooked_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/powerup.png'), (45, 45))
-dead_img = pygame.transform.scale(pygame.image.load(f'assets/ghosts/dead.png'), (45, 45))
 
 # animation / flicker counter (kept global for minimal change)
 counter = 0
@@ -34,7 +27,7 @@ score = 0
 powerup = False
 power_counter = 0
 eaten_ghost = [False, False, False, False]
-# targets = [(player_x, player_y), ...]  # kept commented
+
 moving = False
 ghost_speeds = [2, 2, 2, 2]
 startup_counter = 0
@@ -201,10 +194,16 @@ while run:
 
     screen.fill('black')
     draw_board()
+    blinky = Ghost("blinky")
+    pinky = Ghost("pinky")
+    inky = Ghost("inky")
+    clyde = Ghost("clyde")
 
+    ghosts = [blinky, pinky, inky, clyde]
+    for ghost in ghosts:
+        ghost.draw(screen, powerup, eaten_ghost)
     # draw player via object
     player.draw(screen)
-
     # collision checks and movement logic via Pacman object
     center_x, center_y = player.get_center()
     # compute allowed turns with the global function (unchanged logic)
