@@ -1,3 +1,4 @@
+## pacman.py
 import pygame
 from settings import *
 
@@ -23,6 +24,9 @@ class Pacman:
 
         # allowed turns: [R, L, U, D]
         self.turns_allowed = [False, False, False, False]
+
+        #player circle
+        #self.circle = pygame.draw.circle()
 
     def load_images(self):
         # load your pacman frames (1..4)
@@ -69,6 +73,87 @@ class Pacman:
         elif self.direction == 3 and self.turns_allowed[3]:
             self.y += self.speed
 
+    def check_collisions(self, level_map, power, power_count, eaten_ghosts):
+        """
+        Exact O.G. Pacman logic preserved.
+        Moved from main.py → Pacman class.
+        Uses self.x, self.y, self.score, and self.get_center().
+        """
+
+        center_x, center_y = self.get_center()
+
+        if 0 < self.x < 870:
+            tile = level_map[center_y // TILE_HEIGHT][center_x // TILE_WIDTH]
+
+            if tile == 1:
+                level_map[center_y // TILE_HEIGHT][center_x // TILE_WIDTH] = 0
+                self.score += 10
+
+            elif tile == 2:
+                level_map[center_y // TILE_HEIGHT][center_x // TILE_WIDTH] = 0
+                self.score += 50
+                power = True
+                power_count = 0
+                eaten_ghosts = [False, False, False, False]
+
+        return self.score, power, power_count, eaten_ghosts
+
+    def compute_turns(self, level_map):
+        """
+        Exact same logic as your global check_position() in main.py.
+        Uses Pacman's own x, y, and direction.
+        Returns: [R_allowed, L_allowed, U_allowed, D_allowed]
+        """
+        centerx, centery = self.get_center()
+        direction = self.direction
+
+        turns = [False, False, False, False]
+
+        if centerx // 30 < 29:
+            if direction == 0:
+                if level_map[centery // TILE_HEIGHT][(centerx - FUDGE_FACTOR) // TILE_WIDTH] < 3:
+                    turns[1] = True
+            if direction == 1:
+                if level_map[centery // TILE_HEIGHT][(centerx + FUDGE_FACTOR) // TILE_WIDTH] < 3:
+                    turns[0] = True
+            if direction == 2:
+                if level_map[(centery + FUDGE_FACTOR) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                    turns[3] = True
+            if direction == 3:
+                if level_map[(centery - FUDGE_FACTOR) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                    turns[2] = True
+
+            if direction in (2, 3):
+                if 12 <= centerx % TILE_WIDTH <= 18:
+                    if level_map[(centery + FUDGE_FACTOR) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                        turns[3] = True
+                    if level_map[(centery - FUDGE_FACTOR) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                        turns[2] = True
+                if 12 <= centery % TILE_HEIGHT <= 18:
+                    if level_map[centery // TILE_HEIGHT][(centerx - TILE_WIDTH) // TILE_WIDTH] < 3:
+                        turns[1] = True
+                    if level_map[centery // TILE_HEIGHT][(centerx + TILE_WIDTH) // TILE_WIDTH] < 3:
+                        turns[0] = True
+
+            if direction in (0, 1):
+                if 12 <= centerx % TILE_WIDTH <= 18:
+                    if level_map[(centery + TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                        turns[3] = True
+                    if level_map[(centery - TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
+                        turns[2] = True
+                if 12 <= centery % TILE_HEIGHT <= 18:
+                    if level_map[centery // TILE_HEIGHT][(centerx - FUDGE_FACTOR) // TILE_WIDTH] < 3:
+                        turns[1] = True
+                    if level_map[centery // TILE_HEIGHT][(centerx + FUDGE_FACTOR) // TILE_WIDTH] < 3:
+                        turns[0] = True
+        else:
+            turns[0] = True
+            turns[1] = True
+
+        return turns
+
+
+
     def handle_wraparound(self):
         """Teleport across left/right edges (keeps original numbers)."""
         if self.x > 900:
@@ -79,3 +164,11 @@ class Pacman:
     # optional helper to sync animation counter from main loop
     def set_animation_counter(self, counter):
         self.animation_counter = counter
+
+    def reset(self):
+        self.x = 450
+        self.y = 663
+        self.direction = 0
+        self.direction_command = 0
+        self.score = 0
+

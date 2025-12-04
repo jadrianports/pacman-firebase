@@ -1,5 +1,5 @@
 import math
-
+import pygame
 # Screen settings
 WIDTH = 900
 HEIGHT = 950
@@ -29,3 +29,8 @@ TILE_WIDTH = WIDTH // 30
 
 
 FUDGE_FACTOR = 15
+
+#Some constants
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
+TIMER = pygame.time.Clock()
+#font = pygame.font.Font('freesansbold.ttf', 20)

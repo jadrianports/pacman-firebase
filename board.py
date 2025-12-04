@@ -1,3 +1,7 @@
+#board.py
+import pygame
+from settings import *
+
 # 0 = empty black rectangle, 1 = dot, 2 = big dot, 3 = vertical line,
 # 4 = horizontal line, 5 = top right, 6 = top left, 7 = bot left, 8 = bot right
 # 9 = gate
@@ -36,3 +40,74 @@ boards = [
 [3, 7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8, 3],
 [7, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 8]
          ]
+
+class Board:
+    def __init__(self):
+        self.tiles = boards
+
+    def draw(self, screen, flicker, color="blue"):
+        """Draws the entire board including dots, big dots, and all walls."""
+        num_w = TILE_WIDTH
+        num_h = TILE_HEIGHT
+
+        for i in range(len(self.tiles)):
+            for j in range(len(self.tiles[i])):
+                tile = self.tiles[i][j]
+
+                cx = j * num_w + 0.5 * num_w
+                cy = i * num_h + 0.5 * num_h
+
+                # DOT
+                if tile == 1:
+                    pygame.draw.circle(screen, "white", (cx, cy), 4)
+
+                # BIG DOT POWERUP (flicker enabled)
+                elif tile == 2 and not flicker:
+                    pygame.draw.circle(screen, "white", (cx, cy), 10)
+
+                # WALLS AND CORNERS
+                elif tile == 3:  # vertical line
+                    pygame.draw.line(screen, color,
+                                     (j * num_w + 0.5 * num_w, i * num_h),
+                                     (j * num_w + 0.5 * num_w, i * num_h + num_h),
+                                     3)
+
+                elif tile == 4:  # horizontal line
+                    pygame.draw.line(screen, color,
+                                     (j * num_w, i * num_h + 0.5 * num_h),
+                                     (j * num_w + num_w, i * num_h + 0.5 * num_h),
+                                     3)
+
+                elif tile == 5:  # top-right corner arc
+                    pygame.draw.arc(screen, color,
+                                    [(j * num_w - (num_w * 0.4)) - 2,
+                                     (i * num_h + 0.5 * num_h),
+                                     num_w, num_h],
+                                    0, PI / 2, 3)
+
+                elif tile == 6:  # top-left corner arc
+                    pygame.draw.arc(screen, color,
+                                    [(j * num_w + (num_w * 0.5)),
+                                     (i * num_h + 0.5 * num_h),
+                                     num_w, num_h],
+                                    PI / 2, PI, 3)
+
+                elif tile == 7:  # bottom-left corner
+                    pygame.draw.arc(screen, color,
+                                    [(j * num_w + (num_w * 0.5)),
+                                     (i * num_h - 0.4 * num_h),
+                                     num_w, num_h],
+                                    PI, 3 * PI / 2, 3)
+
+                elif tile == 8:  # bottom-right corner
+                    pygame.draw.arc(screen, color,
+                                    [(j * num_w - (num_w * 0.4)) - 2,
+                                     (i * num_h - 0.4 * num_h),
+                                     num_w, num_h],
+                                    3 * PI / 2, 2 * PI, 3)
+
+                elif tile == 9:  # ghost gate
+                    pygame.draw.line(screen, "white",
+                                     (j * num_w, i * num_h + 0.5 * num_h),
+                                     (j * num_w + num_w, i * num_h + 0.5 * num_h),
+                                     3)
