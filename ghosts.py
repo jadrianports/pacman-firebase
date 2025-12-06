@@ -11,14 +11,14 @@ class Ghost:
         self.ghost_type = ghost_type
         self.target = (0, 0)
         # default starting positions (you can edit these later)
-        start_positions = {
-            "blinky": (56, 58),
-            "inky":   (440, 388),
-            "pinky":  (440, 438),
-            "clyde":  (440, 438)
+        self.start_positions = {
+            "blinky": (430, 328,),
+            "inky":   (370, 418,),
+            "pinky":  (430, 418),
+            "clyde":  (490, 418)
         }
 
-        self.x, self.y = start_positions[ghost_type]
+        self.x, self.y = self.start_positions[ghost_type]
 
         # core state
         self.direction = 0
@@ -36,6 +36,8 @@ class Ghost:
                                 self.get_center()[1] - 18,
                                 36, 36)
 
+        self.turns = [False, False, False, False]
+        self.recovering = False
     # -------------------------------------------------------------
     # IMAGE LOADING
     # -------------------------------------------------------------
@@ -80,22 +82,18 @@ class Ghost:
     def draw(self, screen, powerup_active, eaten_list):
         """Draw ghost depending on current state + powerup state."""
 
-        if self.dead:
-            img = self.img_dead
-
+        # Determine image
+        if self.dead or self.recovering:
+            img = self.img_dead if self.dead else self.img_normal
+        elif powerup_active and not eaten_list[self.id]:
+            img = self.img_spooked
         else:
-            if powerup_active:
-                if eaten_list[self.id]:
-                    img = self.img_normal    # recovering ghost → normal color
-                else:
-                    img = self.img_spooked   # vulnerable
-            else:
-                img = self.img_normal
+            img = self.img_normal
 
-        # draw sprite
+        # Draw sprite
         screen.blit(img, (self.x, self.y))
 
-        # update rect for collisions
+        # Update rect for collisions
         cx, cy = self.get_center()
         self.rect.x = cx - 18
         self.rect.y = cy - 18
@@ -322,45 +320,467 @@ class Ghost:
         self.x, self.y, self.direction = x, y, d
         return self.x, self.y, self.direction
 
-    def update_target(self, blinky, inky, pinky, clyde, player_x, player_y, powerup, eaten_ghost):
-        blink_x, blink_y = blinky.x, blinky.y
-        ink_x, ink_y = inky.x, inky.y
-        pink_x, pink_y = pinky.x, pinky.y
-        clyd_x, clyd_y = clyde.x, clyde.y
+    def move_inky(self):
+        # shorthand
+        tx, ty = self.target
+        x, y, d = self.x, self.y, self.direction
+        t = self.turns  # [right, left, up, down]
+        s = self.speed
 
+        # RIGHT (0)
+        if d == 0:
+            if tx > x and t[0]:
+                x += s
+            elif not t[0]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[1]:
+                    d = 1
+                    x -= s
+            elif t[0]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                if ty < y and t[2]:
+                    d = 2
+                    y -= s
+                else:
+                    x += s
+
+        # LEFT (1)
+        elif d == 1:
+            if ty > y and t[3]:
+                d = 3
+            elif tx < x and t[1]:
+                x -= s
+            elif not t[1]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[1]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                if ty < y and t[2]:
+                    d = 2
+                    y -= s
+                else:
+                    x -= s
+
+        # UP (2)
+        elif d == 2:
+            if ty < y and t[2]:
+                d = 2
+                y -= s
+            elif not t[2]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif t[1]:
+                    d = 1
+                    x -= s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[2]:
+                y -= s
+
+        # DOWN (3)
+        elif d == 3:
+            if ty > y and t[3]:
+                y += s
+            elif not t[3]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+            elif t[3]:
+                y += s
+
+        # tunnel wrap
+        if x < -30:
+            x = 900
+        elif x > 900:
+            x = -30
+
+        self.x, self.y, self.direction = x, y, d
+        return self.x, self.y, self.direction
+
+    def move_blinky(self):
+        # shorthand
+        tx, ty = self.target
+        x, y, d = self.x, self.y, self.direction
+        t = self.turns
+        s = self.speed
+
+        if d == 0:  # RIGHT
+            if tx > x and t[0]:
+                x += s
+            elif not t[0]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[1]:
+                    d = 1
+                    x -= s
+            elif t[0]:
+                x += s
+
+        elif d == 1:  # LEFT
+            if tx < x and t[1]:
+                x -= s
+            elif not t[1]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[1]:
+                x -= s
+
+        elif d == 2:  # UP
+            if ty < y and t[2]:
+                d = 2
+                y -= s
+            elif not t[2]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[0]:
+                    d = 0
+                    x += s
+                elif t[1]:
+                    d = 1
+                    x -= s
+            elif t[2]:
+                y -= s
+
+        elif d == 3:  # DOWN
+            if ty > y and t[3]:
+                y += s
+            elif not t[3]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[0]:
+                    d = 0
+                    x += s
+                elif t[1]:
+                    d = 1
+                    x -= s
+            elif t[3]:
+                y += s
+
+        # tunnel wrap
+        if x < -30:
+            x = 900
+        elif x > 900:
+            x = -30
+
+        self.x, self.y, self.direction = x, y, d
+        return x, y, d
+
+    def move_pinky(self):
+        # shorthand
+        tx, ty = self.target
+        x, y, d = self.x, self.y, self.direction
+        t = self.turns
+        s = self.speed
+
+        if d == 0:  # RIGHT
+            if tx > x and t[0]:
+                x += s
+            elif not t[0]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[1]:
+                    d = 1
+                    x -= s
+            elif t[0]:
+                x += s
+
+        elif d == 1:  # LEFT
+            if ty > y and t[3]:
+                d = 3
+            elif tx < x and t[1]:
+                x -= s
+            elif not t[1]:
+                if ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[1]:
+                x -= s
+
+        elif d == 2:  # UP
+            if tx < x and t[1]:
+                d = 1
+                x -= s
+            elif ty < y and t[2]:
+                d = 2
+                y -= s
+            elif not t[2]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty > y and t[3]:
+                    d = 3
+                    y += s
+                elif t[1]:
+                    d = 1
+                    x -= s
+                elif t[3]:
+                    d = 3
+                    y += s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[2]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                else:
+                    y -= s
+
+        elif d == 3:  # DOWN
+            if ty > y and t[3]:
+                y += s
+            elif not t[3]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                elif ty < y and t[2]:
+                    d = 2
+                    y -= s
+                elif t[2]:
+                    d = 2
+                    y -= s
+                elif t[1]:
+                    d = 1
+                    x -= s
+                elif t[0]:
+                    d = 0
+                    x += s
+            elif t[3]:
+                if tx > x and t[0]:
+                    d = 0
+                    x += s
+                elif tx < x and t[1]:
+                    d = 1
+                    x -= s
+                else:
+                    y += s
+
+        # tunnel wrap
+        if x < -30:
+            x = 900
+        elif x > 900:
+            x = -30
+
+        self.x, self.y, self.direction = x, y, d
+        return x, y, d
+
+    def update_target(self, player_x, player_y, powerup, eaten_ghost):
         runaway_x = 900 if player_x < 450 else 0
         runaway_y = 900 if player_y < 450 else 0
         return_target = (380, 400)
-
-        targets = []
-        for g_id, g_x, g_y, dead in zip(range(4),
-                                        [blink_x, ink_x, pink_x, clyd_x],
-                                        [blink_y, ink_y, pink_y, clyd_y],
-                                        [blinky.dead, inky.dead, pinky.dead, clyde.dead]):
+        gx, gy = self.x, self.y
+        idx = self.id  # 0=blinky,1=pinky,2=inky,3=clyde
+        def in_box_area(gx, gy):
+            return 340 < gx < 560 and 340 < gy < 500
+        # ------------------------------
+        # BLINKY
+        # ------------------------------
+        if self.ghost_type == "blinky":
             if powerup:
-                if not dead and not eaten_ghost[g_id]:
-                    tgt = (runaway_x, runaway_y) if g_id == 0 else \
-                        (runaway_x, player_y) if g_id == 1 else \
-                            (player_x, runaway_y) if g_id == 2 else \
-                                (450, 450)
-                elif not dead and eaten_ghost[g_id]:
-                    tgt = (400, 100) if 340 < g_x < 560 and 340 < g_y < 500 else (player_x, player_y)
+                if not self.dead and not eaten_ghost[0]:
+                    target = (runaway_x, runaway_y)
+                elif not self.dead and eaten_ghost[0]:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
                 else:
-                    tgt = return_target
+                    target = return_target
             else:
-                if not dead:
-                    tgt = (400, 100) if 340 < g_x < 560 and 340 < g_y < 500 else (player_x, player_y)
+                if not self.dead:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
                 else:
-                    tgt = return_target
-            targets.append(tgt)
+                    target = return_target
 
-        self.target = targets[self.id]
+        # ------------------------------
+        # PINKY
+        # ------------------------------
+        elif self.ghost_type == "pinky":
+            if powerup:
+                if not self.dead and not eaten_ghost[2]:
+                    target = (player_x, runaway_y)
+                elif not self.dead and eaten_ghost[2]:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
+            else:
+                if not self.dead:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
 
-        # ---------------- CLYDE MOVEMENT ----------------
+        # ------------------------------
+        # INKY
+        # ------------------------------
+        elif self.ghost_type == "inky":
+            if powerup:
+                if not self.dead and not eaten_ghost[1]:
+                    target = (runaway_x, player_y)
+                elif not self.dead and eaten_ghost[1]:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
+            else:
+                if not self.dead:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
 
-    def reset(self, x ,y ,direction):
-        self.x = x
-        self.y = y
-        self.direction = direction
+        # ------------------------------
+        # CLYDE
+        # ------------------------------
+        elif self.ghost_type == "clyde":
+            if powerup:
+                if not self.dead and not eaten_ghost[3]:
+                    target = (450, 450)
+                elif not self.dead and eaten_ghost[3]:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
+            else:
+                if not self.dead:
+                    target = (400, 100) if in_box_area(gx, gy) else (player_x, player_y)
+                else:
+                    target = return_target
+
+        self.target = target
+
+    def reset_to_start(self):
+        """Reset ghost to its starting position and direction."""
+        self.x, self.y = self.start_positions[self.ghost_type]
         self.dead = False
-        self.in_box = True
+        self.turns = [False, False, False, False]

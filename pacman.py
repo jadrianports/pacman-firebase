@@ -6,8 +6,8 @@ from settings import *
 class Pacman:
     def __init__(self):
         # position
-        self.x = 450
-        self.y = 663
+        self.start_position = (430, 663)  # x, y
+        self.x , self.y = self.start_position
 
         # directions: 0=right,1=left,2=up,3=down
         self.direction = 0
@@ -165,10 +165,10 @@ class Pacman:
     def set_animation_counter(self, counter):
         self.animation_counter = counter
 
-    def reset(self):
-        self.x = 450
-        self.y = 663
-        self.direction = 0
-        self.direction_command = 0
-        self.score = 0
+    def reset(self, reset_score=False):
+        """Reset Pacman to starting position and optionally reset score."""
+        self.x, self.y = self.start_position
+        if reset_score:
+            self.score = 0
+
 
