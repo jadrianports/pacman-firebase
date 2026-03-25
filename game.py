@@ -8,6 +8,7 @@ from ghosts import Ghost
 from controls import ControlManager
 from board import Board
 from interface import Interface
+<<<<<<< HEAD
 from gamestate import GameState
 from user_manager import get_username, save_username
 
@@ -27,6 +28,11 @@ else:
     print("Loaded username:", player_name)
 
 state = GameState()
+=======
+
+
+pygame.init()
+>>>>>>> parent of fff7151 (movement and ai for other ghosts)
 font = pygame.font.Font('freesansbold.ttf', 20)
 board = Board()
 level = board.tiles
@@ -35,7 +41,7 @@ blinky = Ghost("blinky")
 pinky = Ghost("pinky")
 inky = Ghost("inky")
 clyde = Ghost("clyde")
-ghosts = [blinky, inky, pinky, clyde]
+ghosts = [blinky, pinky, inky, clyde]
 ###    instantiate Pacman object ###
 player = Pacman()
 interface = Interface(font, player)
@@ -48,7 +54,6 @@ flicker = False
 
 # game state
 score = 0
-
 powerup = False
 power_counter = 0
 eaten_ghost = [False, False, False, False]
@@ -91,9 +96,6 @@ while run:
     elif powerup and power_counter >= 600:
         power_counter = 0
         powerup = False
-        for g in ghosts:
-            if not g.dead:
-                g.speed = 2  # NORMAL SPEED
         eaten_ghost = [False, False, False, False]
     ## SHORT COUNTDOWN BEFORE GAME ACTUALLY STARTS
     if startup_counter < 180:
@@ -116,37 +118,29 @@ while run:
     # compute allowed turns with the global function (unchanged logic)
     player.set_turns_allowed(player.compute_turns(level))
     player.update_direction()
-    # --- GHOST LOGIC ---
-    for ghost in ghosts:
-        ghost.update_target(player.x, player.y, powerup, eaten_ghost)
-        ghost.turns, ghost.in_box = ghost.check_collisions(level)
-
     if moving:
         player.move()
-        if not blinky.dead and not blinky.in_box:
-            blinky.move_blinky()
-        else:
-            blinky.move_clyde()
-        if not pinky.dead and not pinky.in_box:
-            pinky.move_pinky()
-        else:
-            pinky.move_clyde()
-        if not inky.dead and not inky.in_box:
-            inky.move_inky()
-        else:
-            inky.move_clyde()
-        clyde.move_clyde()
-        print(eaten_ghost)
+        # --- GHOST LOGIC ---
+        for ghost in ghosts:
+            ghost.center_x, ghost.center_y = ghost.get_center()
+            ghost.turns, ghost.in_box = ghost.check_collisions(level)
+            ghost.update_target(blinky, inky, pinky, clyde, player.x, player.y, powerup, eaten_ghost)
 
-    # respawn ghosts that went back to the box
-    for ghost in ghosts:
-        if ghost.in_box and ghost.dead:
-            ghost.dead = False
+        # move Clyde only for now
+        clyde.move_clyde()
+
+        # respawn ghosts that went back to the box
+        for ghost in ghosts:
+            if ghost.in_box and ghost.dead:
+                ghost.dead = False
     player.handle_wraparound()
     # pellet collisions / scoring (uses player object now)
     score, powerup, power_counter, eaten_ghost = player.check_collisions(
         level, powerup, power_counter, eaten_ghost
     )
+
+    # push back score into global score variable (to preserve draw_misc usage)
+    score = player.score
 
     interface.draw(
         screen,
@@ -158,55 +152,68 @@ while run:
         player.images
     )
 
-    player_circle =  pygame.Rect(center_x - 20, center_y - 20, 40, 40)
+    player_circle = pygame.draw.circle(screen, 'black', (center_x, center_y), 20, 2)
 
-    for i, ghost in enumerate(ghosts):
-        if ghost.dead:
-            ghost.speed = 4  # returning to box → fastest
-        elif powerup:
-            if not eaten_ghost[i]:
-                ghost.speed = 1  # vulnerable → slower
-            else:
-                ghost.speed = GHOST_SPEED  # eaten → slightly faster
+    if powerup:
+        clyde.speed = 1
+    if eaten_ghost[3]:
+         clyde.speed = 2
+    if clyde.dead:
+        clyde.speed = 4
 
     ## Collision with ghosts
-    def reset_round():
-        global lives, startup_counter, powerup, power_counter, eaten_ghost, game_over, moving
-
-        lives -= 1
-        startup_counter = 0
-        powerup = False
-        power_counter = 0
-
-        # reset player to its class-defined starting position
-        player.reset()  # uses Pacman's start_position and start_direction
-
-        # Reset all ghosts to their starting positions
-        for ghost in ghosts:
-            ghost.reset_to_start()
-
-        eaten_ghost[:] = [False, False, False, False]
-
-        if lives <= 0:
+    if not powerup:
+        if (player_circle.colliderect(blinky.rect) and not blinky.dead) or \
+                (player_circle.colliderect(inky.rect) and not inky.dead) or \
+                (player_circle.colliderect(pinky.rect) and not pinky.dead) or \
+                (player_circle.colliderect(clyde.rect) and not clyde.dead):
+            if lives > 0:
+                lives -= 1
+                startup_counter = 0
+                powerup = False
+                power_counter = 0
+                player.x = 450
+                player.y = 663
+                player.direction = 0
+                player.direction_command = 0
+                clyde.x = 440
+                clyde.y = 438
+                clyde.direction = 2
+                eaten_ghost = [False, False, False, False]
+                blinky.dead = False
+                inky.dead = False
+                clyde.dead = False
+                pinky.dead = False
+            else:
+                game_over = True
+                moving = False
+                startup_counter = 0
+    if powerup and player_circle.colliderect(clyde.rect) and eaten_ghost[3] and not clyde.dead:
+        if lives > 0:
+            powerup = False
+            power_counter = 0
+            lives -= 1
+            startup_counter = 0
+            player.x = 450
+            player.y = 663
+            player.direction = 0
+            player.direction_command = 0
+            clyde.x = 440
+            clyde.y = 438
+            clyde.direction = 2
+            eaten_ghost = [False, False, False, False]
+            blinky_dead = False
+            inky_dead = False
+            clyde.dead = False
+            pinky_dead = False
+        else:
             game_over = True
             moving = False
-
-
-    # --- COLLISION HANDLING ---
-    for i, ghost in enumerate(ghosts):
-        # powered-up ghost collision
-        if powerup and player_circle.colliderect(ghost.rect) and not ghost.dead and not eaten_ghost[i]:
-            n_eaten = eaten_ghost.count(True)
-            ghost.dead = True
-            eaten_ghost[i] = True
-            player.score += (2 ** n_eaten) * 100
-
-        # normal collision or powered-up ghost already eaten
-        elif (not powerup or (powerup and eaten_ghost[i])) and player_circle.colliderect(ghost.rect) and not ghost.dead:
-            if lives > 0:
-                reset_round()
-    score = player.score
-
+            startup_counter = 0
+    if powerup and player_circle.colliderect(clyde.rect) and not clyde.dead and not eaten_ghost[3]:
+        clyde.dead = True
+        eaten_ghost[3] = True
+        score += (2 ** eaten_ghost.count(True)) * 100
 
 
     ## CONTROLS
