@@ -9,8 +9,23 @@ from controls import ControlManager
 from board import Board
 from interface import Interface
 from gamestate import GameState
+from user_manager import get_username, save_username
 
 pygame.init()
+
+# ----------------------------
+# USERNAME BOOT SEQUENCE
+# ----------------------------
+
+player_name = get_username()
+
+if player_name is None:
+    player_name = ask_username(screen, font)
+    save_username(player_name)
+    print("Saved username:", player_name)
+else:
+    print("Loaded username:", player_name)
+
 state = GameState()
 font = pygame.font.Font('freesansbold.ttf', 20)
 board = Board()
@@ -45,8 +60,16 @@ game_over = False
 game_won = False
 
 
+def ask_username(screen, font):
+    username = ""
+    active = True
+
+    instruction = font.render("Enter your name:", True, (255, 255, 255))
+
 run = True
 while run:
+
+
     TIMER.tick(FPS)
 
     # keep main-loop animation counter for flicker/animation timing
