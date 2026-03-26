@@ -1,5 +1,6 @@
 import pygame
-from settings import WIDTH, HEIGHT, PLAYER_SPEED, PLAYER_START_X, PLAYER_START_Y
+from paths import resource_path
+from settings import WIDTH, HEIGHT, PLAYER_SPEED, PLAYER_START_X, PLAYER_START_Y, PLAYER_START_DIR
 
 
 class Player:
@@ -7,16 +8,13 @@ class Player:
         self.screen = screen
         self.x = PLAYER_START_X
         self.y = PLAYER_START_Y
-        self.direction = 0
-        self.direction_command = 0
+        self.direction = PLAYER_START_DIR
+        self.direction_command = PLAYER_START_DIR
         self.speed = PLAYER_SPEED
         self.turns_allowed = [False, False, False, False]
-        self.circle = None
         self.images = []
         for i in range(1, 5):
-            self.images.append(
-                pygame.transform.scale(pygame.image.load(f'assets/pacman/{i}.png'), (45, 45))
-            )
+            self.images.append(pygame.transform.scale(pygame.image.load(resource_path(f'assets/pacman/{i}.png')), (45, 45)))
 
     @property
     def center_x(self):
@@ -36,9 +34,8 @@ class Player:
             self.screen.blit(pygame.transform.rotate(self.images[counter // 5], 90), (self.x, self.y))
         elif self.direction == 3:
             self.screen.blit(pygame.transform.rotate(self.images[counter // 5], 270), (self.x, self.y))
-
-    def draw_circle(self):
-        return pygame.draw.circle(self.screen, 'black', (self.center_x, self.center_y), 20, 2)
+        circle = pygame.draw.circle(self.screen, 'black', (self.center_x, self.center_y), 20, 2)
+        return circle
 
     def check_position(self, level):
         turns = [False, False, False, False]
@@ -91,7 +88,6 @@ class Player:
         return turns
 
     def move(self):
-        # r, l, u, d
         if self.direction == 0 and self.turns_allowed[0]:
             self.x += self.speed
         elif self.direction == 1 and self.turns_allowed[1]:
@@ -101,7 +97,7 @@ class Player:
         elif self.direction == 3 and self.turns_allowed[3]:
             self.y += self.speed
 
-    def handle_wrap(self):
+    def wrap_around(self):
         if self.x > 900:
             self.x = -47
         elif self.x < -50:
@@ -120,5 +116,5 @@ class Player:
     def reset(self):
         self.x = PLAYER_START_X
         self.y = PLAYER_START_Y
-        self.direction = 0
-        self.direction_command = 0
+        self.direction = PLAYER_START_DIR
+        self.direction_command = PLAYER_START_DIR
