@@ -34,8 +34,7 @@ class Player:
             self.screen.blit(pygame.transform.rotate(self.images[counter // 5], 90), (self.x, self.y))
         elif self.direction == 3:
             self.screen.blit(pygame.transform.rotate(self.images[counter // 5], 270), (self.x, self.y))
-        circle = pygame.draw.circle(self.screen, 'black', (self.center_x, self.center_y), 20, 2)
-        return circle
+        return pygame.Rect(self.center_x - 20, self.center_y - 20, 40, 40)
 
     def check_position(self, level):
         turns = [False, False, False, False]
