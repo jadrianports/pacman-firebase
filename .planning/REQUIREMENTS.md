@@ -1,0 +1,85 @@
+# Requirements: Pac-Man (pacman-firebase)
+
+**Defined:** 2026-06-02
+**Core Value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities that must never silently regress.
+**Milestone:** Solid Foundation (1 of 4)
+**Design spec:** `docs/superpowers/specs/2026-06-02-solid-foundation-design.md`
+
+## v1 Requirements (Milestone: Solid Foundation)
+
+### Harness
+
+- [ ] **HRN-01**: Game runs headless (SDL dummy video/audio) and is steppable one frame at a time via an extracted `tick()` — a behavior-preserving change to `game.py` only
+- [ ] **HRN-02**: A record/replay system captures the full per-frame state trace (each ghost x/y/dir, Pac-Man, score, lives, powerup, dots) and replays it deterministically
+- [ ] **HRN-03**: Rendered frames can be captured to PNG and assembled into montages (for Claude's vision) and a GIF (for the human)
+- [ ] **HRN-04**: Claude can drive the game in an observe→decide→act loop to play and adversarially playtest it
+
+### Tests
+
+- [ ] **TST-01**: Golden-master traces of **current** ghost + game-loop behavior are recorded and frozen
+- [ ] **TST-02**: Micro characterization tests assert current per-ghost decisions (`check_collisions`, `move_blinky/inky/pinky/clyde`)
+- [ ] **TST-03**: Cloud-function validator tests cover initials regex, score type/range, and best-score upsert
+- [ ] **TST-04**: CI runs the full suite headless on push
+
+### Refactor (byte-identical, behind the net)
+
+- [ ] **REF-01**: Tile/board geometry is centralized and magic numbers removed, with golden traces unchanged
+- [ ] **REF-02**: The 4× ghost movement duplication is collapsed into one data-driven turn-priority table, with golden traces byte-identical
+
+### Bug Fix (isolated, last)
+
+- [ ] **BUG-01**: The two inconsistent ghost-box boundary definitions are unified into a single `GHOST_BOX_BOUNDS`, with the behavior change provably isolated to the box region
+
+### Hygiene
+
+- [ ] **HYG-01**: Client dependencies are pinned in `requirements.txt`
+- [ ] **HYG-02**: `.claude/settings.local.json` is untracked and `.gitignore` reconciled
+- [ ] **HYG-03**: Doc drift fixed (box-exit timing in `CLAUDE.md` vs `settings.py`; dead "Change Initials" docstring)
+- [ ] **HYG-04**: Dead duplicate asset folders removed after confirming no references
+
+## v2 / Future Requirements (later milestones)
+
+### More Competitive
+
+- **COMP-01**: Leaderboard anti-cheat / server-side score validation (close the forgeable-score gap)
+- **COMP-02**: Weekly and/or per-level leaderboards
+- **COMP-03**: Web page to view scores without launching the game
+- **COMP-04**: Private friend groups / room codes
+
+### More Fun
+
+- **FUN-01**: Multiple levels / mazes with a difficulty curve
+- **FUN-02**: Fruit bonuses
+- **FUN-03**: New game modes (time attack, endless)
+- **FUN-04**: Optional arcade-accurate ghost mode (opt-in toggle, never default)
+
+### Easier to Share
+
+- **SHR-01**: Browser/web build (play from a link, no install)
+- **SHR-02**: Cross-platform builds (macOS/Linux)
+- **SHR-03**: itch.io release
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| Changing ghost-AI decision behavior in Foundation | Current behavior is the spec; only the box-bounds bug fix is sanctioned |
+| Arcade-accurate ghosts as default | Only ever an opt-in mode (FUN-04) |
+| Real-time twitch AI play | Deterministic step/scripted play is better for testing |
+
+## Traceability
+
+<!-- Populated by the roadmapper during ROADMAP creation. -->
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| (pending roadmap) | | |
+
+**Coverage:**
+- v1 requirements: 13 total
+- Mapped to phases: 0 (pending)
+- Unmapped: 13 ⚠️
+
+---
+*Requirements defined: 2026-06-02*
+*Last updated: 2026-06-02 after initialization*
