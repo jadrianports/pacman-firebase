@@ -69,17 +69,29 @@
 
 ## Traceability
 
-<!-- Populated by the roadmapper during ROADMAP creation. -->
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (pending roadmap) | | |
+| HRN-01 | Phase 1 — Test Safety Net | Pending |
+| HRN-02 | Phase 1 — Test Safety Net | Pending |
+| HRN-03 | Phase 1 — Test Safety Net | Pending |
+| HRN-04 | Phase 1 — Test Safety Net | Pending |
+| TST-01 | Phase 1 — Test Safety Net | Pending |
+| TST-02 | Phase 1 — Test Safety Net | Pending |
+| TST-03 | Phase 1 — Test Safety Net | Pending |
+| TST-04 | Phase 1 — Test Safety Net | Pending |
+| REF-01 | Phase 2 — Safe Refactor | Pending |
+| REF-02 | Phase 2 — Safe Refactor | Pending |
+| BUG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| HYG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| HYG-02 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| HYG-03 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| HYG-04 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
 
 **Coverage:**
-- v1 requirements: 13 total
-- Mapped to phases: 0 (pending)
-- Unmapped: 13 ⚠️
+- v1 requirements: 15 total
+- Mapped to phases: 15 ✓
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-06-02*
-*Last updated: 2026-06-02 after initialization*
+*Last updated: 2026-06-02 after roadmap creation (Milestone 1)*
