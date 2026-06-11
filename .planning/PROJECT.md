@@ -26,13 +26,12 @@ and outplay. **That behavior is precious and must never silently regress.**
 - ✓ Offline resilience — leaderboard degrades gracefully; game fully playable offline — existing
 - ✓ Sound system (waka, power siren, start/death) — existing
 - ✓ Windows `.exe` distribution via PyInstaller — existing
+- ✓ Frame-perfect characterization-test **safety net** (9 golden traces + 15 per-ghost micro tests + determinism guard) + cloud-fn validator tests + **CI merge-gate** on push/PR — *Phase 1 (test-safety-net), 2026-06-11*
 
 ### Active
 
 <!-- Milestone 1: Solid Foundation. See docs/superpowers/specs/2026-06-02-solid-foundation-design.md -->
 
-- [ ] Frame-perfect characterization-test **safety net** around the deterministic game (ghost AI + game loop)
-- [ ] Cloud-function validator tests + **CI** on push
 - [ ] **Behavior-preserving** refactor of the 4× ghost-AI duplication + magic numbers (byte-identical, behind the net)
 - [ ] Fix the latent **ghost-box bounds** inconsistency
 - [ ] Hygiene — pin deps, untrack `settings.local.json`, fix doc drift, remove dead assets
@@ -70,7 +69,7 @@ and outplay. **That behavior is precious and must never silently regress.**
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Tests-first safety net before any refactor | Ghost AI is fragile/hand-tuned; pin behavior so refactor is provably safe | — Pending |
+| Tests-first safety net before any refactor | Ghost AI is fragile/hand-tuned; pin behavior so refactor is provably safe | ✓ Phase 1: 61-test net (9 goldens · 15 micro · determinism · CI-gated); behavior frozen |
 | Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | — Pending |
 | Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | — Pending |
 | Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Pending |

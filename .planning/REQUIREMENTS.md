@@ -9,17 +9,17 @@
 
 ### Harness
 
-- [ ] **HRN-01**: Game runs headless (SDL dummy video/audio) and is steppable one frame at a time via an extracted `tick()` — a behavior-preserving change to `game.py` only
-- [ ] **HRN-02**: A record/replay system captures the full per-frame state trace (each ghost x/y/dir, Pac-Man, score, lives, powerup, dots) and replays it deterministically
-- [ ] **HRN-03**: Rendered frames can be captured to PNG and assembled into montages (for Claude's vision) and a GIF (for the human)
-- [ ] **HRN-04**: Claude can drive the game in an observe→decide→act loop to play and adversarially playtest it
+- [x] **HRN-01**: Game runs headless (SDL dummy video/audio) and is steppable one frame at a time via an extracted `tick()` — a behavior-preserving change to `game.py` only
+- [x] **HRN-02**: A record/replay system captures the full per-frame state trace (each ghost x/y/dir, Pac-Man, score, lives, powerup, dots) and replays it deterministically
+- [x] **HRN-03**: Rendered frames can be captured to PNG and assembled into montages (for Claude's vision) and a GIF (for the human)
+- [x] **HRN-04**: Claude can drive the game in an observe→decide→act loop to play and adversarially playtest it
 
 ### Tests
 
-- [ ] **TST-01**: Golden-master traces of **current** ghost + game-loop behavior are recorded and frozen
-- [ ] **TST-02**: Micro characterization tests assert current per-ghost decisions (`check_collisions`, `move_blinky/inky/pinky/clyde`)
-- [ ] **TST-03**: Cloud-function validator tests cover initials regex, score type/range, and best-score upsert
-- [ ] **TST-04**: CI runs the full suite headless on push
+- [x] **TST-01**: Golden-master traces of **current** ghost + game-loop behavior are recorded and frozen
+- [x] **TST-02**: Micro characterization tests assert current per-ghost decisions (`check_collisions`, `move_blinky/inky/pinky/clyde`)
+- [x] **TST-03**: Cloud-function validator tests cover initials regex, score type/range, and best-score upsert
+- [x] **TST-04**: CI runs the full suite headless on push
 
 ### Refactor (byte-identical, behind the net)
 
@@ -71,14 +71,14 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| HRN-01 | Phase 1 — Test Safety Net | Pending |
-| HRN-02 | Phase 1 — Test Safety Net | Pending |
-| HRN-03 | Phase 1 — Test Safety Net | Pending |
-| HRN-04 | Phase 1 — Test Safety Net | Pending |
-| TST-01 | Phase 1 — Test Safety Net | Pending |
-| TST-02 | Phase 1 — Test Safety Net | Pending |
-| TST-03 | Phase 1 — Test Safety Net | Pending |
-| TST-04 | Phase 1 — Test Safety Net | Pending |
+| HRN-01 | Phase 1 — Test Safety Net | Complete |
+| HRN-02 | Phase 1 — Test Safety Net | Complete |
+| HRN-03 | Phase 1 — Test Safety Net | Complete |
+| HRN-04 | Phase 1 — Test Safety Net | Complete |
+| TST-01 | Phase 1 — Test Safety Net | Complete |
+| TST-02 | Phase 1 — Test Safety Net | Complete |
+| TST-03 | Phase 1 — Test Safety Net | Complete |
+| TST-04 | Phase 1 — Test Safety Net | Complete |
 | REF-01 | Phase 2 — Safe Refactor | Pending |
 | REF-02 | Phase 2 — Safe Refactor | Pending |
 | BUG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
@@ -88,6 +88,7 @@
 | HYG-04 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
 
 **Coverage:**
+
 - v1 requirements: 15 total
 - Mapped to phases: 15 ✓
 - Unmapped: 0
