@@ -736,7 +736,12 @@ mainstream pattern for validator-only cloud-function tests.
 | A6 | Soft-lock N=180 active frames avoids false positives | Pitfall 5 | Medium — tunable per manifest; may need adjustment after first golden runs |
 | A7 | Frame cap 28800 (8 min) is "generous" enough for a full level | Pattern 4 | Low — overridable per scenario; only matters for the win scenario |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+**All three resolved during planning** — resolution paths are baked into the Phase 1 plans; no open blockers remain:
+- Q1 (`@firestore.transactional`) → **RESOLVED** in plan 01-06 (spike-first; default to patching `firestore.transactional` to `lambda f: f`).
+- Q2 (win-scenario frame counts) → **RESOLVED**: generated via the Claude play-loop (D-10) in plan 01-04, not hand-scripted; the safety frame cap backstops runaways.
+- Q3 (`actions/*` major pins) → **RESOLVED** in plan 01-07 (pin current majors `checkout@v6`, `setup-python@v6`).
 
 1. **Does `@firestore.transactional` require patching to test the upsert?** (A2)
    - What we know: the decorator is real under the firebase mock; the inner logic is what we want to test.
@@ -888,10 +893,10 @@ mainstream pattern for validator-only cloud-function tests.
 | Cloud-fn transactional handling | MEDIUM | One spike flagged (A2) |
 | slopcheck audit | DEGRADED | Sandbox-denied; planner adds one human-verify checkpoint |
 
-### Open Questions
-- `@firestore.transactional` may need a pass-through patch to test the upsert (spike at TST-03 start).
-- Exact frame counts for the win/long scenarios — generate via the Claude play-loop, not hand-scripting.
-- Which `actions/*` majors to pin (recommend current `@v6`/`@v6`).
+### Open Questions (RESOLVED)
+- `@firestore.transactional` may need a pass-through patch to test the upsert (spike at TST-03 start). — **RESOLVED:** plan 01-06 spike-first.
+- Exact frame counts for the win/long scenarios — generate via the Claude play-loop, not hand-scripting. — **RESOLVED:** plan 01-04 (D-10).
+- Which `actions/*` majors to pin (recommend current `@v6`/`@v6`). — **RESOLVED:** plan 01-07.
 
 ### Ready for Planning
 Research complete. The nine patterns map 1:1 to HRN-01..04 / TST-01..04 and are written to be lifted directly into tasks. Build in design-spec Phase A→B order (harness + baseline-first, then goldens + micro + cloud-fn + CI).
