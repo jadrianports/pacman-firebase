@@ -119,3 +119,120 @@ def test_check_collisions_tunnel_mouth_left_edge(screen):
     g = make_ghost(screen, 0, 460, target=(900, 460), speed=2, direction=0, ghost_id=0)
     assert g.turns == [True, True, False, False]
     assert g.in_box is False
+
+
+# --------------------------------------------------------------------------- #
+# Per-ghost decisive-state characterization (Task 2)                          #
+#                                                                             #
+# Each move_* returns (x_pos, y_pos, direction). Every expected tuple below   #
+# is the literal the current ghost.py produces (captured by running it). A    #
+# failure names the exact ghost + situation.                                  #
+#                                                                             #
+# Decisive intersection used by the chase/flee cases: (384, 50) facing right  #
+# (dir 0). check_collisions there yields turns [False, True, True, True] —    #
+# right is walled, so the move_* method must BRANCH on the target: a target   #
+# above turns UP (dir 2), a target below turns DOWN (dir 3). The four ghost   #
+# AIs happen to agree at this particular state, which is exactly what we pin: #
+# any future refactor that diverges here will fail the specific ghost's test. #
+#                                                                             #
+# Archetypes covered across the suite (D-13):                                 #
+#   * multi-way intersection : the (384, 50) chase/flee cases                 #
+#   * flee-vs-chase          : same state, runaway target vs chase target     #
+#   * box edge               : clyde dead/in-box fallback at (480, 438)       #
+#   * tunnel mouth           : pinky/inky wrap at the x<-30 / x>900 edges      #
+# --------------------------------------------------------------------------- #
+
+# --- move_blinky --------------------------------------------------------------
+
+def test_blinky_chases_up_at_blocked_intersection(screen):
+    """INTERSECTION + CHASE: blinky dir0 at (384,50), right walled, target up-right.
+
+    Right is blocked so blinky branches on the target; the target is above
+    (y-200) so it turns UP one step.
+    """
+    g = make_ghost(screen, 384, 50, target=(584, -150), speed=2, direction=0, ghost_id=0)
+    assert g.move_blinky() == (384, 48, 2)
+
+
+def test_blinky_flees_down_when_target_is_below(screen):
+    """FLEE-vs-CHASE: same blinky state, runaway target down-left -> turns DOWN.
+
+    With a flee target below+left (e.g. a power-pellet runaway corner), blinky
+    branches DOWN instead of up — the decision flips purely on the target tuple,
+    which is how the game expresses flee (runaway target) vs chase (Pac-Man).
+    """
+    g = make_ghost(screen, 384, 50, target=(184, 250), speed=2, direction=0, ghost_id=0)
+    assert g.move_blinky() == (384, 52, 3)
+
+
+# --- move_inky ----------------------------------------------------------------
+
+def test_inky_turns_up_at_blocked_intersection(screen):
+    """INTERSECTION: inky dir0 at (384,50), right walled, chase target up-right.
+
+    inky turns up/down freely to pursue; with right walled and target above it
+    turns UP.
+    """
+    g = make_ghost(screen, 384, 50, target=(584, -150), speed=2, direction=0, ghost_id=1)
+    assert g.move_inky() == (384, 48, 2)
+
+
+def test_inky_flees_down_when_target_is_below(screen):
+    """FLEE-vs-CHASE: inky same state, runaway target down-left -> turns DOWN."""
+    g = make_ghost(screen, 384, 50, target=(184, 250), speed=2, direction=0, ghost_id=1)
+    assert g.move_inky() == (384, 52, 3)
+
+
+def test_inky_tunnel_mouth_wraps_to_right_edge(screen):
+    """TUNNEL MOUTH: inky dir1 moving left past x<-30 wraps to x=900.
+
+    Starting at x=-28 dir1 (speed 4), inky steps left, crosses the wrap
+    threshold, and check_collisions/move wrap sets x_pos=900 (ghost.py:478-481).
+    """
+    g = make_ghost(screen, -28, 460, target=(-200, 460), speed=4, direction=1, ghost_id=1)
+    assert g.move_inky() == (900, 460, 1)
+
+
+# --- move_pinky ---------------------------------------------------------------
+
+def test_pinky_turns_up_at_blocked_intersection(screen):
+    """INTERSECTION: pinky dir0 at (384,50), right walled, chase target up-right."""
+    g = make_ghost(screen, 384, 50, target=(584, -150), speed=2, direction=0, ghost_id=2)
+    assert g.move_pinky() == (384, 48, 2)
+
+
+def test_pinky_flees_down_when_target_is_below(screen):
+    """FLEE-vs-CHASE: pinky same state, runaway target down-left -> turns DOWN."""
+    g = make_ghost(screen, 384, 50, target=(184, 250), speed=2, direction=0, ghost_id=2)
+    assert g.move_pinky() == (384, 52, 3)
+
+
+def test_pinky_tunnel_mouth_wraps_to_left_edge(screen):
+    """TUNNEL MOUTH: pinky dir0 moving right past x>900 wraps to x=-30.
+
+    Starting at x=898 dir0 (speed 4), pinky steps right past the threshold and
+    the wrap sets x_pos=-30 (ghost.py:604-607).
+    """
+    g = make_ghost(screen, 898, 460, target=(1200, 460), speed=4, direction=0, ghost_id=2)
+    assert g.move_pinky() == (-30, 460, 0)
+
+
+# --- move_clyde (also the dead/in-box fallback per CLAUDE.md) ------------------
+
+def test_clyde_turns_up_at_blocked_intersection(screen):
+    """INTERSECTION: clyde dir0 at (384,50), right walled, chase target up-right."""
+    g = make_ghost(screen, 384, 50, target=(584, -150), speed=2, direction=0, ghost_id=3)
+    assert g.move_clyde() == (384, 48, 2)
+
+
+def test_clyde_dead_in_box_fallback_returns_to_target(screen):
+    """BOX EDGE + dead fallback: clyde dead & in_box at (480,438) heading up.
+
+    move_clyde doubles as the dead/in-box "eyes" fallback (CLAUDE.md). Dead and
+    in the box at (480, 438) dir2 with a target up-left (the box gate at
+    (440, 388)), clyde turns LEFT one step toward the target — the exact move
+    Phase 2 must preserve when it collapses this fallback.
+    """
+    g = make_ghost(screen, 480, 438, target=(440, 388), speed=2, direction=2,
+                   ghost_id=3, dead=True, box=True)
+    assert g.move_clyde() == (478, 438, 1)
