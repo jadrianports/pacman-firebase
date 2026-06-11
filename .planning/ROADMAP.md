@@ -64,10 +64,16 @@ Every risky change is verified four ways:
   3. Rendered frames can be captured to PNG and assembled into montages (for Claude's vision) and a GIF (for the human), and Claude can drive the game in an observe→decide→act loop to play and adversarially playtest at least one full session (HRN-03, HRN-04).
   4. Micro characterization tests assert the current per-ghost decisions (`check_collisions`, `move_blinky/inky/pinky/clyde`) and golden-master traces of current ghost + game-loop behavior — including one Claude-played session — are recorded and frozen (TST-01, TST-02).
   5. Cloud-function validator tests cover initials regex `^[A-Z]{3}$`, score type/range (incl. `MAX_SCORE`), and best-score upsert logic; CI runs the full suite headless on push and is green (TST-03, TST-04).
-**Plans**: TBD
+**Plans**: 7 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Dev deps (pinned, human-verified) + headless bootstrap + first conftest.py
+- [ ] 01-02-PLAN.md — tick() extraction (baseline-first) + trace schema + record/replay driver
+- [ ] 01-03-PLAN.md — Frame capture (PNG/montage/GIF) + Claude observe->decide->act play-loop
+- [ ] 01-04-PLAN.md — 8 scripted + 1 Claude-session golden traces + invariants + --bless + determinism guard
+- [ ] 01-05-PLAN.md — Micro per-ghost characterization tests (check_collisions, move_*)
+- [ ] 01-06-PLAN.md — Cloud-function validator + is_new_best upsert tests (firebase mocked)
+- [ ] 01-07-PLAN.md — Headless GitHub Actions CI + branch protection on main
 
 ### Phase 2: Safe Refactor
 **Goal**: The highest-debt code (board geometry magic numbers + the 4× ghost movement duplication) is cleaned up with mathematical proof that ghost-AI behavior is byte-for-byte unchanged.
@@ -112,6 +118,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 0/TBD | Not started | - |
+| 1. Test Safety Net | 0/7 | Not started | - |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
