@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 — Wave 2: 01-05/01-06 done; next 01-02 tick() extraction (branch gsd/phase-01-test-safety-net)
+stopped_at: Phase 01 — Wave 2 done (tick() byte-identical); next Wave 3: 01-03 capture/play-loop (branch gsd/phase-01-test-safety-net)
 last_updated: "2026-06-11T04:10:48.154Z"
-last_activity: 2026-06-11 -- Phase 01 plan 01-06 (cloud-fn validator + upsert tests) complete
+last_activity: 2026-06-11 -- Phase 01 plan 01-02 (steppable tick() extraction, byte-identical) complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
-  percent: 43
+  completed_plans: 4
+  percent: 57
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 01 (test-safety-net) — EXECUTING
-Plan: 3 of 7 complete — Wave 2 final step next: 01-02 (delicate tick() extraction)
+Plan: 4 of 7 complete — Wave 2 done; next Wave 3: 01-03 (PNG capture + Claude play-loop)
 Status: Executing Phase 01 on branch gsd/phase-01-test-safety-net
-Last activity: 2026-06-11 -- Plan 01-06 (cloud-fn validator + upsert tests) complete
+Last activity: 2026-06-11 -- Plan 01-02 (steppable tick() extraction, byte-identical to baseline) complete
 
-Progress: [████░░░░░░] 43%
+Progress: [██████░░░░] 57%
 
 ## Performance Metrics
 
