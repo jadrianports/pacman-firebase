@@ -86,7 +86,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-03-PLAN.md — Frame capture (PNG/montage/GIF) + Claude observe->decide->act play-loop
+- [x] 01-03-PLAN.md — Frame capture (PNG/montage/GIF) + Claude observe->decide->act play-loop
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -147,6 +147,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 4/7 | In Progress|  |
+| 1. Test Safety Net | 5/7 | In Progress|  |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |

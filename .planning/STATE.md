@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 — Wave 2 done (tick() byte-identical); next Wave 3: 01-03 capture/play-loop (branch gsd/phase-01-test-safety-net)
+stopped_at: Phase 01 — Wave 3 done; next Wave 4: 01-04 golden masters (branch gsd/phase-01-test-safety-net)
 last_updated: "2026-06-11T04:10:48.154Z"
-last_activity: 2026-06-11 -- Phase 01 plan 01-02 (steppable tick() extraction, byte-identical) complete
+last_activity: 2026-06-11 -- Phase 01 plan 01-03 (frame capture + Claude play-loop) complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 7
-  completed_plans: 4
-  percent: 57
+  completed_plans: 5
+  percent: 71
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 01 (test-safety-net) — EXECUTING
-Plan: 4 of 7 complete — Wave 2 done; next Wave 3: 01-03 (PNG capture + Claude play-loop)
+Plan: 5 of 7 complete — next Wave 4: 01-04 (golden-master traces)
 Status: Executing Phase 01 on branch gsd/phase-01-test-safety-net
-Last activity: 2026-06-11 -- Plan 01-02 (steppable tick() extraction, byte-identical to baseline) complete
+Last activity: 2026-06-11 -- Plan 01-03 (frame capture + Claude play-loop) complete
 
-Progress: [██████░░░░] 57%
+Progress: [███████░░░] 71%
 
 ## Performance Metrics
 
