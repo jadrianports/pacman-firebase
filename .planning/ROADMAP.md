@@ -76,7 +76,7 @@ Every risky change is verified four ways:
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Dev deps (pinned, human-verified) + headless bootstrap + first conftest.py
+- [x] 01-01-PLAN.md — Dev deps (pinned, human-verified) + headless bootstrap + first conftest.py
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -147,6 +147,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 0/7 | Not started | - |
+| 1. Test Safety Net | 1/7 | In Progress|  |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
