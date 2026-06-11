@@ -53,7 +53,7 @@ Every risky change is verified four ways:
 - Integer phases (1, 2, 3): Planned milestone work
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
-- [ ] **Phase 1: Test Safety Net** - Build the headless record/replay + capture harness and freeze current behavior in golden masters, micro per-ghost tests, cloud-function validator tests, and CI.
+- [x] **Phase 1: Test Safety Net** - Build the headless record/replay + capture harness and freeze current behavior in golden masters, micro per-ghost tests, cloud-function validator tests, and CI. (completed 2026-06-11)
 - [ ] **Phase 2: Safe Refactor** - Collapse the 4× ghost-AI duplication and centralize board geometry *behind the net*, with golden traces byte-identical.
 - [ ] **Phase 3: Box-Bug Fix + Hygiene** - Unify the ghost-box bounds (the one sanctioned, isolated behavior change) and finish dependency/repo/doc/asset cleanup.
 
@@ -94,7 +94,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-07-PLAN.md — Headless GitHub Actions CI + branch protection on main
+- [x] 01-07-PLAN.md — Headless GitHub Actions CI + branch protection on main
 
 ### Phase 2: Safe Refactor
 
@@ -147,6 +147,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 6/7 | In Progress|  |
+| 1. Test Safety Net | 7/7 | Complete   | 2026-06-11 |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
