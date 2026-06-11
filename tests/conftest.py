@@ -28,6 +28,34 @@ os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
 
+def _ensure_default_font():
+    """Make game.py's font asset available on any clean checkout (CI / fresh clone).
+
+    game.py:22 loads resource_path('freesansbold.ttf'), but that file is gitignored,
+    so a clean checkout lacks it and Game() raises FileNotFoundError before any logic
+    runs. The asset is pygame's own default font (byte-identical), so copy pygame's
+    bundled copy into place when it is missing. This is test-environment setup only:
+    it does NOT change game behavior, and it no-ops when the font already exists
+    (e.g. dev machines, where the file is present but gitignored).
+    """
+    try:
+        from paths import resource_path
+        import pygame
+    except Exception:
+        return
+    dst = resource_path("freesansbold.ttf")
+    if os.path.exists(dst):
+        return
+    import shutil
+    src = os.path.join(os.path.dirname(pygame.__file__), "freesansbold.ttf")
+    if os.path.exists(src):
+        os.makedirs(os.path.dirname(dst) or ".", exist_ok=True)
+        shutil.copyfile(src, dst)
+
+
+_ensure_default_font()
+
+
 def pytest_addoption(parser):
     """Register --bless; Plan 04 reads it via request.config.getoption('--bless')."""
     parser.addoption(
