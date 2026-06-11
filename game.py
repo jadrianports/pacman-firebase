@@ -453,6 +453,103 @@ class Game:
         if self.game_won and not was_won:
             self.sound.stop_all()
 
+    def tick(self):
+        """One frame of update — the verbatim body of run()'s while-loop, minus the
+        FPS throttle (which stays in run() only, D-17) and the return_to_menu
+        early-return. Returns False when a QUIT was received (mirrors handle_events),
+        else True, so the interactive run() loop still exits on window close. This is
+        the steppable seam the headless harness drives one frame at a time."""
+        # Animation counter
+        if self.counter < 19:
+            self.counter += 1
+            if self.counter > 3:
+                self.flicker = False
+        else:
+            self.counter = 0
+            self.flicker = True
+
+        # Eat-freeze: brief pause when eating a ghost
+        if self.eat_freeze:
+            self.eat_freeze_timer -= 1
+            if self.eat_freeze_timer <= 0:
+                self.eat_freeze = False
+                self.sound.unpause_powerup()
+
+        # Powerup timer (don't tick during eat freeze)
+        if self.powerup and not self.eat_freeze and self.power_counter < 600:
+            self.power_counter += 1
+        elif self.powerup and not self.eat_freeze and self.power_counter >= 600:
+            self.power_counter = 0
+            self.powerup = False
+            self.eaten_ghost = [False, False, False, False]
+            self.sound.stop_powerup()
+
+        # Starting phase: play start sound, wait until it finishes
+        if self.starting and not self.dying and not self.game_over and not self.game_won:
+            self.moving = False
+            if not self.start_sound_played:
+                self.sound.play_start()
+                self.start_sound_played = True
+            elif not self.sound.is_start_playing():
+                self.starting = False
+                self.moving = True
+
+        # Dying phase: wait for death sound + 1 sec delay
+        if self.dying:
+            self.moving = False
+            if not self.sound.is_death_playing():
+                self.dying_delay += 1
+                if self.dying_delay >= 60:
+                    self.dying = False
+                    self.dying_delay = 0
+                    if self.lives > 0:
+                        self.lives -= 1
+                        self.reset_after_death()
+                    else:
+                        self.game_over = True
+
+        # Draw
+        self.screen.fill('black')
+        self.draw_board()
+        self.update_ghost_speeds()
+        self.check_win()
+
+        if not self.eat_freeze:
+            player_circle = self.player.draw(self.counter)
+        self.create_ghosts()
+        self.draw_misc()
+        self.draw_ready()
+        if self.eat_freeze:
+            # Hide the eaten ghost's eyes by covering with black
+            gx, gy = self.eat_freeze_pos
+            pygame.draw.rect(self.screen, 'black', (gx, gy, 45, 45))
+            score_text = self.score_popup_font.render(str(self.eat_freeze_score), True, 'cyan')
+            score_rect = score_text.get_rect(center=(gx + 23, gy + 24))
+            self.screen.blit(score_text, score_rect)
+        self.targets = self.get_targets()
+
+        # Tick box exit timers while gameplay is active
+        if self.moving and not self.eat_freeze:
+            for i in range(4):
+                self.box_exit_timers[i] += 1
+
+        self.player.check_position(self.level)
+        if self.moving and not self.eat_freeze:
+            self.player.move()
+            self.move_ghosts()
+        if not self.dying and not self.eat_freeze and not self.starting:
+            self.check_collisions()
+            self.check_ghost_collisions(player_circle)
+
+        # Input
+        running = self.handle_events()
+        self.player.update_direction()
+        self.player.wrap_around()
+        self.check_ghost_in_box()
+
+        pygame.display.flip()
+        return running
+
     def run(self):
         running = True
         while running:
@@ -460,96 +557,7 @@ class Game:
                 self.sound.stop_all()
                 return {"score": self.score, "game_won": self.game_won}
             self.timer.tick(FPS)
-
-            # Animation counter
-            if self.counter < 19:
-                self.counter += 1
-                if self.counter > 3:
-                    self.flicker = False
-            else:
-                self.counter = 0
-                self.flicker = True
-
-            # Eat-freeze: brief pause when eating a ghost
-            if self.eat_freeze:
-                self.eat_freeze_timer -= 1
-                if self.eat_freeze_timer <= 0:
-                    self.eat_freeze = False
-                    self.sound.unpause_powerup()
-
-            # Powerup timer (don't tick during eat freeze)
-            if self.powerup and not self.eat_freeze and self.power_counter < 600:
-                self.power_counter += 1
-            elif self.powerup and not self.eat_freeze and self.power_counter >= 600:
-                self.power_counter = 0
-                self.powerup = False
-                self.eaten_ghost = [False, False, False, False]
-                self.sound.stop_powerup()
-
-            # Starting phase: play start sound, wait until it finishes
-            if self.starting and not self.dying and not self.game_over and not self.game_won:
-                self.moving = False
-                if not self.start_sound_played:
-                    self.sound.play_start()
-                    self.start_sound_played = True
-                elif not self.sound.is_start_playing():
-                    self.starting = False
-                    self.moving = True
-
-            # Dying phase: wait for death sound + 1 sec delay
-            if self.dying:
-                self.moving = False
-                if not self.sound.is_death_playing():
-                    self.dying_delay += 1
-                    if self.dying_delay >= 60:
-                        self.dying = False
-                        self.dying_delay = 0
-                        if self.lives > 0:
-                            self.lives -= 1
-                            self.reset_after_death()
-                        else:
-                            self.game_over = True
-
-            # Draw
-            self.screen.fill('black')
-            self.draw_board()
-            self.update_ghost_speeds()
-            self.check_win()
-
-            if not self.eat_freeze:
-                player_circle = self.player.draw(self.counter)
-            self.create_ghosts()
-            self.draw_misc()
-            self.draw_ready()
-            if self.eat_freeze:
-                # Hide the eaten ghost's eyes by covering with black
-                gx, gy = self.eat_freeze_pos
-                pygame.draw.rect(self.screen, 'black', (gx, gy, 45, 45))
-                score_text = self.score_popup_font.render(str(self.eat_freeze_score), True, 'cyan')
-                score_rect = score_text.get_rect(center=(gx + 23, gy + 24))
-                self.screen.blit(score_text, score_rect)
-            self.targets = self.get_targets()
-
-            # Tick box exit timers while gameplay is active
-            if self.moving and not self.eat_freeze:
-                for i in range(4):
-                    self.box_exit_timers[i] += 1
-
-            self.player.check_position(self.level)
-            if self.moving and not self.eat_freeze:
-                self.player.move()
-                self.move_ghosts()
-            if not self.dying and not self.eat_freeze and not self.starting:
-                self.check_collisions()
-                self.check_ghost_collisions(player_circle)
-
-            # Input
-            running = self.handle_events()
-            self.player.update_direction()
-            self.player.wrap_around()
-            self.check_ghost_in_box()
-
-            pygame.display.flip()
+            running = self.tick()
 
         self.sound.stop_all()
         return None
