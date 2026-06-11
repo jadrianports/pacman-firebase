@@ -82,7 +82,7 @@ Plans:
 
 - [ ] 01-02-PLAN.md — tick() extraction (baseline-first) + trace schema + record/replay driver
 - [x] 01-05-PLAN.md — Micro per-ghost characterization tests (check_collisions, move_*)
-- [ ] 01-06-PLAN.md — Cloud-function validator + is_new_best upsert tests (firebase mocked)
+- [x] 01-06-PLAN.md — Cloud-function validator + is_new_best upsert tests (firebase mocked)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -147,6 +147,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 2/7 | In Progress|  |
+| 1. Test Safety Net | 3/7 | In Progress|  |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |

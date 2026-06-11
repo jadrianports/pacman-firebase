@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 — Wave 2: 01-05 done; next 01-06 then 01-02 (branch gsd/phase-01-test-safety-net)
+stopped_at: Phase 01 — Wave 2: 01-05/01-06 done; next 01-02 tick() extraction (branch gsd/phase-01-test-safety-net)
 last_updated: "2026-06-11T04:10:48.154Z"
-last_activity: 2026-06-11 -- Phase 01 plan 01-05 (ghost micro-characterization, 15 tests) complete
+last_activity: 2026-06-11 -- Phase 01 plan 01-06 (cloud-fn validator + upsert tests) complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 7
-  completed_plans: 2
-  percent: 28
+  completed_plans: 3
+  percent: 43
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 01 (test-safety-net) — EXECUTING
-Plan: 2 of 7 complete — Wave 2 in progress (01-05 done; next 01-06, then 01-02)
+Plan: 3 of 7 complete — Wave 2 final step next: 01-02 (delicate tick() extraction)
 Status: Executing Phase 01 on branch gsd/phase-01-test-safety-net
-Last activity: 2026-06-11 -- Plan 01-05 (ghost micro-characterization, 15 tests) complete
+Last activity: 2026-06-11 -- Plan 01-06 (cloud-fn validator + upsert tests) complete
 
-Progress: [███░░░░░░░] 28%
+Progress: [████░░░░░░] 43%
 
 ## Performance Metrics
 
