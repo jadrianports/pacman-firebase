@@ -31,5 +31,6 @@ def get_leaderboard(request):
             data = d.to_dict()
             entries.append({"initials": data["initials"], "score": data["score"]})
         return ({"entries": entries}, 200, headers)
-    except Exception:
+    except Exception as e:
+        print(f"Leaderboard fetch failed: {e}")
         return ({"entries": [], "error": "Failed to fetch leaderboard"}, 500, headers)

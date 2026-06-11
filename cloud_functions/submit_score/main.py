@@ -8,6 +8,22 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
+MAX_SCORE = 500_000
+
+
+@firestore.transactional
+def _update_score(transaction, doc_ref, initials, score, machine_id):
+    doc = doc_ref.get(transaction=transaction)
+    if doc.exists and score <= doc.to_dict().get("score", 0):
+        return False
+    transaction.set(doc_ref, {
+        "initials": initials,
+        "score": score,
+        "machine_id": machine_id,
+        "updated_at": firestore.SERVER_TIMESTAMP,
+    })
+    return True
+
 
 @functions_framework.http
 def submit_score(request):
@@ -32,21 +48,14 @@ def submit_score(request):
         return ({"success": False, "error": "Missing machine_id"}, 400, headers)
     if not re.match(r"^[A-Z]{3}$", initials):
         return ({"success": False, "error": "Invalid initials"}, 400, headers)
-    if not isinstance(score, int) or score < 0:
+    if not isinstance(score, int) or score < 0 or score > MAX_SCORE:
         return ({"success": False, "error": "Invalid score"}, 400, headers)
 
-    doc_ref = db.collection("leaderboard").document(machine_id)
-    doc = doc_ref.get()
-
-    if doc.exists:
-        existing_score = doc.to_dict().get("score", 0)
-        if score <= existing_score:
-            return ({"success": True, "is_new_best": False}, 200, headers)
-
-    doc_ref.set({
-        "initials": initials,
-        "score": score,
-        "machine_id": machine_id,
-        "updated_at": firestore.SERVER_TIMESTAMP,
-    })
-    return ({"success": True, "is_new_best": True}, 200, headers)
+    try:
+        doc_ref = db.collection("leaderboard").document(machine_id)
+        transaction = db.transaction()
+        is_new_best = _update_score(transaction, doc_ref, initials, score, machine_id)
+        return ({"success": True, "is_new_best": is_new_best}, 200, headers)
+    except Exception as e:
+        print(f"Score submission failed: {e}")
+        return ({"success": False, "error": "Internal error"}, 500, headers)
