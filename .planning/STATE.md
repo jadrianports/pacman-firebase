@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 01 — Wave 3 done; next Wave 4: 01-04 golden masters (branch gsd/phase-01-test-safety-net)
+stopped_at: Phase 01 — Wave 4 done (9 goldens frozen, suite 61); next Wave 5: 01-07 CI (human checkpoint) (branch gsd/phase-01-test-safety-net)
 last_updated: "2026-06-11T04:10:48.154Z"
-last_activity: 2026-06-11 -- Phase 01 plan 01-03 (frame capture + Claude play-loop) complete
+last_activity: 2026-06-11 -- Phase 01 plan 01-04 (9 golden-master traces frozen, determinism guard) complete
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 7
-  completed_plans: 5
-  percent: 71
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 ## Current Position
 
 Phase: 01 (test-safety-net) — EXECUTING
-Plan: 5 of 7 complete — next Wave 4: 01-04 (golden-master traces)
+Plan: 6 of 7 complete — next Wave 5: 01-07 (CI workflow + branch protection — human checkpoint)
 Status: Executing Phase 01 on branch gsd/phase-01-test-safety-net
-Last activity: 2026-06-11 -- Plan 01-03 (frame capture + Claude play-loop) complete
+Last activity: 2026-06-11 -- Plan 01-04 (9 golden masters frozen; suite 61 passed) complete
 
-Progress: [███████░░░] 71%
+Progress: [████████░░] 86%
 
 ## Performance Metrics
 

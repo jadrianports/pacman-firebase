@@ -90,7 +90,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-04-PLAN.md — 8 scripted + 1 Claude-session golden traces + invariants + --bless + determinism guard
+- [x] 01-04-PLAN.md — 8 scripted + 1 Claude-session golden traces + invariants + --bless + determinism guard
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -147,6 +147,6 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Test Safety Net | 5/7 | In Progress|  |
+| 1. Test Safety Net | 6/7 | In Progress|  |
 | 2. Safe Refactor | 0/TBD | Not started | - |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
