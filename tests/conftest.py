@@ -38,6 +38,33 @@ def pytest_addoption(parser):
     )
 
 
+# Golden-master registry helpers (Plan 04). The committed scenario registry lives at
+# tests/golden/manifest.json; these expose it to tests without each test re-deriving
+# the path. test_golden_traces.py parametrizes over load_golden_manifest() directly at
+# import time; the fixture is provided for any test that prefers fixture injection.
+_GOLDEN_DIR = os.path.join(os.path.dirname(__file__), "golden")
+
+
+def load_golden_manifest():
+    """Return the list of scenario entries from tests/golden/manifest.json."""
+    import json
+
+    with open(os.path.join(_GOLDEN_DIR, "manifest.json"), "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+@pytest.fixture
+def golden_manifest():
+    """The golden-master scenario registry (tests/golden/manifest.json) as a list."""
+    return load_golden_manifest()
+
+
+@pytest.fixture
+def golden_dir():
+    """Absolute path to the committed golden-master directory (tests/golden/)."""
+    return _GOLDEN_DIR
+
+
 def _import_cloud_fn(dotted, mock_client):
     """Import a cloud-function module under firebase mocks.
 
