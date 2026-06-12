@@ -28,7 +28,7 @@
 
 ### Bug Fix (isolated, last)
 
-- [ ] **BUG-01**: The two inconsistent ghost-box boundary definitions are unified into a single `GHOST_BOX_BOUNDS`, with the behavior change provably isolated to the box region
+- [x] **BUG-01**: The two inconsistent ghost-box boundary definitions are unified into a single `GHOST_BOX_BOUNDS`, with the behavior change provably isolated to the box region _(implementation complete 03-02; isolation proven by differential oracle — 18,496 cmp / 1,728 in-ring / 0 out-of-ring; CI-green verification completes on the deferred Linux re-bless of all 9 golden traces)_
 
 ### Hygiene
 
@@ -81,7 +81,7 @@
 | TST-04 | Phase 1 — Test Safety Net | Complete |
 | REF-01 | Phase 2 — Safe Refactor | Complete |
 | REF-02 | Phase 2 — Safe Refactor | Complete |
-| BUG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| BUG-01 | Phase 3 — Box-Bug Fix + Hygiene (03-02) | Complete (impl) — CI-green pending Linux re-bless |
 | HYG-01 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
 | HYG-02 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
 | HYG-03 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
@@ -95,4 +95,4 @@
 
 ---
 *Requirements defined: 2026-06-02*
-*Last updated: 2026-06-02 after roadmap creation (Milestone 1)*
+*Last updated: 2026-06-12 — BUG-01 implementation complete (03-02); CI-green verification pending deferred Linux re-bless of all 9 golden traces*

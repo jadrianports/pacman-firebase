@@ -55,7 +55,7 @@ Every risky change is verified four ways:
 
 - [x] **Phase 1: Test Safety Net** - Build the headless record/replay + capture harness and freeze current behavior in golden masters, micro per-ghost tests, cloud-function validator tests, and CI. (completed 2026-06-11)
 - [x] **Phase 2: Safe Refactor** - Collapse the 4× ghost-AI duplication and centralize board geometry *behind the net*, with golden traces byte-identical. (completed 2026-06-12)
-- [ ] **Phase 3: Box-Bug Fix + Hygiene** - Unify the ghost-box bounds (the one sanctioned, isolated behavior change) and finish dependency/repo/doc/asset cleanup.
+- [x] **Phase 3: Box-Bug Fix + Hygiene** - Unify the ghost-box bounds (the one sanctioned, isolated behavior change) and finish dependency/repo/doc/asset cleanup. (completed 2026-06-12)
 
 ## Phase Details
 
@@ -142,7 +142,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — D-09 hygiene-first/fix-last)*
 
-- [ ] 03-02-PLAN.md — Box-bug fix (BUG-01): unify GHOST_BOX_BOUNDS onto the collision box (D-01), repoint both importers (get_targets = the only value change, check_collisions byte-identical). Differential oracle + belt-check + teeth-check then one-shot delete (D-03/D-04/D-05), Linux-CI re-bless of box-edge frames only (D-06), required Claude playtest (D-07) + human GIF gate (D-08). The single isolated trace-touching commit.
+- [x] 03-02-PLAN.md — Box-bug fix (BUG-01): unify GHOST_BOX_BOUNDS onto the collision box (D-01), repoint both importers (get_targets = the only value change, check_collisions byte-identical). Differential oracle + belt-check + teeth-check then one-shot delete (D-03/D-04/D-05), Linux-CI re-bless of box-edge frames only (D-06), required Claude playtest (D-07) + human GIF gate (D-08). The single isolated trace-touching commit.
 
 ## Future Milestones
 
@@ -161,4 +161,4 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
 | 2. Safe Refactor | 2/2 | Complete    | 2026-06-12 |
-| 3. Box-Bug Fix + Hygiene | 1/2 | In Progress|  |
+| 3. Box-Bug Fix + Hygiene | 2/2 | Complete   | 2026-06-12 |
