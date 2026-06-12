@@ -1,13 +1,14 @@
-"""Shared tile-geometry helpers + the two distinct ghost-box bounds (REF-01, D-14/D-16).
+"""Shared tile-geometry helpers + the unified ghost-box bounds (REF-01; BUG-01/D-01).
 
 Centralizes the trivially-atomic geometry idioms that game/ghost/player all repeated:
 the tile-coordinate lookup, the project-wide ``< 3`` walkability test, and the box-region
 predicate that collapses ~9 inline ``x_lo < x < x_hi and y_lo < y < y_hi`` checks.
 
-The two box rectangles are intentionally kept as TWO DISTINCT named constants — the
-collision box and the targeting box genuinely differ on both axes (the latent BUG-01
-inconsistency). Phase 3 / BUG-01 unifies them by pointing both at one constant; doing so
-here is OUT OF SCOPE. Do NOT merge these.
+The ghost box is a SINGLE rectangle ``GHOST_BOX_BOUNDS``, consumed by both
+``ghost.py:check_collisions`` (the physical in_box flag — turn legality, box-exit timing,
+dead-ghost revival) and ``game.py:get_targets`` (the eaten-ghost targeting check). BUG-01
+unified the two formerly-divergent constants onto the tighter collision box (D-01); the
+looser targeting heuristic now conforms to the physical box rather than vice versa.
 
 D-15 landmine: share ONLY ``tile_at`` / ``is_walkable`` / ``in_box``. The alignment-band
 and guard logic of ``Ghost.check_collisions`` and ``Player.check_position`` are structurally
@@ -15,9 +16,12 @@ divergent and must NOT be factored into a shared function.
 """
 from settings import TILE_HEIGHT, TILE_WIDTH
 
-# Two distinct box rectangles (x_lo, x_hi, y_lo, y_hi) — kept separate per D-13/D-14.
-GHOST_BOX_BOUNDS_COLLISION = (350, 550, 360, 480)   # ghost.py check_collisions box test
-GHOST_BOX_BOUNDS_TARGET = (340, 560, 340, 500)      # game.py get_targets eaten-ghost checks
+# Single ghost-box rectangle (x_lo, x_hi, y_lo, y_hi), used by both ghost.py:check_collisions
+# and game.py:get_targets (BUG-01/D-01). Historical divergence (do NOT re-split): this was
+# once TWO constants — a looser targeting box (340,560,340,500) for get_targets vs the
+# tighter collision box (350,550,360,480) for check_collisions. They were unified onto the
+# tighter collision box per BUG-01/D-01 (the targeting box conforms to physics).
+GHOST_BOX_BOUNDS = (350, 550, 360, 480)
 
 
 def tile_at(center_x, center_y, level):

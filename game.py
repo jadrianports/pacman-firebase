@@ -15,7 +15,7 @@ from settings import (
     CLYDE_START_X, CLYDE_START_Y, CLYDE_START_DIR,
     BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE,
 )
-from geometry import in_box, GHOST_BOX_BOUNDS_TARGET
+from geometry import in_box, GHOST_BOX_BOUNDS
 
 
 class Game:
@@ -237,7 +237,7 @@ class Game:
             if not self.blinky.dead and not self.eaten_ghost[0]:
                 blink_target = (runaway_x, runaway_y)
             elif not self.blinky.dead and self.eaten_ghost[0]:
-                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS):
                     blink_target = SCATTER_EATEN_TARGET
                 else:
                     blink_target = (self.player.x, self.player.y)
@@ -246,7 +246,7 @@ class Game:
             if not self.inky.dead and not self.eaten_ghost[1]:
                 ink_target = (runaway_x, self.player.y)
             elif not self.inky.dead and self.eaten_ghost[1]:
-                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS):
                     ink_target = SCATTER_EATEN_TARGET
                 else:
                     ink_target = (self.player.x, self.player.y)
@@ -255,7 +255,7 @@ class Game:
             if not self.pinky.dead and not self.eaten_ghost[2]:
                 pink_target = (self.player.x, runaway_y)
             elif not self.pinky.dead and self.eaten_ghost[2]:
-                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS):
                     pink_target = SCATTER_EATEN_TARGET
                 else:
                     pink_target = (self.player.x, self.player.y)
@@ -264,7 +264,7 @@ class Game:
             if not self.clyde.dead and not self.eaten_ghost[3]:
                 clyd_target = SCATTER_CLYDE_TARGET
             elif not self.clyde.dead and self.eaten_ghost[3]:
-                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS):
                     clyd_target = SCATTER_EATEN_TARGET
                 else:
                     clyd_target = (self.player.x, self.player.y)
@@ -272,28 +272,28 @@ class Game:
                 clyd_target = return_target
         else:
             if not self.blinky.dead:
-                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS):
                     blink_target = SCATTER_EATEN_TARGET
                 else:
                     blink_target = (self.player.x, self.player.y)
             else:
                 blink_target = return_target
             if not self.inky.dead:
-                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS):
                     ink_target = SCATTER_EATEN_TARGET
                 else:
                     ink_target = (self.player.x, self.player.y)
             else:
                 ink_target = return_target
             if not self.pinky.dead:
-                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS):
                     pink_target = SCATTER_EATEN_TARGET
                 else:
                     pink_target = (self.player.x, self.player.y)
             else:
                 pink_target = return_target
             if not self.clyde.dead:
-                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS_TARGET):
+                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS):
                     clyd_target = SCATTER_EATEN_TARGET
                 else:
                     clyd_target = (self.player.x, self.player.y)

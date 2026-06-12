@@ -1,7 +1,7 @@
 import pygame
 from collections import namedtuple
 from settings import TILE_HEIGHT, TILE_WIDTH, HALF_TILE, BOARD_COLS
-from geometry import in_box, GHOST_BOX_BOUNDS_COLLISION
+from geometry import in_box, GHOST_BOX_BOUNDS
 
 
 # --------------------------------------------------------------------------- #
@@ -381,7 +381,7 @@ class Ghost:
         else:
             self.turns[0] = True
             self.turns[1] = True
-        if in_box(self.x_pos, self.y_pos, GHOST_BOX_BOUNDS_COLLISION):
+        if in_box(self.x_pos, self.y_pos, GHOST_BOX_BOUNDS):
             self.in_box = True
         else:
             self.in_box = False
