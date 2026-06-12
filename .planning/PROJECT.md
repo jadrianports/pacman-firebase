@@ -27,12 +27,12 @@ and outplay. **That behavior is precious and must never silently regress.**
 - ✓ Sound system (waka, power siren, start/death) — existing
 - ✓ Windows `.exe` distribution via PyInstaller — existing
 - ✓ Frame-perfect characterization-test **safety net** (9 golden traces + 15 per-ghost micro tests + determinism guard) + cloud-fn validator tests + **CI merge-gate** on push/PR — *Phase 1 (test-safety-net), 2026-06-11*
+- ✓ **Behavior-preserving refactor** — centralized tile/board geometry (REF-01) + collapsed the 4× ghost-AI duplication into a data-driven `_move` + per-ghost profiles (REF-02), proven byte-identical by differential oracles + golden traces — *Phase 2 (safe-refactor), 2026-06-12*
 
 ### Active
 
 <!-- Milestone 1: Solid Foundation. See docs/superpowers/specs/2026-06-02-solid-foundation-design.md -->
 
-- [ ] **Behavior-preserving** refactor of the 4× ghost-AI duplication + magic numbers (byte-identical, behind the net)
 - [ ] Fix the latent **ghost-box bounds** inconsistency
 - [ ] Hygiene — pin deps, untrack `settings.local.json`, fix doc drift, remove dead assets
 
@@ -70,7 +70,7 @@ and outplay. **That behavior is precious and must never silently regress.**
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Tests-first safety net before any refactor | Ghost AI is fragile/hand-tuned; pin behavior so refactor is provably safe | ✓ Phase 1: 61-test net (9 goldens · 15 micro · determinism · CI-gated); behavior frozen |
-| Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | — Pending |
+| Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | ◆ Phase 2: refactor landed byte-identical (oracles + goldens green); isolated box-bug fix is Phase 3 |
 | Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | — Pending |
 | Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Pending |
 | Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | — Pending |
@@ -93,4 +93,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-02 after initialization*
+*Last updated: 2026-06-12 after Phase 2 (safe-refactor) completion*
