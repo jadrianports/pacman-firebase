@@ -149,3 +149,11 @@ None. Pure internal refactor of local game logic — no new network, input-parsi
 - REF-02 complete and proven. ROADMAP Phase 2 SC#2/SC#3 satisfied: 4x mover duplication collapsed into one data-driven turn-priority table; golden traces byte-identical; differential oracle (now deleted) gave the mathematical proof; mutation canary attested the net.
 - The two box constants remain distinct (Plan 01) — Phase 3 / BUG-01 owns the one-line unification.
 - The D-19 end-of-phase human before/after GIF gate is owned by the phase orchestrator, not this plan.
+
+## Self-Check: PASSED
+
+All claimed files verified present (ghost.py, CLAUDE.md on disk, 02-02-SUMMARY.md). All four one-shot oracle artifacts verified deleted. All task commits verified in git log (f8c88b5, e8d1bff, ffcb1c3, 3b40dd4, b2d5f8b, 3a13c2f, 0479e12). game.py:move_ghosts byte-identical (no diff). Full suite green without oracles: 61 passed, 9 skipped.
+
+---
+*Phase: 02-safe-refactor*
+*Completed: 2026-06-12*
