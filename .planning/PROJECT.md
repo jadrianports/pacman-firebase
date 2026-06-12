@@ -51,12 +51,16 @@ _No active requirements — **Milestone 1 (Solid Foundation) is complete.** Star
 
 ## Context
 
+- **Shipped v1.0 (Solid Foundation), 2026-06-12.** 3 phases · 11 plans · 84 commits over ~10 days.
+  ~3,500 LOC Python (client). The codebase is now safe to extend: ghost-AI behavior is pinned by a
+  CI-gated golden net (9 traces + 15 micro tests + frame-hash + determinism guard), the 4× mover
+  duplication is collapsed into a data-driven `_move`, and the one latent box-bounds bug is fixed.
 - **Brownfield, mapped.** 7 codebase-map docs in `.planning/codebase/`. Milestone design spec:
   `docs/superpowers/specs/2026-06-02-solid-foundation-design.md`.
 - **Fully deterministic game** — no `random`, no wall-clock timing; fixed-timestep frame counters.
   This is what makes record/replay characterization testing frame-perfect.
-- **Fragile heart.** `ghost.py` (~600 lines) has four near-identical, hand-tuned movement methods. The
-  riskiest code (ghost AI, game loop) currently has **zero tests**.
+- **The fragile heart is now netted.** `ghost.py`'s four hand-tuned movers (the riskiest code) went
+  from **zero tests** to a frame-perfect, CI-merge-gating safety net — the milestone's whole point.
 
 ## Constraints
 
@@ -72,9 +76,9 @@ _No active requirements — **Milestone 1 (Solid Foundation) is complete.** Star
 |----------|-----------|---------|
 | Tests-first safety net before any refactor | Ghost AI is fragile/hand-tuned; pin behavior so refactor is provably safe | ✓ Phase 1: 61-test net (9 goldens · 15 micro · determinism · CI-gated); behavior frozen |
 | Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | ✓ Phase 2 byte-identical; ✓ Phase 3 box-bug fix landed isolated & last (oracle-proven, goldens re-blessed) |
-| Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | — Pending |
-| Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Pending |
-| Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | — Pending |
+| Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | ✓ Good — behavior held byte-identical through v1.0; arcade mode parked for Fun milestone (FUN-04) |
+| Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Superseded — config branching=none; Phase 1 shipped via PR #1, Phases 2–3 committed on `main` with the CI net as the gate |
+| Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | — Pending (next: More Competitive) |
 
 ## Evolution
 
@@ -94,4 +98,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-12 after Phase 3 (box-bug-fix-hygiene) completion — Solid-Foundation milestone complete*
+*Last updated: 2026-06-12 after v1.0 (Solid Foundation) milestone close*
