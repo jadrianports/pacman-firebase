@@ -6,13 +6,16 @@ from player import Player
 from paths import resource_path
 from sound import SoundManager
 from settings import (
-    WIDTH, HEIGHT, FPS, PI,
+    WIDTH, FPS, PI,
+    TILE_HEIGHT, TILE_WIDTH,
+    SCATTER_RETURN_TARGET, SCATTER_EATEN_TARGET, SCATTER_CLYDE_TARGET,
     BLINKY_START_X, BLINKY_START_Y, BLINKY_START_DIR,
     INKY_START_X, INKY_START_Y, INKY_START_DIR,
     PINKY_START_X, PINKY_START_Y, PINKY_START_DIR,
     CLYDE_START_X, CLYDE_START_Y, CLYDE_START_DIR,
     BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE,
 )
+from geometry import in_box, GHOST_BOX_BOUNDS_TARGET
 
 
 class Game:
@@ -127,38 +130,39 @@ class Game:
         self.start_sound_played = False
 
     def draw_board(self):
-        num1 = ((HEIGHT - 50) // 32)
-        num2 = (WIDTH // 30)
+        # Tile dims centralized (TILE_HEIGHT was num1, TILE_WIDTH was num2). The
+        # cosmetic literals (radii 4/10, 0.5*/0.4* arc offsets, PI fractions, width 3)
+        # stay inline — they are rendering, not geometry (D-13).
         for i in range(len(self.level)):
             for j in range(len(self.level[i])):
                 if self.level[i][j] == 1:
-                    pygame.draw.circle(self.screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4)
+                    pygame.draw.circle(self.screen, 'white', (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 4)
                 if self.level[i][j] == 2 and not self.flicker:
-                    pygame.draw.circle(self.screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10)
+                    pygame.draw.circle(self.screen, 'white', (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 10)
                 if self.level[i][j] == 3:
-                    pygame.draw.line(self.screen, self.color, (j * num2 + (0.5 * num2), i * num1),
-                                     (j * num2 + (0.5 * num2), i * num1 + num1), 3)
+                    pygame.draw.line(self.screen, self.color, (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT),
+                                     (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + TILE_HEIGHT), 3)
                 if self.level[i][j] == 4:
-                    pygame.draw.line(self.screen, self.color, (j * num2, i * num1 + (0.5 * num1)),
-                                     (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
+                    pygame.draw.line(self.screen, self.color, (j * TILE_WIDTH, i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)),
+                                     (j * TILE_WIDTH + TILE_WIDTH, i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 3)
                 if self.level[i][j] == 5:
                     pygame.draw.arc(self.screen, self.color,
-                                    [(j * num2 - (num2 * 0.4)) - 2, (i * num1 + (0.5 * num1)), num2, num1],
+                                    [(j * TILE_WIDTH - (TILE_WIDTH * 0.4)) - 2, (i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), TILE_WIDTH, TILE_HEIGHT],
                                     0, PI / 2, 3)
                 if self.level[i][j] == 6:
                     pygame.draw.arc(self.screen, self.color,
-                                    [(j * num2 + (num2 * 0.5)), (i * num1 + (0.5 * num1)), num2, num1], PI / 2, PI, 3)
+                                    [(j * TILE_WIDTH + (TILE_WIDTH * 0.5)), (i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), TILE_WIDTH, TILE_HEIGHT], PI / 2, PI, 3)
                 if self.level[i][j] == 7:
                     pygame.draw.arc(self.screen, self.color,
-                                    [(j * num2 + (num2 * 0.5)), (i * num1 - (0.4 * num1)), num2, num1], PI,
+                                    [(j * TILE_WIDTH + (TILE_WIDTH * 0.5)), (i * TILE_HEIGHT - (0.4 * TILE_HEIGHT)), TILE_WIDTH, TILE_HEIGHT], PI,
                                     3 * PI / 2, 3)
                 if self.level[i][j] == 8:
                     pygame.draw.arc(self.screen, self.color,
-                                    [(j * num2 - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1],
+                                    [(j * TILE_WIDTH - (TILE_WIDTH * 0.4)) - 2, (i * TILE_HEIGHT - (0.4 * TILE_HEIGHT)), TILE_WIDTH, TILE_HEIGHT],
                                     3 * PI / 2, 2 * PI, 3)
                 if self.level[i][j] == 9:
-                    pygame.draw.line(self.screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
-                                     (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
+                    pygame.draw.line(self.screen, 'white', (j * TILE_WIDTH, i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)),
+                                     (j * TILE_WIDTH + TILE_WIDTH, i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 3)
 
     def draw_ready(self):
         if self.starting and not self.game_over and not self.game_won:
@@ -193,10 +197,8 @@ class Game:
                 self.screen.blit(hint, hint_rect)
 
     def has_dot_nearby(self):
-        num1 = (HEIGHT - 50) // 32
-        num2 = WIDTH // 30
-        row = self.player.center_y // num1
-        col = self.player.center_x // num2
+        row = self.player.center_y // TILE_HEIGHT
+        col = self.player.center_x // TILE_WIDTH
         # Check all 4 adjacent tiles so waka persists through turns
         for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
             r, c = row + dr, col + dc
@@ -206,17 +208,15 @@ class Game:
         return False
 
     def check_collisions(self):
-        num1 = (HEIGHT - 50) // 32
-        num2 = WIDTH // 30
         if 0 < self.player.x < 870:
-            if self.level[self.player.center_y // num1][self.player.center_x // num2] == 1:
-                self.level[self.player.center_y // num1][self.player.center_x // num2] = 0
+            if self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] == 1:
+                self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] = 0
                 self.score += 10
                 self.sound.play_waka()
             elif not self.has_dot_nearby():
                 self.sound.stop_waka()
-            if self.level[self.player.center_y // num1][self.player.center_x // num2] == 2:
-                self.level[self.player.center_y // num1][self.player.center_x // num2] = 0
+            if self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] == 2:
+                self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] = 0
                 self.score += 50
                 self.powerup = True
                 self.power_counter = 0
@@ -232,13 +232,13 @@ class Game:
             runaway_y = 900
         else:
             runaway_y = 0
-        return_target = (380, 400)
+        return_target = SCATTER_RETURN_TARGET
         if self.powerup:
             if not self.blinky.dead and not self.eaten_ghost[0]:
                 blink_target = (runaway_x, runaway_y)
             elif not self.blinky.dead and self.eaten_ghost[0]:
-                if 340 < self.blinky_x < 560 and 340 < self.blinky_y < 500:
-                    blink_target = (400, 100)
+                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS_TARGET):
+                    blink_target = SCATTER_EATEN_TARGET
                 else:
                     blink_target = (self.player.x, self.player.y)
             else:
@@ -246,8 +246,8 @@ class Game:
             if not self.inky.dead and not self.eaten_ghost[1]:
                 ink_target = (runaway_x, self.player.y)
             elif not self.inky.dead and self.eaten_ghost[1]:
-                if 340 < self.inky_x < 560 and 340 < self.inky_y < 500:
-                    ink_target = (400, 100)
+                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS_TARGET):
+                    ink_target = SCATTER_EATEN_TARGET
                 else:
                     ink_target = (self.player.x, self.player.y)
             else:
@@ -255,46 +255,46 @@ class Game:
             if not self.pinky.dead and not self.eaten_ghost[2]:
                 pink_target = (self.player.x, runaway_y)
             elif not self.pinky.dead and self.eaten_ghost[2]:
-                if 340 < self.pinky_x < 560 and 340 < self.pinky_y < 500:
-                    pink_target = (400, 100)
+                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS_TARGET):
+                    pink_target = SCATTER_EATEN_TARGET
                 else:
                     pink_target = (self.player.x, self.player.y)
             else:
                 pink_target = return_target
             if not self.clyde.dead and not self.eaten_ghost[3]:
-                clyd_target = (450, 450)
+                clyd_target = SCATTER_CLYDE_TARGET
             elif not self.clyde.dead and self.eaten_ghost[3]:
-                if 340 < self.clyde_x < 560 and 340 < self.clyde_y < 500:
-                    clyd_target = (400, 100)
+                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS_TARGET):
+                    clyd_target = SCATTER_EATEN_TARGET
                 else:
                     clyd_target = (self.player.x, self.player.y)
             else:
                 clyd_target = return_target
         else:
             if not self.blinky.dead:
-                if 340 < self.blinky_x < 560 and 340 < self.blinky_y < 500:
-                    blink_target = (400, 100)
+                if in_box(self.blinky_x, self.blinky_y, GHOST_BOX_BOUNDS_TARGET):
+                    blink_target = SCATTER_EATEN_TARGET
                 else:
                     blink_target = (self.player.x, self.player.y)
             else:
                 blink_target = return_target
             if not self.inky.dead:
-                if 340 < self.inky_x < 560 and 340 < self.inky_y < 500:
-                    ink_target = (400, 100)
+                if in_box(self.inky_x, self.inky_y, GHOST_BOX_BOUNDS_TARGET):
+                    ink_target = SCATTER_EATEN_TARGET
                 else:
                     ink_target = (self.player.x, self.player.y)
             else:
                 ink_target = return_target
             if not self.pinky.dead:
-                if 340 < self.pinky_x < 560 and 340 < self.pinky_y < 500:
-                    pink_target = (400, 100)
+                if in_box(self.pinky_x, self.pinky_y, GHOST_BOX_BOUNDS_TARGET):
+                    pink_target = SCATTER_EATEN_TARGET
                 else:
                     pink_target = (self.player.x, self.player.y)
             else:
                 pink_target = return_target
             if not self.clyde.dead:
-                if 340 < self.clyde_x < 560 and 340 < self.clyde_y < 500:
-                    clyd_target = (400, 100)
+                if in_box(self.clyde_x, self.clyde_y, GHOST_BOX_BOUNDS_TARGET):
+                    clyd_target = SCATTER_EATEN_TARGET
                 else:
                     clyd_target = (self.player.x, self.player.y)
             else:

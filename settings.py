@@ -6,6 +6,30 @@ FPS = 60
 PLAYER_SPEED = 2
 PI = math.pi
 
+# Tile geometry (was inline num1/num2/num3 recomputed in game/ghost/player).
+# Derived once from named board dims (D-12) so the mysterious 32/30/50 are documented.
+# Byte-identical to the old literals: (950-50)//32 == 28, 900//30 == 30.
+BOARD_ROWS = 32
+BOARD_COLS = 30
+HUD_HEIGHT = 50
+TILE_HEIGHT = (HEIGHT - HUD_HEIGHT) // BOARD_ROWS   # 28  (was num1 — tile HEIGHT, indexes rows)
+TILE_WIDTH = WIDTH // BOARD_COLS                    # 30  (was num2 — tile WIDTH, indexes cols)
+HALF_TILE = 15                                      # look-ahead offset (was num3)
+
+# Wrap edges — kept DELIBERATELY DISTINCT (D-13). Ghost and player wrap thresholds
+# differ; naming the look-alikes separately guards against accidental future unification.
+GHOST_WRAP_LEFT = -30        # ghost.py move_* tail: if x_pos < -30 ...
+GHOST_WRAP_RIGHT = 900       # ... elif x_pos > 900: x_pos = -30
+PLAYER_WRAP_RIGHT_EDGE = 900  # player.py wrap_around: if x > 900 ...
+PLAYER_WRAP_RIGHT_TO = -47    # ... x = -47
+PLAYER_WRAP_LEFT_EDGE = -50   # elif x < -50 ...
+PLAYER_WRAP_LEFT_TO = 897     # ... x = 897
+
+# Scatter / fixed targets (D-13) — kept as SEPARATE named constants.
+SCATTER_RETURN_TARGET = (380, 400)   # eyes-return target toward the box gate
+SCATTER_EATEN_TARGET = (400, 100)    # eaten-ghost in-box scatter target
+SCATTER_CLYDE_TARGET = (450, 450)    # clyde's non-powerup scatter corner
+
 # Initial player position
 PLAYER_START_X = 450
 PLAYER_START_Y = 663

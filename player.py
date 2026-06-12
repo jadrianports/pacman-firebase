@@ -1,6 +1,10 @@
 import pygame
 from paths import resource_path
-from settings import WIDTH, HEIGHT, PLAYER_SPEED, PLAYER_START_X, PLAYER_START_Y, PLAYER_START_DIR
+from settings import (
+    PLAYER_SPEED, PLAYER_START_X, PLAYER_START_Y, PLAYER_START_DIR,
+    TILE_HEIGHT, TILE_WIDTH, HALF_TILE, BOARD_COLS,
+    PLAYER_WRAP_RIGHT_EDGE, PLAYER_WRAP_RIGHT_TO, PLAYER_WRAP_LEFT_EDGE, PLAYER_WRAP_LEFT_TO,
+)
 
 
 class Player:
@@ -38,46 +42,46 @@ class Player:
 
     def check_position(self, level):
         turns = [False, False, False, False]
-        num1 = (HEIGHT - 50) // 32
-        num2 = (WIDTH // 30)
-        num3 = 15
+        # Tile dims centralized (TILE_HEIGHT was num1, TILE_WIDTH was num2, HALF_TILE
+        # was num3). Byte-identical substitution — D-15: do NOT merge with
+        # Ghost.check_collisions, the band offsets/guards are deliberately divergent.
         centerx = self.center_x
         centery = self.center_y
-        if centerx // 30 < 29:
+        if centerx // TILE_WIDTH < BOARD_COLS - 1:
             if self.direction == 0:
-                if level[centery // num1][(centerx - num3) // num2] < 3:
+                if level[centery // TILE_HEIGHT][(centerx - HALF_TILE) // TILE_WIDTH] < 3:
                     turns[1] = True
             if self.direction == 1:
-                if level[centery // num1][(centerx + num3) // num2] < 3:
+                if level[centery // TILE_HEIGHT][(centerx + HALF_TILE) // TILE_WIDTH] < 3:
                     turns[0] = True
             if self.direction == 2:
-                if level[(centery + num3) // num1][centerx // num2] < 3:
+                if level[(centery + HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                     turns[3] = True
             if self.direction == 3:
-                if level[(centery - num3) // num1][centerx // num2] < 3:
+                if level[(centery - HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                     turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
-                if 12 <= centerx % num2 <= 18:
-                    if level[(centery + num3) // num1][centerx // num2] < 3:
+                if 12 <= centerx % TILE_WIDTH <= 18:
+                    if level[(centery + HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[3] = True
-                    if level[(centery - num3) // num1][centerx // num2] < 3:
+                    if level[(centery - HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[2] = True
-                if 12 <= centery % num1 <= 18:
-                    if level[centery // num1][(centerx - num2) // num2] < 3:
+                if 12 <= centery % TILE_HEIGHT <= 18:
+                    if level[centery // TILE_HEIGHT][(centerx - TILE_WIDTH) // TILE_WIDTH] < 3:
                         turns[1] = True
-                    if level[centery // num1][(centerx + num2) // num2] < 3:
+                    if level[centery // TILE_HEIGHT][(centerx + TILE_WIDTH) // TILE_WIDTH] < 3:
                         turns[0] = True
             if self.direction == 0 or self.direction == 1:
-                if 12 <= centerx % num2 <= 18:
-                    if level[(centery + num1) // num1][centerx // num2] < 3:
+                if 12 <= centerx % TILE_WIDTH <= 18:
+                    if level[(centery + TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[3] = True
-                    if level[(centery - num1) // num1][centerx // num2] < 3:
+                    if level[(centery - TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[2] = True
-                if 12 <= centery % num1 <= 18:
-                    if level[centery // num1][(centerx - num3) // num2] < 3:
+                if 12 <= centery % TILE_HEIGHT <= 18:
+                    if level[centery // TILE_HEIGHT][(centerx - HALF_TILE) // TILE_WIDTH] < 3:
                         turns[1] = True
-                    if level[centery // num1][(centerx + num3) // num2] < 3:
+                    if level[centery // TILE_HEIGHT][(centerx + HALF_TILE) // TILE_WIDTH] < 3:
                         turns[0] = True
         else:
             turns[0] = True
@@ -97,10 +101,10 @@ class Player:
             self.y += self.speed
 
     def wrap_around(self):
-        if self.x > 900:
-            self.x = -47
-        elif self.x < -50:
-            self.x = 897
+        if self.x > PLAYER_WRAP_RIGHT_EDGE:
+            self.x = PLAYER_WRAP_RIGHT_TO
+        elif self.x < PLAYER_WRAP_LEFT_EDGE:
+            self.x = PLAYER_WRAP_LEFT_TO
 
     def update_direction(self):
         if self.direction_command == 0 and self.turns_allowed[0]:

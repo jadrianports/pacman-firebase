@@ -1,5 +1,6 @@
 import pygame
-from settings import WIDTH, HEIGHT
+from settings import TILE_HEIGHT, TILE_WIDTH, HALF_TILE, BOARD_COLS
+from geometry import in_box, GHOST_BOX_BOUNDS_COLLISION
 
 
 class Ghost:
@@ -42,73 +43,72 @@ class Ghost:
 
     def check_collisions(self):
         # R, L, U, D
-        num1 = ((HEIGHT - 50) // 32)
-        num2 = (WIDTH // 30)
-        num3 = 15
+        # Tile dims centralized in settings (TILE_HEIGHT was num1, TILE_WIDTH was num2,
+        # HALF_TILE was num3). Byte-identical: (HEIGHT-50)//32==28, WIDTH//30==30, 15.
         self.turns = [False, False, False, False]
-        if 0 < self.center_x // 30 < 29:
-            if self._tile((self.center_y - num3) // num1, self.center_x // num2) == 9:
+        if 0 < self.center_x // TILE_WIDTH < BOARD_COLS - 1:
+            if self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9:
                 self.turns[2] = True
-            if self._tile(self.center_y // num1, (self.center_x - num3) // num2) < 3 \
-                    or (self._tile(self.center_y // num1, (self.center_x - num3) // num2) == 9 and (
+            if self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) < 3 \
+                    or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) == 9 and (
                     self.in_box or self.dead)):
                 self.turns[1] = True
-            if self._tile(self.center_y // num1, (self.center_x + num3) // num2) < 3 \
-                    or (self._tile(self.center_y // num1, (self.center_x + num3) // num2) == 9 and (
+            if self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) < 3 \
+                    or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) == 9 and (
                     self.in_box or self.dead)):
                 self.turns[0] = True
-            if self._tile((self.center_y + num3) // num1, self.center_x // num2) < 3 \
-                    or (self._tile((self.center_y + num3) // num1, self.center_x // num2) == 9 and (
+            if self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                    or (self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                     self.in_box or self.dead)):
                 self.turns[3] = True
-            if self._tile((self.center_y - num3) // num1, self.center_x // num2) < 3 \
-                    or (self._tile((self.center_y - num3) // num1, self.center_x // num2) == 9 and (
+            if self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                    or (self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                     self.in_box or self.dead)):
                 self.turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
-                if 12 <= self.center_x % num2 <= 18:
-                    if self._tile((self.center_y + num3) // num1, self.center_x // num2) < 3 \
-                            or (self._tile((self.center_y + num3) // num1, self.center_x // num2) == 9 and (
+                if 12 <= self.center_x % TILE_WIDTH <= 18:
+                    if self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                            or (self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[3] = True
-                    if self._tile((self.center_y - num3) // num1, self.center_x // num2) < 3 \
-                            or (self._tile((self.center_y - num3) // num1, self.center_x // num2) == 9 and (
+                    if self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                            or (self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[2] = True
-                if 12 <= self.center_y % num1 <= 18:
-                    if self._tile(self.center_y // num1, (self.center_x - num3) // num2) < 3 \
-                            or (self._tile(self.center_y // num1, (self.center_x - num3) // num2) == 9 and (
+                if 12 <= self.center_y % TILE_HEIGHT <= 18:
+                    if self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) < 3 \
+                            or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[1] = True
-                    if self._tile(self.center_y // num1, (self.center_x + num3) // num2) < 3 \
-                            or (self._tile(self.center_y // num1, (self.center_x + num3) // num2) == 9 and (
+                    if self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) < 3 \
+                            or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[0] = True
 
             if self.direction == 0 or self.direction == 1:
-                if 12 <= self.center_x % num2 <= 18:
-                    if self._tile((self.center_y + num3) // num1, self.center_x // num2) < 3 \
-                            or (self._tile((self.center_y + num3) // num1, self.center_x // num2) == 9 and (
+                if 12 <= self.center_x % TILE_WIDTH <= 18:
+                    if self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                            or (self._tile((self.center_y + HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[3] = True
-                    if self._tile((self.center_y - num3) // num1, self.center_x // num2) < 3 \
-                            or (self._tile((self.center_y - num3) // num1, self.center_x // num2) == 9 and (
+                    if self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) < 3 \
+                            or (self._tile((self.center_y - HALF_TILE) // TILE_HEIGHT, self.center_x // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[2] = True
-                if 12 <= self.center_y % num1 <= 18:
-                    if self._tile(self.center_y // num1, (self.center_x - num3) // num2) < 3 \
-                            or (self._tile(self.center_y // num1, (self.center_x - num3) // num2) == 9 and (
+                if 12 <= self.center_y % TILE_HEIGHT <= 18:
+                    if self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) < 3 \
+                            or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x - HALF_TILE) // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[1] = True
-                    if self._tile(self.center_y // num1, (self.center_x + num3) // num2) < 3 \
-                            or (self._tile(self.center_y // num1, (self.center_x + num3) // num2) == 9 and (
+                    if self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) < 3 \
+                            or (self._tile(self.center_y // TILE_HEIGHT, (self.center_x + HALF_TILE) // TILE_WIDTH) == 9 and (
                             self.in_box or self.dead)):
                         self.turns[0] = True
         else:
             self.turns[0] = True
             self.turns[1] = True
-        if 350 < self.x_pos < 550 and 360 < self.y_pos < 480:
+        if in_box(self.x_pos, self.y_pos, GHOST_BOX_BOUNDS_COLLISION):
             self.in_box = True
         else:
             self.in_box = False
