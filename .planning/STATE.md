@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-01-PLAN.md (REF-01 geometry centralized + proven)
-last_updated: "2026-06-12T08:22:05.893Z"
+status: verifying
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-06-12T09:04:12.662Z"
 last_activity: 2026-06-12 -- Phase 02 execution started
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 8
-  percent: 33
+  completed_plans: 9
+  percent: 67
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-02)
 
 Phase: 02 (safe-refactor) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-12 -- Phase 02 execution started
 
 Progress: [██████████] 100%
@@ -53,6 +53,7 @@ Progress: [██████████] 100%
 
 *Updated after each plan completion*
 | Phase 02 P02-01 | 25 | 3 tasks | 13 files |
+| Phase 02 P02 | 50min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,7 @@ Recent decisions affecting current work:
 - [Milestone]: Foundation work on a `solid-foundation` branch to isolate AI-adjacent risk from `main`.
 - [Phase ?]: [02-01]: REF-01 geometry centralized (TILE_*/geometry.py) proven byte-identical by check_collisions oracle + frame-hash; two box constants kept DISTINCT for Phase 3 BUG-01
 - [Phase ?]: [02-01]: frame-hash manifest is Windows-authored placeholder; CI is the assertion authority — re-bless in Linux CI (pytest --bless)
+- [Phase ?]: REF-02: unified data-driven ghost mover (DirectionRule + 4 *_PROFILE + named quirk hooks + _move + thin wrappers); proven byte-identical by a synthetic-exhaustive differential oracle (138k cases, caught a dir-3 ladder bug) then deleted; mutation canary attested the net
 
 ### Pending Todos
 
@@ -91,6 +93,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-12T08:22:05.882Z
-Stopped at: Completed 02-01-PLAN.md (REF-01 geometry centralized + proven)
+Last session: 2026-06-12T09:04:12.649Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

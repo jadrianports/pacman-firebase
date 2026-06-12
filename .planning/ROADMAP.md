@@ -54,7 +54,7 @@ Every risky change is verified four ways:
 - Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Test Safety Net** - Build the headless record/replay + capture harness and freeze current behavior in golden masters, micro per-ghost tests, cloud-function validator tests, and CI. (completed 2026-06-11)
-- [ ] **Phase 2: Safe Refactor** - Collapse the 4× ghost-AI duplication and centralize board geometry *behind the net*, with golden traces byte-identical.
+- [x] **Phase 2: Safe Refactor** - Collapse the 4× ghost-AI duplication and centralize board geometry *behind the net*, with golden traces byte-identical. (completed 2026-06-12)
 - [ ] **Phase 3: Box-Bug Fix + Hygiene** - Unify the ghost-box bounds (the one sanctioned, isolated behavior change) and finish dependency/repo/doc/asset cleanup.
 
 ## Phase Details
@@ -117,7 +117,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 — D-11 geometry-first gate)*
 
-- [ ] 02-02-PLAN.md — Collapse the 4× mover duplication (REF-02): per-ghost profile data + unified _move + thin wrappers; synthetic-exhaustive differential oracle, per-ghost atomic commits (blinky→inky→pinky→clyde), mutation canary, one-shot oracle deletion, D-17 CLAUDE.md doc update.
+- [x] 02-02-PLAN.md — Collapse the 4× mover duplication (REF-02): per-ghost profile data + unified _move + thin wrappers; synthetic-exhaustive differential oracle, per-ghost atomic commits (blinky→inky→pinky→clyde), mutation canary, one-shot oracle deletion, D-17 CLAUDE.md doc update.
 
 ### Phase 3: Box-Bug Fix + Hygiene
 
@@ -154,5 +154,5 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
-| 2. Safe Refactor | 1/2 | In Progress|  |
+| 2. Safe Refactor | 2/2 | Complete   | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
