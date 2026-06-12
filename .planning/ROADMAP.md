@@ -161,4 +161,4 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
 | 2. Safe Refactor | 2/2 | Complete    | 2026-06-12 |
-| 3. Box-Bug Fix + Hygiene | 2/2 | Complete   | 2026-06-12 |
+| 3. Box-Bug Fix + Hygiene | 2/2 | Complete    | 2026-06-12 |
