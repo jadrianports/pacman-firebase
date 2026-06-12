@@ -132,6 +132,10 @@ None — no external service configuration. **CI action required (automatic on p
 - The D-11 geometry-first gate is satisfied: REF-01 is fully landed and proven by two complementary modalities (logic oracle + pixel hash) on top of the inherited net. **Plan 02-02 (the mover refactor) may begin.**
 - Plan 02-02 must DELETE `tests/_legacy_geometry.py` + `tests/test_check_collisions_oracle.py` after its own mover proofs are green (D-06/D-07 one-shot lifecycle). The frame-hash check + manifests are PERMANENT.
 
+## Self-Check: PASSED
+
+All created files verified present (geometry.py, tests/_legacy_geometry.py, tests/test_check_collisions_oracle.py, tests/test_frame_hash.py, 9 frame_hashes.txt manifests, SUMMARY.md). All task commits verified in git log (d9664a1, 2ec0700, af90d6f, 9f8a814).
+
 ---
 *Phase: 02-safe-refactor*
 *Completed: 2026-06-12*

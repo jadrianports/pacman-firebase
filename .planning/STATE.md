@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: "Phase 1 shipped — PR #1 (CI green, self-review)"
-stopped_at: Phase 2 context gathered (19 decisions, 7 areas)
-last_updated: "2026-06-12T06:09:31.977Z"
-last_activity: 2026-06-12 -- Phase 02 planning complete
+status: executing
+stopped_at: Completed 02-01-PLAN.md (REF-01 geometry centralized + proven)
+last_updated: "2026-06-12T08:22:05.893Z"
+last_activity: 2026-06-12 -- Phase 02 execution started
 progress:
   total_phases: 3
   completed_phases: 1
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 9
+  completed_plans: 8
   percent: 33
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 2 — safe-refactor (Phase 01 test-safety-net complete & verified)
+**Current focus:** Phase 02 — safe-refactor
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Phase 1 shipped — PR #1 (CI green, self-review)
-Last activity: 2026-06-12 -- Phase 02 planning complete
+Phase: 02 (safe-refactor) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-06-12 -- Phase 02 execution started
 
 Progress: [██████████] 100%
 
@@ -52,6 +52,7 @@ Progress: [██████████] 100%
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 02 P02-01 | 25 | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - [Milestone]: Non-Goal — do not change ghost-AI decision behavior. The ONLY sanctioned behavior change is BUG-01 (unify ghost-box bounds), provably isolated to the box region.
 - [Milestone]: Verification bar = "maximum paranoia" — golden traces + visual montages (Claude vision) + micro per-ghost tests + Claude playtest.
 - [Milestone]: Foundation work on a `solid-foundation` branch to isolate AI-adjacent risk from `main`.
+- [Phase ?]: [02-01]: REF-01 geometry centralized (TILE_*/geometry.py) proven byte-identical by check_collisions oracle + frame-hash; two box constants kept DISTINCT for Phase 3 BUG-01
+- [Phase ?]: [02-01]: frame-hash manifest is Windows-authored placeholder; CI is the assertion authority — re-bless in Linux CI (pytest --bless)
 
 ### Pending Todos
 
@@ -88,6 +91,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-11T21:47:40.869Z
-Stopped at: Phase 2 context gathered (19 decisions, 7 areas)
-Resume file: .planning/phases/02-safe-refactor/02-CONTEXT.md
+Last session: 2026-06-12T08:22:05.882Z
+Stopped at: Completed 02-01-PLAN.md (REF-01 geometry centralized + proven)
+Resume file: None

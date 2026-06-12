@@ -113,7 +113,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Centralize tile/board geometry (REF-01): settings.py constants + geometry.py helpers + literal substitution; check_collisions differential oracle + deterministic frame-hash manifest. Geometry-first gate (D-11).
+- [x] 02-01-PLAN.md — Centralize tile/board geometry (REF-01): settings.py constants + geometry.py helpers + literal substitution; check_collisions differential oracle + deterministic frame-hash manifest. Geometry-first gate (D-11).
 
 **Wave 2** *(blocked on Wave 1 — D-11 geometry-first gate)*
 
@@ -154,5 +154,5 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
-| 2. Safe Refactor | 0/TBD | Not started | - |
+| 2. Safe Refactor | 1/2 | In Progress|  |
 | 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |

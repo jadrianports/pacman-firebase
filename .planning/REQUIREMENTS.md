@@ -23,7 +23,7 @@
 
 ### Refactor (byte-identical, behind the net)
 
-- [ ] **REF-01**: Tile/board geometry is centralized and magic numbers removed, with golden traces unchanged
+- [x] **REF-01**: Tile/board geometry is centralized and magic numbers removed, with golden traces unchanged
 - [ ] **REF-02**: The 4× ghost movement duplication is collapsed into one data-driven turn-priority table, with golden traces byte-identical
 
 ### Bug Fix (isolated, last)
@@ -79,7 +79,7 @@
 | TST-02 | Phase 1 — Test Safety Net | Complete |
 | TST-03 | Phase 1 — Test Safety Net | Complete |
 | TST-04 | Phase 1 — Test Safety Net | Complete |
-| REF-01 | Phase 2 — Safe Refactor | Pending |
+| REF-01 | Phase 2 — Safe Refactor | Complete |
 | REF-02 | Phase 2 — Safe Refactor | Pending |
 | BUG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
 | HYG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
