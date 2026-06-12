@@ -138,7 +138,7 @@ differential proof** on top of the inherited net.
   guidance doc is accurate at every commit. HYG-03 (Phase 3) remains for *pre-existing* drift
   (box-exit timing, "Change Initials"). Codebase maps (`.planning/codebase/*.md`, esp. CONCERNS D1/D2
   now resolved) refresh separately via `/gsd-map-codebase`, not hand-edited here.
-- **D-18:** **Merge Phase 1 to `main` first, then start Phase 2 from `main`.** Phase 1 (the net + CI
+- **D-18 [informational]:** **Merge Phase 1 to `main` first, then start Phase 2 from `main`.** Phase 1 (the net + CI
   merge-gate) is independently valuable and already verified; ship it (`/gsd-ship`) so `main` gets the
   net, then the Phase 2 PR runs the net as a required check (Phase 1 D-09 branch protection). Matches
   the Cardinal Rule (land the foundation first) and STATE's "awaiting merge"; avoids a giant combined
