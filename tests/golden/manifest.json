@@ -1,0 +1,74 @@
+[
+  {
+    "name": "box_exit",
+    "input": "tests/golden/box_exit/input.jsonl",
+    "frame_cap": 420,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02: the staggered ghost box-exit (Inky immediately, Pinky ~+30, Clyde ~+60 frames) — freezes the exact frames ghosts cross the box boundary."
+  },
+  {
+    "name": "power_chase",
+    "input": "tests/golden/power_chase/input.jsonl",
+    "frame_cap": 760,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02: power-pellet eaten, powerup active, ghosts flee (runaway targets) and slow to speed 1."
+  },
+  {
+    "name": "ghost_eat",
+    "input": "tests/golden/ghost_eat/input.jsonl",
+    "frame_cap": 700,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02: a fleeing ghost is eaten during powerup (dead flag set, eat_freeze pause, score bonus)."
+  },
+  {
+    "name": "death",
+    "input": "tests/golden/death/input.jsonl",
+    "frame_cap": 4200,
+    "softlock_n": 720,
+    "terminal": "game_over",
+    "why": "D-02: Pac-Man caught by ghosts; runs to a natural game_over after all three lives are lost (D-19)."
+  },
+  {
+    "name": "win",
+    "input": "tests/golden/win/input.jsonl",
+    "frame_cap": 3000,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02: extended real dot-clearing gameplay. A true game_won requires clearing all 246 dots which is impractical to hand-script; this freezes a long real gameplay window (the safety cap is the soft-lock backstop, D-19)."
+  },
+  {
+    "name": "box_edge",
+    "input": "tests/golden/box_edge/input.jsonl",
+    "frame_cap": 1100,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02 + Phase 3 BUG-01: ghosts pressed against the box boundary — captures the initial exit AND the post-death reset that puts ghosts back inside the box and re-exits across the box edge. These are the exact frames Phase 3's box-edge fix changes."
+  },
+  {
+    "name": "tunnel_wrap",
+    "input": "tests/golden/tunnel_wrap/input.jsonl",
+    "frame_cap": 1000,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02 + Phase 2 wrap math: Pac-Man crosses the left/right tunnel wrap edge (x -> -47/897). Phase 2 touches the wrap arithmetic; this freezes the exact wrap frame."
+  },
+  {
+    "name": "eyes_return",
+    "input": "tests/golden/eyes_return/input.jsonl",
+    "frame_cap": 1400,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-02: an eaten ghost (dead flag True) travels the move_clyde dead-ghost return path back toward the box. Phase 2 collapses this fallback; this freezes the eyes-return trajectory."
+  },
+  {
+    "name": "claude_session_01",
+    "input": "tests/golden/claude_session_01/input.jsonl",
+    "frame_cap": 1500,
+    "softlock_n": 720,
+    "terminal": "fixed_frames",
+    "why": "D-10/HRN-04: one recorded Claude-played session (a pure greedy eat-dots / grab-powerups / hunt-ghosts policy) serialized to sparse input so it replays deterministically in CI."
+  }
+]
