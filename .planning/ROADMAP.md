@@ -132,11 +132,17 @@ Plans:
   4. Doc drift is fixed — `CLAUDE.md` box-exit timing reconciled with `settings.py` (`PINKY=30`, `CLYDE=60` frames @60fps), and the dead "Change Initials" docstring removed from `menu.py` (HYG-03).
   5. Dead duplicate asset folders (`assets/ghost_images/`, `assets/player_images/`) are removed after confirming no references, and CI remains green on push (HYG-04).
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 
-- [ ] 03-01: TBD
+**Wave 1**
+
+- [ ] 03-01-PLAN.md — Hygiene: pin client deps (HYG-01), untrack settings.local.json + reconcile .gitignore + track CLAUDE.md (HYG-02), fix box-exit doc drift + dead docstring (HYG-03), delete dead asset folders + human .exe rebuild smoke-run (HYG-04). Four behavior-neutral atomic commits, CI green at every step (D-09).
+
+**Wave 2** *(blocked on Wave 1 — D-09 hygiene-first/fix-last)*
+
+- [ ] 03-02-PLAN.md — Box-bug fix (BUG-01): unify GHOST_BOX_BOUNDS onto the collision box (D-01), repoint both importers (get_targets = the only value change, check_collisions byte-identical). Differential oracle + belt-check + teeth-check then one-shot delete (D-03/D-04/D-05), Linux-CI re-bless of box-edge frames only (D-06), required Claude playtest (D-07) + human GIF gate (D-08). The single isolated trace-touching commit.
 
 ## Future Milestones
 
@@ -155,4 +161,4 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
 | 2. Safe Refactor | 2/2 | Complete    | 2026-06-12 |
-| 3. Box-Bug Fix + Hygiene | 0/TBD | Not started | - |
+| 3. Box-Bug Fix + Hygiene | 0/2 | Not started | - |
