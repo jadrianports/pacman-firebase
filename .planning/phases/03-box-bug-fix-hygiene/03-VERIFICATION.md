@@ -1,13 +1,14 @@
 ---
 phase: 03-box-bug-fix-hygiene
 verified: 2026-06-12T00:00:00Z
-status: human_needed
-score: 9/10 must-haves verified
+status: passed
+score: 10/10 must-haves verified
 overrides_applied: 0
+resolution: "Re-bless completed 2026-06-12 in a Linux python:3.12 container (canonical bless authority, matches CI) — commit 7c120e5. All 9 masters re-recorded; every scenario's first divergence is frame 340 (verified via host git diff); only the 9 trace.jsonl files changed; full suite green on Linux (61 passed, 9 skipped). human_needed condition resolved."
 human_verification:
-  - test: "Linux CI golden re-bless — run `pytest tests/test_golden_traces.py --bless` on Linux/WSL/CI only (NEVER on Windows)"
-    expected: "All 9 trace.jsonl masters re-recorded; every bless diff is rooted at the frame-340 in-ring inky flip (400,358) — aim-at-gate switches to chase-player one frame sooner; pytest exits 0 with 0 failed after re-bless"
-    why_human: "Windows float drift would corrupt the Linux-authored golden masters. This is a Linux-CI-only operation, forbidden on the dev host. Required before the Phase-3 PR can merge CI-green."
+  - test: "Linux golden re-bless — RESOLVED 2026-06-12 (commit 7c120e5; Linux container; 61 passed on Linux)"
+    expected: "All 9 trace.jsonl masters re-recorded; every bless diff rooted at the frame-340 in-ring inky flip (400,358); pytest 0 failed after re-bless — CONFIRMED"
+    why_human: "Was a Linux-CI-only operation (Windows float drift forbidden). Completed via local Linux container, the canonical bless authority."
   - test: "Human before/after GIF gate (D-08) — watch the canonical before/after playthrough GIF"
     expected: "Only difference is box-region behavior for eaten/returning ghosts in the ring; nothing else moved; no soft-lock, oscillation, wall-clip, or eaten-eyes glitch"
     why_human: "Visual/play-feel confirmation cannot be automated; GIF review requires human judgment"
@@ -20,8 +21,8 @@ human_verification:
 
 **Phase Goal:** "Unify the ghost-box bounds (the one sanctioned, isolated behavior change) and finish dependency/repo/doc/asset cleanup."
 **Verified:** 2026-06-12T00:00:00Z
-**Status:** human_needed
-**Re-verification:** No — initial verification
+**Status:** passed
+**Re-verification:** Yes — re-bless completed 2026-06-12 in Linux container (commit 7c120e5); full suite green on Linux (61 passed, 9 skipped). All 10 must-haves verified.
 
 ## Goal Achievement
 
