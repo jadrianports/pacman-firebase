@@ -52,14 +52,17 @@ def _tx_lt(g):  # target is left   (target[0] < x_pos) -> seek LEFT
 
 
 # The blocked-ladder orderings, read verbatim out of the OLD movers.
-# dir-0/dir-1/dir-3 ladders are IDENTICAL across all four ghosts; dir-2 has
-# TWO variants — blinky's any-open tail is t3,t0,t1; the other three are
-# t1,t3,t0 (LANDMINE).
+# dir-0 and dir-1 ladders are IDENTICAL across all four ghosts. dir-2 AND dir-3
+# each have TWO variants: blinky's any-open tail differs from the other three.
+#   dir-2: blinky t3,t0,t1  vs  others t1,t3,t0  (LANDMINE)
+#   dir-3: blinky t2,t0,t1  vs  others t2,t1,t0  (LANDMINE — the oracle caught
+#          this; RESEARCH FOCUS-1 / assumption A4 wrongly called dir-3 uniform).
 _LADDER_DIR0 = ((_ty_gt, 3), (_ty_lt, 2), (_tx_lt, 1), (None, 3), (None, 2), (None, 1))
 _LADDER_DIR1 = ((_ty_gt, 3), (_ty_lt, 2), (_tx_gt, 0), (None, 3), (None, 2), (None, 0))
 _LADDER_DIR2_BLINKY = ((_tx_gt, 0), (_tx_lt, 1), (_ty_gt, 3), (None, 3), (None, 0), (None, 1))
 _LADDER_DIR2_OTHER = ((_tx_gt, 0), (_tx_lt, 1), (_ty_gt, 3), (None, 1), (None, 3), (None, 0))
-_LADDER_DIR3 = ((_tx_gt, 0), (_tx_lt, 1), (_ty_lt, 2), (None, 2), (None, 0), (None, 1))
+_LADDER_DIR3_BLINKY = ((_tx_gt, 0), (_tx_lt, 1), (_ty_lt, 2), (None, 2), (None, 0), (None, 1))
+_LADDER_DIR3_OTHER = ((_tx_gt, 0), (_tx_lt, 1), (_ty_lt, 2), (None, 2), (None, 1), (None, 0))
 
 
 # --- movement primitives --------------------------------------------------- #
@@ -245,7 +248,7 @@ BLINKY_PROFILE = {
     0: DirectionRule(primary_advance_right, _LADDER_DIR0, forward_straight_right),
     1: DirectionRule(primary_advance_left, _LADDER_DIR1, forward_straight_left),
     2: DirectionRule(primary_advance_up, _LADDER_DIR2_BLINKY, forward_straight_up),
-    3: DirectionRule(primary_advance_down, _LADDER_DIR3, forward_straight_down),
+    3: DirectionRule(primary_advance_down, _LADDER_DIR3_BLINKY, forward_straight_down),
 }
 
 # inky: turns up or down at any point to pursue, but left/right only on collision.
@@ -253,7 +256,7 @@ INKY_PROFILE = {
     0: DirectionRule(primary_advance_right, _LADDER_DIR0, forward_seek_perp_y_right),
     1: DirectionRule(primary_turn_no_move_down_then_left, _LADDER_DIR1, forward_seek_perp_y_left),
     2: DirectionRule(primary_advance_up, _LADDER_DIR2_OTHER, forward_straight_up),
-    3: DirectionRule(primary_advance_down, _LADDER_DIR3, forward_straight_down),
+    3: DirectionRule(primary_advance_down, _LADDER_DIR3_OTHER, forward_straight_down),
 }
 
 # pinky: turns left or right whenever advantageous, but only up/down on collision.
@@ -261,7 +264,7 @@ PINKY_PROFILE = {
     0: DirectionRule(primary_advance_right, _LADDER_DIR0, forward_straight_right),
     1: DirectionRule(primary_turn_and_move_down_then_left, _LADDER_DIR1, forward_straight_left),
     2: DirectionRule(primary_seek_left_then_up, _LADDER_DIR2_OTHER, forward_seek_perp_x_up),
-    3: DirectionRule(primary_advance_down, _LADDER_DIR3, forward_seek_perp_x_down),
+    3: DirectionRule(primary_advance_down, _LADDER_DIR3_OTHER, forward_seek_perp_x_down),
 }
 
 # clyde: turns whenever advantageous for pursuit.
@@ -269,7 +272,7 @@ CLYDE_PROFILE = {
     0: DirectionRule(primary_advance_right, _LADDER_DIR0, forward_seek_perp_y_right),
     1: DirectionRule(primary_turn_no_move_down_then_left, _LADDER_DIR1, forward_seek_perp_y_left),
     2: DirectionRule(primary_seek_left_then_up, _LADDER_DIR2_OTHER, forward_seek_perp_x_up),
-    3: DirectionRule(primary_advance_down, _LADDER_DIR3, forward_seek_perp_x_down),
+    3: DirectionRule(primary_advance_down, _LADDER_DIR3_OTHER, forward_seek_perp_x_down),
 }
 
 
