@@ -5,8 +5,8 @@
 A complete, playable desktop **Pac-Man clone** (Python/PyGame) with an online high-score
 **leaderboard** backed by Google Cloud Functions + Firestore. It's built to be shared with friends
 arcade-style: machine-ID identity, permanent 3-letter initials, fully playable offline, and
-distributable as a Windows `.exe`. The current focus is making the codebase **safe to extend** before
-adding new features.
+distributable as a Windows `.exe`. The **Solid-Foundation milestone is complete** — the codebase is now
+**safe to extend**, with ghost-AI behavior pinned by a CI-gated golden net and the one latent box bug fixed.
 
 ## Core Value
 
@@ -28,13 +28,14 @@ and outplay. **That behavior is precious and must never silently regress.**
 - ✓ Windows `.exe` distribution via PyInstaller — existing
 - ✓ Frame-perfect characterization-test **safety net** (9 golden traces + 15 per-ghost micro tests + determinism guard) + cloud-fn validator tests + **CI merge-gate** on push/PR — *Phase 1 (test-safety-net), 2026-06-11*
 - ✓ **Behavior-preserving refactor** — centralized tile/board geometry (REF-01) + collapsed the 4× ghost-AI duplication into a data-driven `_move` + per-ghost profiles (REF-02), proven byte-identical by differential oracles + golden traces — *Phase 2 (safe-refactor), 2026-06-12*
+- ✓ **Ghost-box bounds unified** (BUG-01) — collapsed the two divergent box rectangles into a single `GHOST_BOX_BOUNDS` (collision box wins); the milestone's **one sanctioned behavior change**, oracle-proven isolated to the box ring (18,496 comparisons, 0 out-of-ring) + golden masters re-blessed (all 9, frame-340-rooted) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
+- ✓ **Repo hygiene** (HYG-01..04) — pinned client deps, untracked `settings.local.json` + reconciled `.gitignore`, fixed box-exit doc drift, removed dead asset folders (human `.exe` smoke-run verified) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
 
 ### Active
 
-<!-- Milestone 1: Solid Foundation. See docs/superpowers/specs/2026-06-02-solid-foundation-design.md -->
+<!-- Milestone 1 (Solid Foundation) COMPLETE 2026-06-12 — all 3 phases done. Next milestone not yet started. -->
 
-- [ ] Fix the latent **ghost-box bounds** inconsistency
-- [ ] Hygiene — pin deps, untrack `settings.local.json`, fix doc drift, remove dead assets
+_No active requirements — **Milestone 1 (Solid Foundation) is complete.** Start the next milestone (More Competitive) via `/gsd-new-milestone`._
 
 **Future milestones (sequenced after Foundation):**
 
@@ -70,7 +71,7 @@ and outplay. **That behavior is precious and must never silently regress.**
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Tests-first safety net before any refactor | Ghost AI is fragile/hand-tuned; pin behavior so refactor is provably safe | ✓ Phase 1: 61-test net (9 goldens · 15 micro · determinism · CI-gated); behavior frozen |
-| Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | ◆ Phase 2: refactor landed byte-identical (oracles + goldens green); isolated box-bug fix is Phase 3 |
+| Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | ✓ Phase 2 byte-identical; ✓ Phase 3 box-bug fix landed isolated & last (oracle-proven, goldens re-blessed) |
 | Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | — Pending |
 | Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Pending |
 | Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | — Pending |
@@ -93,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-12 after Phase 2 (safe-refactor) completion*
+*Last updated: 2026-06-12 after Phase 3 (box-bug-fix-hygiene) completion — Solid-Foundation milestone complete*
