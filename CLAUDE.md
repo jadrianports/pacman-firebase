@@ -59,4 +59,4 @@ Pac-Man clone built with Python/PyGame, with a Cloud Functions-backed online lea
 
 ### Ghost Box Exit
 
-Ghosts exit the box with staggered delays (configured in `settings.py`). Inky exits immediately, Pinky after ~2 sec, Clyde after ~4 sec. Delays reset on player death. Ghosts are frozen in place inside the box until their timer is up.
+Ghosts exit the box with staggered delays (configured in `settings.py`). Inky exits immediately, Pinky after ~0.5 sec, Clyde after ~1 sec. Delays reset on player death. Ghosts are frozen in place inside the box until their timer is up.

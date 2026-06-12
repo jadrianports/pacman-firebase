@@ -9,7 +9,7 @@ from settings import (
 
 
 def run_main_menu(screen, timer):
-    """Display main menu. Returns the selected option string: 'Play', 'Leaderboard', 'Change Initials', or 'Quit'."""
+    """Display main menu. Returns the selected option string: 'Play', 'Leaderboard', or 'Quit'."""
     title_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
     option_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
     selected = 0
