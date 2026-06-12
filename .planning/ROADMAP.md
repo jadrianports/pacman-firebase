@@ -107,11 +107,17 @@ Plans:
   2. The 4× ghost movement duplication is collapsed into one data-driven turn-priority table (same values, same order → same pixel of movement), and every golden-master trace stays byte-identical (REF-02).
   3. The ghost-AI refactor lands with golden traces unchanged: CI is green AND Claude eyeballs before/after montages and confirms identical ghost behavior with its own vision.
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 
-- [ ] 02-01: TBD
+**Wave 1**
+
+- [ ] 02-01-PLAN.md — Centralize tile/board geometry (REF-01): settings.py constants + geometry.py helpers + literal substitution; check_collisions differential oracle + deterministic frame-hash manifest. Geometry-first gate (D-11).
+
+**Wave 2** *(blocked on Wave 1 — D-11 geometry-first gate)*
+
+- [ ] 02-02-PLAN.md — Collapse the 4× mover duplication (REF-02): per-ghost profile data + unified _move + thin wrappers; synthetic-exhaustive differential oracle, per-ghost atomic commits (blinky→inky→pinky→clyde), mutation canary, one-shot oracle deletion, D-17 CLAUDE.md doc update.
 
 ### Phase 3: Box-Bug Fix + Hygiene
 
