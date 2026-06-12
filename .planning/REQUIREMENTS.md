@@ -32,10 +32,10 @@
 
 ### Hygiene
 
-- [ ] **HYG-01**: Client dependencies are pinned in `requirements.txt`
-- [ ] **HYG-02**: `.claude/settings.local.json` is untracked and `.gitignore` reconciled
-- [ ] **HYG-03**: Doc drift fixed (box-exit timing in `CLAUDE.md` vs `settings.py`; dead "Change Initials" docstring)
-- [ ] **HYG-04**: Dead duplicate asset folders removed after confirming no references
+- [x] **HYG-01**: Client dependencies are pinned in `requirements.txt`
+- [x] **HYG-02**: `.claude/settings.local.json` is untracked and `.gitignore` reconciled
+- [x] **HYG-03**: Doc drift fixed (box-exit timing in `CLAUDE.md` vs `settings.py`; dead "Change Initials" docstring)
+- [x] **HYG-04**: Dead duplicate asset folders removed after confirming no references
 
 ## v2 / Future Requirements (later milestones)
 
@@ -82,10 +82,10 @@
 | REF-01 | Phase 2 — Safe Refactor | Complete |
 | REF-02 | Phase 2 — Safe Refactor | Complete |
 | BUG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
-| HYG-01 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
-| HYG-02 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
-| HYG-03 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
-| HYG-04 | Phase 3 — Box-Bug Fix + Hygiene | Pending |
+| HYG-01 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
+| HYG-02 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
+| HYG-03 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
+| HYG-04 | Phase 3 — Box-Bug Fix + Hygiene (03-01) | Complete |
 
 **Coverage:**
 

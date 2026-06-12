@@ -138,7 +138,7 @@ Plans:
 
 **Wave 1**
 
-- [ ] 03-01-PLAN.md — Hygiene: pin client deps (HYG-01), untrack settings.local.json + reconcile .gitignore + track CLAUDE.md (HYG-02), fix box-exit doc drift + dead docstring (HYG-03), delete dead asset folders + human .exe rebuild smoke-run (HYG-04). Four behavior-neutral atomic commits, CI green at every step (D-09).
+- [x] 03-01-PLAN.md — Hygiene: pin client deps (HYG-01), untrack settings.local.json + reconcile .gitignore + track CLAUDE.md (HYG-02), fix box-exit doc drift + dead docstring (HYG-03), delete dead asset folders + human .exe rebuild smoke-run (HYG-04). Four behavior-neutral atomic commits, CI green at every step (D-09).
 
 **Wave 2** *(blocked on Wave 1 — D-09 hygiene-first/fix-last)*
 
@@ -161,4 +161,4 @@ Phases execute in strict numeric order: 1 → 2 → 3. The Cardinal Rule forbids
 |-------|----------------|--------|-----------|
 | 1. Test Safety Net | 7/7 | Complete    | 2026-06-11 |
 | 2. Safe Refactor | 2/2 | Complete    | 2026-06-12 |
-| 3. Box-Bug Fix + Hygiene | 0/2 | Not started | - |
+| 3. Box-Bug Fix + Hygiene | 1/2 | In Progress|  |

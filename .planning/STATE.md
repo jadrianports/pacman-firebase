@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-06-12T11:57:18.350Z"
-last_activity: 2026-06-12 -- Phase 03 planning complete
+stopped_at: "03-01: 4/4 tasks complete (D-14 .exe gate APPROVED) — 03-02 (BUG-01 box fix) next"
+last_updated: "2026-06-12T12:30:00.000Z"
+last_activity: 2026-06-12 -- Phase 03 Plan 01 COMPLETE (hygiene HYG-01..04 + human-approved .exe rebuild); Wave 2 / 03-02 next
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
-  percent: 67
+  total_plans: 11
+  completed_plans: 10
+  percent: 73
 ---
 
 # Project State
@@ -21,16 +21,29 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-02)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 02 — safe-refactor
+**Current focus:** Phase 03 — box-bug-fix-hygiene
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-12 -- Phase 03 planning complete
+Phase: 03 (box-bug-fix-hygiene) — EXECUTING
+Plan: 2 of 2 (Wave 2 next)
+Status: 03-01 COMPLETE — 4/4 tasks committed, D-14 .exe gate APPROVED; 03-02 (BUG-01) next
+Last activity: 2026-06-12 -- Phase 03 Plan 01 hygiene complete: HYG-01..04 atomic commits (golden traces byte-identical after each; full suite 61 passed/9 skipped); human-verified .exe rebuild on cleaned asset tree
 
-Progress: [██████████] 100%
+### 03-01 Complete (Wave 1 done)
+
+All four hygiene tasks committed atomically (golden traces byte-identical after each; full suite green after Task 4; D-14 human .exe gate APPROVED):
+
+| Task | HYG | Commit |
+|------|-----|--------|
+| 1 — pin client deps (pygame==2.6.1, pyinstaller==6.20.0) | HYG-01 | 3f827db |
+| 2 — untrack settings.local.json + reconcile .gitignore + track CLAUDE.md | HYG-02 | 948fe4d |
+| 3 — box-exit doc timing + drop dead Change Initials docstring | HYG-03 | 5e87bf0 |
+| 4 — delete dead duplicate asset folders (+ human .exe smoke-run) | HYG-04 | 70df7d1 |
+
+SUMMARY: `.planning/phases/03-box-bug-fix-hygiene/03-01-SUMMARY.md`. Next: **03-02 (Wave 2) — BUG-01 unify ghost-box bounds**, the one sanctioned behavior change, isolated to the box region.
+
+Progress: [███████░░░] 73%
 
 ## Performance Metrics
 
@@ -70,6 +83,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [02-01]: REF-01 geometry centralized (TILE_*/geometry.py) proven byte-identical by check_collisions oracle + frame-hash; two box constants kept DISTINCT for Phase 3 BUG-01
 - [Phase ?]: [02-01]: frame-hash manifest is Windows-authored placeholder; CI is the assertion authority — re-bless in Linux CI (pytest --bless)
 - [Phase ?]: REF-02: unified data-driven ghost mover (DirectionRule + 4 *_PROFILE + named quirk hooks + _move + thin wrappers); proven byte-identical by a synthetic-exhaustive differential oracle (138k cases, caught a dir-3 ladder bug) then deleted; mutation canary attested the net
+- [Phase 3]: [03-01]: Hygiene landed as 4 atomic, independently-green commits (D-09 at commit granularity) — golden traces byte-identical after each, full suite 61 passed/9 skipped; pinned pygame==2.6.1 + pyinstaller==6.20.0 (backend untouched); doc-drift fixed by editing PROSE not settings.py constants; dead *_images folders deleted (D-13); D-14 human .exe gate APPROVED — note: real distributable is dist/pacman/pacman.exe, not build/pacman/pacman.exe
 
 ### Pending Todos
 
