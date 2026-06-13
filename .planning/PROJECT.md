@@ -13,6 +13,27 @@ distributable as a Windows `.exe`. The **Solid-Foundation milestone is complete*
 It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read
 and outplay. **That behavior is precious and must never silently regress.**
 
+## Current Milestone: v1.1 More Competitive
+
+**Goal:** Make the leaderboard something friends actually compete on — trustworthy enough that scores
+can't be casually forged, and alive enough that people keep fighting over it.
+
+**Target features:**
+- **Anti-cheat & identity hardening** — relocate `machine_id`/initials out of the game folder + store
+  obfuscated (not plaintext); HMAC-stamp them so the client detects tampering and the server verifies
+  the *same* signature (rejects raw `curl` forgeries); server-enforced **permanent initials** (rename
+  impossible, locked on first submit); tightened server-side score validation (**sanity ceiling**)
+- **Weekly boards** — "This Week" (Monday-UTC reset) + "All Time" toggle; shows last week's champ
+- **Web leaderboard page** — Firebase Hosting, public link, mobile-first, mirrors the in-game boards
+- **"You got passed" launch banner** — names whoever beat *your* score since you last looked
+
+**Key context:** All three competitive features ride on **one backend change** — week-bucketed scores
++ a scope-aware `get_leaderboard`. Build order falls out: harden functions → in-game weekly UI +
+got-passed → web page. Replay-verification (re-run inputs server-side) was considered as the
+unforgeable ceiling but deferred — HMAC + sanity ceiling is the right altitude for a friends board.
+`cloud_functions/*/main.py` may have uncommitted working-tree changes (flagged at v1.0 close) —
+reconcile first.
+
 ## Requirements
 
 ### Validated
@@ -33,13 +54,17 @@ and outplay. **That behavior is precious and must never silently regress.**
 
 ### Active
 
-<!-- Milestone 1 (Solid Foundation) COMPLETE 2026-06-12 — all 3 phases done. Next milestone not yet started. -->
+<!-- Milestone v1.1 (More Competitive) — started 2026-06-14. Detailed REQ-IDs in REQUIREMENTS.md. -->
 
-_No active requirements — **Milestone 1 (Solid Foundation) is complete.** Start the next milestone (More Competitive) via `/gsd-new-milestone`._
+Building toward **v1.1 More Competitive**:
 
-**Future milestones (sequenced after Foundation):**
+- [ ] Anti-cheat & identity hardening — relocated/obfuscated identity files, HMAC tamper-detection + server-side signature verification, server-enforced permanent initials, score sanity ceiling
+- [ ] Weekly boards (This Week + All Time, Monday-UTC reset, last-week's champ)
+- [ ] Web leaderboard page (Firebase Hosting, public, mobile-first)
+- [ ] "You got passed" launch banner
 
-- [ ] **More Competitive** — leaderboard hardening (anti-cheat/score validation), weekly/per-level boards, web score view, private friend groups
+**Future milestones (sequenced after Competitive):**
+
 - [ ] **More Fun** — gameplay depth (levels/mazes, difficulty curve, fruit, modes); optional **arcade-accurate ghost mode** (opt-in toggle)
 - [ ] **Easier to Share** — browser/web build (e.g. pygbag), cross-platform, itch.io release
 
@@ -48,6 +73,11 @@ _No active requirements — **Milestone 1 (Solid Foundation) is complete.** Star
 - Changing ghost-AI **decision behavior** during Foundation — current behavior is the spec, not a draft
 - Arcade-accurate ghost targeting **as a default** — only ever an opt-in mode in the Fun milestone
 - Real-time twitch-reflex AI play — deterministic step/scripted play is strictly better for testing
+- **Friend groups / private join-code boards** (v1.1) — a single shared exe already *is* one friend group; revisit if circles multiply
+- **Season-history archives** of past weekly boards (v1.1) — last-week's champ is enough; full history isn't worth the data model
+- **Local-file encryption** beyond obfuscation + HMAC (v1.1) — client-side secrets are extractable; the server is the real enforcement boundary
+- **Replay-verification** of scores / re-running inputs server-side (v1.1) — considered as the unforgeable ceiling; deferred, HMAC + sanity ceiling is the right altitude for a friends board
+- **New gameplay** — levels, mazes, modes belong to the *More Fun* milestone, not Competitive
 
 ## Context
 
@@ -78,7 +108,9 @@ _No active requirements — **Milestone 1 (Solid Foundation) is complete.** Star
 | Refactor must be byte-identical; bug fix isolated & last | Never mix a must-not-change step with a must-change step | ✓ Phase 2 byte-identical; ✓ Phase 3 box-bug fix landed isolated & last (oracle-proven, goldens re-blessed) |
 | Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | ✓ Good — behavior held byte-identical through v1.0; arcade mode parked for Fun milestone (FUN-04) |
 | Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Superseded — config branching=none; Phase 1 shipped via PR #1, Phases 2–3 committed on `main` with the CI net as the gate |
-| Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | — Pending (next: More Competitive) |
+| Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | ✓ Good — Competitive started 2026-06-14 (v1.1) |
+| Anti-cheat altitude: HMAC signing + server-side verification + score sanity ceiling, NOT full replay-verification | Friends board; client secrets are extractable anyway — raise the bar to stop casual/`curl` cheats rather than chase the unforgeable | — Pending (v1.1) |
+| Permanent initials enforced **server-side** (locked on first submit), not just client-hidden | v1.0 "permanence" was bypassable by editing the local JSON; the rule belongs where the player can't reach it | — Pending (v1.1) |
 
 ## Evolution
 
@@ -98,4 +130,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-12 after v1.0 (Solid Foundation) milestone close*
+*Last updated: 2026-06-14 after starting v1.1 (More Competitive) milestone*
