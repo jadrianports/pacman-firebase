@@ -55,7 +55,11 @@ API, comes last (Phase 7).
   3. Once a machine has submitted initials, a later submission cannot change those initials — the original initials are retained.
   4. Submitted scores are bucketed by week (Monday 00:00 UTC reset); `get_leaderboard` returns either the current week's top scores or the all-time top scores depending on the requested scope.
   5. The v1.0 cloud-function validator tests (TST-03) still pass against the reconciled functions, and the CI golden net (ghost-AI traces + determinism guard) stays green.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 04-01-PLAN.md — Baseline-green check + leaderboard_crypto helper (HMAC verify + week math, stdlib-only; identical copy in both function dirs)
+- [ ] 04-02-PLAN.md — Harden submit_score: MAX_SCORE 50k, HMAC grace verify, permanent initials, week-bucket write + lazy prune in one transaction
+- [ ] 04-03-PLAN.md — Scope-aware get_leaderboard (week|all, default week), weekly query, machine_id-out projection preserved
+- [ ] 04-04-PLAN.md — cloud_functions/DEPLOY.md + manual Console ops (Secret Manager, REQUIRE_SIGNATURE, max-instances, weekly composite index, redeploy)
 
 **Notes:**
 - **Prerequisite (surfaced risk):** `cloud_functions/*/main.py` may carry uncommitted working-tree edits flagged at v1.0 close. The first action of this phase is to reconcile/commit that state *before* modifying the functions, so TST-03 validator tests target a known baseline.
@@ -128,7 +132,7 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 1. Test Safety Net | v1.0 | 7/7 | Complete | 2026-06-11 |
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
-| 4. Server Hardening & Weekly Data Model | v1.1 | 0/TBD | Not started | - |
+| 4. Server Hardening & Weekly Data Model | v1.1 | 0/4 | Not started | - |
 | 5. Client Identity Hardening | v1.1 | 0/TBD | Not started | - |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
