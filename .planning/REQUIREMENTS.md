@@ -73,26 +73,34 @@ Which phase covers which requirement. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IDENT-01 | TBD | Pending |
-| IDENT-02 | TBD | Pending |
-| IDENT-03 | TBD | Pending |
-| COMP-01 | TBD | Pending |
-| COMP-02 | TBD | Pending |
-| COMP-03 | TBD | Pending |
-| BOARD-01 | TBD | Pending |
-| BOARD-02 | TBD | Pending |
-| BOARD-03 | TBD | Pending |
-| BOARD-04 | TBD | Pending |
-| WEB-01 | TBD | Pending |
-| WEB-02 | TBD | Pending |
-| WEB-03 | TBD | Pending |
-| RIVAL-01 | TBD | Pending |
+| IDENT-01 | Phase 5 | Pending |
+| IDENT-02 | Phase 5 | Pending |
+| IDENT-03 | Phase 5 | Pending |
+| COMP-01 | Phase 4 | In Progress |
+| COMP-02 | Phase 4 | In Progress |
+| COMP-03 | Phase 4 | In Progress |
+| BOARD-01 | Phase 4 | In Progress |
+| BOARD-02 | Phase 4 | In Progress |
+| BOARD-03 | Phase 6 | Pending |
+| BOARD-04 | Phase 6 | Pending |
+| WEB-01 | Phase 7 | Pending |
+| WEB-02 | Phase 7 | Pending |
+| WEB-03 | Phase 7 | Pending |
+| RIVAL-01 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 14 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 14 ⚠️ (resolved at roadmap creation)
+- Mapped to phases: 14 ✓ (each to exactly one phase)
+- Unmapped: 0 ✓
+
+**Phase distribution:**
+- Phase 4 (Server Hardening & Weekly Data Model): COMP-01, COMP-02, COMP-03, BOARD-01, BOARD-02 (5)
+- Phase 5 (Client Identity Hardening): IDENT-01, IDENT-02, IDENT-03 (3)
+- Phase 6 (In-Game Weekly Boards & Got-Passed Banner): BOARD-03, BOARD-04, RIVAL-01 (3)
+- Phase 7 (Web Leaderboard Page): WEB-01, WEB-02, WEB-03 (3)
+
+> Status note: Phase 4 requirements are marked **In Progress** as Phase 4 is the active phase entering planning; downstream phases (5-7) remain **Pending** until reached.
 
 ---
 *Requirements defined: 2026-06-14*
-*Last updated: 2026-06-14 after initial definition*
+*Last updated: 2026-06-14 after roadmap creation (phases 4-7 mapped)*
