@@ -35,6 +35,7 @@ the in-game weekly UI + got-passed banner (Phases 5-6); the web page, a pure con
 API, comes last (Phase 7).
 
 **Phase Numbering:**
+
 - Integer phases (4, 5, 6, 7): Planned milestone work (continues from v1.0's Phase 3)
 - Decimal phases (e.g. 4.1): Urgent insertions (marked INSERTED)
 
@@ -46,69 +47,92 @@ API, comes last (Phase 7).
 ## Phase Details
 
 ### Phase 4: Server Hardening & Weekly Data Model
+
 **Goal**: The Cloud Functions become the real enforcement boundary and the single source of weekly/all-time score data that every other feature consumes.
 **Depends on**: Phase 3 (v1.0 close) — must reconcile uncommitted `cloud_functions/*/main.py` working-tree changes first
 **Requirements**: COMP-01, COMP-02, COMP-03, BOARD-01, BOARD-02
 **Success Criteria** (what must be TRUE):
+
   1. A submission whose HMAC signature is missing or invalid (e.g. a raw `curl` post) is rejected and does not appear on any board.
   2. A score above the sanity ceiling is rejected as impossible and is not recorded.
   3. Once a machine has submitted initials, a later submission cannot change those initials — the original initials are retained.
   4. Submitted scores are bucketed by week (Monday 00:00 UTC reset); `get_leaderboard` returns either the current week's top scores or the all-time top scores depending on the requested scope.
-  5. The v1.0 cloud-function validator tests (TST-03) still pass against the reconciled functions, and the CI golden net (ghost-AI traces + determinism guard) stays green.
-**Plans**: 4 plans
+  5. The v1.0 cloud-function validator tests (TST-03) still pass against the reconciled functions, and the CI golden net (ghost-AI traces + determinism guard) stays green.**Plans**: 4 plans
+
+**Wave 1**
+
 - [ ] 04-01-PLAN.md — Baseline-green check + leaderboard_crypto helper (HMAC verify + week math, stdlib-only; identical copy in both function dirs)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 04-02-PLAN.md — Harden submit_score: MAX_SCORE 50k, HMAC grace verify, permanent initials, week-bucket write + lazy prune in one transaction
 - [ ] 04-03-PLAN.md — Scope-aware get_leaderboard (week|all, default week), weekly query, machine_id-out projection preserved
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 04-04-PLAN.md — cloud_functions/DEPLOY.md + manual Console ops (Secret Manager, REQUIRE_SIGNATURE, max-instances, weekly composite index, redeploy)
 
 **Notes:**
+
 - **Prerequisite (surfaced risk):** `cloud_functions/*/main.py` may carry uncommitted working-tree edits flagged at v1.0 close. The first action of this phase is to reconcile/commit that state *before* modifying the functions, so TST-03 validator tests target a known baseline.
 - **Shared-secret seam:** COMP-01 verifies the HMAC against a shared key that must live in *both* the Cloud Functions and the client build. This phase establishes the key and the server-side verification; the client half (producing matching signatures) lands in Phase 5. The end-to-end "valid signed submission is accepted, forged one is rejected" assertion is only fully closed once Phase 5 ships — Phase 4 proves rejection of unsigned/invalid submissions against the known key.
 - Standing constraint: this is leaderboard/Cloud-Functions work only — no ghost-AI decision behavior changes. The CI golden net is a merge gate on `main`.
 
 ### Phase 5: Client Identity Hardening
+
 **Goal**: The player's identity is stored safely outside the game folder and signed, so the client both detects local tampering and produces submissions the hardened server accepts.
 **Depends on**: Phase 4 (server defines the HMAC scheme + shared key and is verifying signatures)
 **Requirements**: IDENT-01, IDENT-02, IDENT-03
 **Success Criteria** (what must be TRUE):
+
   1. Identity data (`machine_id`, initials) is stored in a per-user location outside the game/exe folder, not in a file sitting next to the exe.
   2. The stored identity files are obfuscated, not human-readable plaintext.
   3. If an identity file is altered out-of-band, the game detects the broken HMAC on load and refuses to submit that tampered identity.
   4. A normally-played score submitted by the client carries a valid HMAC signature and is accepted onto the board by the Phase 4 server (the signing↔verification loop is closed end-to-end).
+
 **Plans**: TBD
 
 **Notes:**
+
 - IDENT-03 (client signs) is the second half of the COMP-01 (server verifies) mechanism from Phase 4 — same shared secret. This phase closes the loop the previous phase opened.
 - Scope guard: obfuscation + HMAC only — no local-file encryption beyond that (client secrets are extractable; the server is the enforcement boundary, already handled in Phase 4).
 
 ### Phase 6: In-Game Weekly Boards & Got-Passed Banner
+
 **Goal**: Players see and fight over the weekly competition directly inside the game.
 **Depends on**: Phase 4 (scope-aware `get_leaderboard` + week buckets); benefits from Phase 5 (signed identity for accurate "your score" tracking)
 **Requirements**: BOARD-03, BOARD-04, RIVAL-01
 **Success Criteria** (what must be TRUE):
+
   1. In-game, the player can toggle between a "This Week" board and an "All Time" board and see the corresponding scores.
   2. The board shows the previous week's champion (e.g. "Last week: BOB").
   3. On launch, if someone has beaten the player's score since they last viewed the board, a banner names that player (or players).
   4. When offline or on first launch, these features degrade gracefully — no error, no banner, the game stays fully playable.
+
 **Plans**: TBD
 **UI hint**: yes
 
 **Notes:**
+
 - Consumer of the Phase 4 scoped API — no new server data model here.
 - "Since you last looked" requires persisting a last-viewed marker locally (rides on the Phase 5 identity storage).
 
 ### Phase 7: Web Leaderboard Page
+
 **Goal**: Anyone with the link can view the leaderboard from a phone without launching the game.
 **Depends on**: Phase 4 (the scope-aware API it fetches from); mirrors the boards finalized in Phase 6
 **Requirements**: WEB-01, WEB-02, WEB-03
 **Success Criteria** (what must be TRUE):
+
   1. A public web page hosted on Firebase Hosting displays the leaderboard, fetching from the existing Cloud Functions API.
   2. The page is mobile-first and readable on a phone, in an arcade style matching the game.
   3. The page mirrors the in-game boards — both "This Week" and "All Time" views are available.
+
 **Plans**: TBD
 **UI hint**: yes
 
 **Notes:**
+
 - Pure consumer of the finished API — intentionally last so it mirrors the boards exactly as shipped in Phases 4 and 6.
 
 ### 📋 More Fun (Planned)
