@@ -1,14 +1,24 @@
 import functions_framework
 from firebase_admin import firestore, initialize_app
 import firebase_admin
+import os
 import re
+
+# leaderboard_crypto is the Plan 04-01 helper, duplicated byte-identical into this
+# Gen2 function dir. At deploy time the function dir IS the import root, so the bare
+# `import leaderboard_crypto` works; under the test harness this module is imported as
+# the package `cloud_functions.submit_score.main`, so fall back to the relative import.
+try:
+    import leaderboard_crypto
+except ModuleNotFoundError:  # pragma: no cover - exercised only under the test harness
+    from . import leaderboard_crypto
 
 if not firebase_admin._apps:
     initialize_app()
 
 db = firestore.client()
 
-MAX_SCORE = 500_000
+MAX_SCORE = 50_000
 
 
 @firestore.transactional
@@ -50,6 +60,26 @@ def submit_score(request):
         return ({"success": False, "error": "Invalid initials"}, 400, headers)
     if not isinstance(score, int) or score < 0 or score > MAX_SCORE:
         return ({"success": False, "error": "Invalid score"}, 400, headers)
+
+    # D-02/D-03 HMAC grace-period gate (COMP-01). Runs AFTER the 400 validators so
+    # malformed input still 400s before any signature logic. The flag is read at CALL
+    # TIME (never a module constant) so tests can flip it and so it tracks Console config.
+    # Grace matrix (RESEARCH § Grace-Period Logic):
+    #   absent  + grace off -> accept (log)
+    #   absent  + require on -> reject 401
+    #   present + invalid    -> reject 401 (ALWAYS, even in grace)
+    #   present + valid      -> accept
+    # The canonical message is recomputed by the helper from the parsed typed values,
+    # never from the raw request body (RESEARCH Pitfall 3).
+    signature = data.get("signature")
+    require_sig = os.environ.get("REQUIRE_SIGNATURE", "false").lower() == "true"
+    if signature is None:
+        if require_sig:
+            return ({"success": False, "error": "Signature required"}, 401, headers)
+        # Grace accept: log without leaking the secret or the full machine_id (V7).
+        print(f"unsigned submission accepted (grace period) mid={machine_id[:3]}***")
+    elif not leaderboard_crypto.verify_signature(machine_id, initials, score, signature):
+        return ({"success": False, "error": "Invalid signature"}, 401, headers)
 
     try:
         doc_ref = db.collection("leaderboard").document(machine_id)
