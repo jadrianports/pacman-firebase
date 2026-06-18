@@ -226,3 +226,141 @@ def test_is_new_best_true_when_no_existing_doc(submit_module):
     body, status, _ = submit_module.submit_score(req)
     assert status == 200
     assert body == {"success": True, "is_new_best": True}
+
+
+# --- D-05 permanent initials + BOARD-01 weekly write (multi-doc transaction) --------
+
+
+def _wire_multi_doc(submit_module, all_time=None, weekly=None):
+    """Drive db.collection() per collection name so the all-time ('leaderboard') and
+    weekly ('weekly') docs are distinct mocks with independent snapshots.
+
+    `all_time` / `weekly` are the dicts to return from each doc's snapshot to_dict(),
+    or None to mean the doc does not exist. Returns (all_time_doc_ref, weekly_doc_ref,
+    weekly_doc_id_holder) so tests can inspect transaction.set / .delete call args. The
+    weekly doc id is captured via the .document() call args.
+    """
+    from unittest.mock import MagicMock
+
+    db = submit_module._mock_client
+
+    def _make_collection(stored):
+        coll = MagicMock()
+        doc_ref = MagicMock()
+        snap = doc_ref.get.return_value
+        snap.exists = stored is not None
+        snap.to_dict.return_value = stored or {}
+        coll.document.return_value = doc_ref
+        return coll, doc_ref
+
+    leaderboard_coll, all_time_ref = _make_collection(all_time)
+    weekly_coll, weekly_ref = _make_collection(weekly)
+
+    def collection_side_effect(name):
+        if name == "weekly":
+            return weekly_coll
+        return leaderboard_coll
+
+    db.collection.side_effect = collection_side_effect
+    return all_time_ref, weekly_ref, weekly_coll
+
+
+def _all_time_set_calls(submit_module, all_time_ref):
+    """Return the list of dicts written to the all-time doc via transaction.set."""
+    db = submit_module._mock_client
+    transaction = db.transaction.return_value
+    return [
+        call.args[1]
+        for call in transaction.set.call_args_list
+        if call.args and call.args[0] is all_time_ref
+    ]
+
+
+def test_keep_original_initials_on_later_submission(submit_module):
+    """Existing all-time {BOB,4000}; submit {EVE,9000} -> store BOB (not EVE), score 9000."""
+    all_time_ref, _weekly_ref, _ = _wire_multi_doc(
+        submit_module,
+        all_time={"initials": "BOB", "score": 4000},
+        weekly={"initials": "BOB", "score": 4000},
+    )
+    req = make_request({"machine_id": "m1", "initials": "EVE", "score": 9000})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body == {"success": True, "is_new_best": True}
+
+    writes = _all_time_set_calls(submit_module, all_time_ref)
+    assert writes, "expected an all-time transaction.set write"
+    written = writes[-1]
+    assert written["initials"] == "BOB"  # original kept (D-05)
+    assert written["initials"] != "EVE"  # new initials never written
+    assert written["score"] == 9000  # score still updates
+
+
+def test_first_submission_locks_initials(submit_module):
+    """No existing all-time doc; submit {ABC,1} -> initials written as ABC (lock)."""
+    all_time_ref, _weekly_ref, _ = _wire_multi_doc(
+        submit_module, all_time=None, weekly=None
+    )
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 1})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body == {"success": True, "is_new_best": True}
+
+    writes = _all_time_set_calls(submit_module, all_time_ref)
+    assert writes, "expected an all-time transaction.set write"
+    assert writes[-1]["initials"] == "ABC"
+
+
+def test_weekly_doc_written_with_machine_week_id(submit_module):
+    """A successful submit writes a weekly doc id '{machine_id}_{week_id}' carrying the
+    locked initials, score, machine_id, and the week_id field."""
+    import re as _re
+
+    all_time_ref, weekly_ref, weekly_coll = _wire_multi_doc(
+        submit_module, all_time=None, weekly=None
+    )
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body["success"] is True
+
+    # weekly doc id is built from machine_id + a Monday-date week_id (YYYY-MM-DD).
+    doc_ids = [c.args[0] for c in weekly_coll.document.call_args_list if c.args]
+    weekly_ids = [d for d in doc_ids if _re.match(r"^m1_\d{4}-\d{2}-\d{2}$", str(d))]
+    assert weekly_ids, f"expected a weekly doc id like 'm1_YYYY-MM-DD', got {doc_ids}"
+
+    # the weekly write carries the expected fields.
+    db = submit_module._mock_client
+    transaction = db.transaction.return_value
+    weekly_writes = [
+        c.args[1]
+        for c in transaction.set.call_args_list
+        if c.args and c.args[0] is weekly_ref
+    ]
+    assert weekly_writes, "expected a weekly transaction.set write"
+    w = weekly_writes[-1]
+    assert w["initials"] == "ABC"
+    assert w["score"] == 5000
+    assert w["machine_id"] == "m1"
+    assert _re.match(r"^\d{4}-\d{2}-\d{2}$", str(w["week_id"]))
+
+
+def test_lazy_prune_deletes_two_weeks_back(submit_module):
+    """A successful submit issues a delete of the weekly doc two weeks back ({mid}_{week-2})."""
+    import re as _re
+
+    _all_time_ref, _weekly_ref, weekly_coll = _wire_multi_doc(
+        submit_module, all_time=None, weekly=None
+    )
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000})
+    _body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+
+    db = submit_module._mock_client
+    transaction = db.transaction.return_value
+    # at least one transaction.delete was issued (the lazy prune)
+    assert transaction.delete.call_count >= 1, "expected a lazy-prune delete"
+    # and a weekly doc id for a *different* (older) week than the current one was addressed
+    doc_ids = [str(c.args[0]) for c in weekly_coll.document.call_args_list if c.args]
+    week_ids = sorted({d for d in doc_ids if _re.match(r"^m1_\d{4}-\d{2}-\d{2}$", d)})
+    assert len(week_ids) >= 2, f"expected current + stale week doc ids, got {week_ids}"
