@@ -65,7 +65,7 @@ API, comes last (Phase 7).
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 04-02-PLAN.md — Harden submit_score: MAX_SCORE 50k, HMAC grace verify, permanent initials, week-bucket write + lazy prune in one transaction
+- [x] 04-02-PLAN.md — Harden submit_score: MAX_SCORE 50k, HMAC grace verify, permanent initials, week-bucket write + lazy prune in one transaction
 - [ ] 04-03-PLAN.md — Scope-aware get_leaderboard (week|all, default week), weekly query, machine_id-out projection preserved
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -156,7 +156,7 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 1. Test Safety Net | v1.0 | 7/7 | Complete | 2026-06-11 |
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
-| 4. Server Hardening & Weekly Data Model | v1.1 | 1/4 | In Progress|  |
+| 4. Server Hardening & Weekly Data Model | v1.1 | 2/4 | In Progress|  |
 | 5. Client Identity Hardening | v1.1 | 0/TBD | Not started | - |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |

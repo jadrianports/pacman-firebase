@@ -20,8 +20,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Anti-Cheat / Score Integrity (server-side)
 
 - [x] **COMP-01**: The server verifies the HMAC signature on each score submission and rejects forged or unsigned submissions (a raw `curl` does not make the board)
-- [ ] **COMP-02**: The server rejects scores above a sanity ceiling (impossible scores cannot be submitted)
-- [ ] **COMP-03**: The server enforces permanent initials — a machine's initials are locked on first submission and cannot be changed by later submissions
+- [x] **COMP-02**: The server rejects scores above a sanity ceiling (impossible scores cannot be submitted)
+- [x] **COMP-03**: The server enforces permanent initials — a machine's initials are locked on first submission and cannot be changed by later submissions
 
 ### Weekly Boards
 
