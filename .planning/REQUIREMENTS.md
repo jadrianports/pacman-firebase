@@ -26,7 +26,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Weekly Boards
 
 - [x] **BOARD-01**: Scores are bucketed by week; a "This Week" board shows the current week's top scores, resetting at Monday 00:00 UTC
-- [ ] **BOARD-02**: An "All Time" board is retained alongside the weekly board
+- [x] **BOARD-02**: An "All Time" board is retained alongside the weekly board
 - [ ] **BOARD-03**: The player can toggle between "This Week" and "All Time" views in-game
 - [ ] **BOARD-04**: The previous week's champion is shown (e.g. "Last week: BOB")
 

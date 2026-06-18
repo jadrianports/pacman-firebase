@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: More Competitive
 status: executing
 stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-06-18T22:25:15.369Z"
+last_updated: "2026-06-18T22:31:11.719Z"
 last_activity: 2026-06-18 -- Phase 04 execution started
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 ## Current Position
 
 Phase: 04 (server-hardening-weekly-data-model) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-06-18 -- Phase 04 execution started
 
@@ -47,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 | 07 Web Leaderboard Page | TBD | - |
 | Phase 04 P01 | 12min | 2 tasks | 3 files |
 | Phase 04 P02 | 10min | 2 tasks | 2 files |
+| Phase 04 P03 | 8min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,7 @@ Full decision log lives in PROJECT.md (Key Decisions) and the archived
 - [Phase ?]: Plan 04-01: HMAC secret read at call time; machine_id+initials+score bound into signed payload; constant-time compare_digest
 - [Phase ?]: Plan 04-02: MAX_SCORE lowered to 50_000; HMAC grace gate (invalid always 401, missing rejected only when REQUIRE_SIGNATURE on)
 - [Phase ?]: Plan 04-02: permanent initials locked server-side; weekly doc {machine_id}_{week_id} only-if-higher from server time; two-weeks-back lazy prune; is_new_best stays all-time
+- [Phase ?]: Plan 04-03: get_leaderboard scope-aware (?scope=week|all); default+unknown -> week; weekly path filters week_id==current_week_id(); {initials,score}-only projection on both scopes (D-10)
 
 ### Pending Todos
 
@@ -94,7 +96,7 @@ Items acknowledged and carried forward from v1.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-18T22:24:55.250Z
+Last session: 2026-06-18T22:30:33.463Z
 Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
