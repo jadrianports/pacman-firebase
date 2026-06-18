@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
 status: executing
-stopped_at: Phase 4 context gathered
-last_updated: "2026-06-13T19:25:56.509Z"
-last_activity: 2026-06-14 — v1.1 roadmap created (Phases 4-7)
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-06-18T22:14:01.594Z"
+last_activity: 2026-06-18 -- Phase 04 execution started
 progress:
   total_phases: 4
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 4 — Server Hardening & Weekly Data Model
+**Current focus:** Phase 04 — server-hardening-weekly-data-model
 
 ## Current Position
 
-Phase: 4 of 7 (Server Hardening & Weekly Data Model) — first phase of v1.1
-Plan: — (roadmap created, phase not yet planned)
+Phase: 04 (server-hardening-weekly-data-model) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-14 — v1.1 roadmap created (Phases 4-7)
+Last activity: 2026-06-18 -- Phase 04 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -45,6 +45,7 @@ Progress: [░░░░░░░░░░] 0%
 | 05 Client Identity Hardening | TBD | - |
 | 06 In-Game Weekly Boards & Got-Passed Banner | TBD | - |
 | 07 Web Leaderboard Page | TBD | - |
+| Phase 04 P01 | 12min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Full decision log lives in PROJECT.md (Key Decisions) and the archived
 
 - HMAC is one mechanism split across two phases: server verifies (COMP-01, Phase 4) ↔ client signs
   (IDENT-03, Phase 5), sharing one secret that lives in both the Cloud Functions and the client build.
+
+- [Phase ?]: Plan 04-01: Locked canonical JSON kwargs (sort_keys, compact separators, ensure_ascii=False) as the Phase 5 client wire-format contract
+- [Phase ?]: Plan 04-01: HMAC secret read at call time; machine_id+initials+score bound into signed payload; constant-time compare_digest
 
 ### Pending Todos
 
@@ -87,9 +91,9 @@ Items acknowledged and carried forward from v1.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-13T18:45:23.898Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-server-hardening-weekly-data-model/04-CONTEXT.md
+Last session: 2026-06-18T22:14:01.579Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
 
 ## Operator Next Steps
 

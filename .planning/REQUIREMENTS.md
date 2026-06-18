@@ -19,13 +19,13 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Anti-Cheat / Score Integrity (server-side)
 
-- [ ] **COMP-01**: The server verifies the HMAC signature on each score submission and rejects forged or unsigned submissions (a raw `curl` does not make the board)
+- [x] **COMP-01**: The server verifies the HMAC signature on each score submission and rejects forged or unsigned submissions (a raw `curl` does not make the board)
 - [ ] **COMP-02**: The server rejects scores above a sanity ceiling (impossible scores cannot be submitted)
 - [ ] **COMP-03**: The server enforces permanent initials — a machine's initials are locked on first submission and cannot be changed by later submissions
 
 ### Weekly Boards
 
-- [ ] **BOARD-01**: Scores are bucketed by week; a "This Week" board shows the current week's top scores, resetting at Monday 00:00 UTC
+- [x] **BOARD-01**: Scores are bucketed by week; a "This Week" board shows the current week's top scores, resetting at Monday 00:00 UTC
 - [ ] **BOARD-02**: An "All Time" board is retained alongside the weekly board
 - [ ] **BOARD-03**: The player can toggle between "This Week" and "All Time" views in-game
 - [ ] **BOARD-04**: The previous week's champion is shown (e.g. "Last week: BOB")
@@ -89,11 +89,13 @@ Which phase covers which requirement. Populated during roadmap creation.
 | RIVAL-01 | Phase 6 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 14 total
 - Mapped to phases: 14 ✓ (each to exactly one phase)
 - Unmapped: 0 ✓
 
 **Phase distribution:**
+
 - Phase 4 (Server Hardening & Weekly Data Model): COMP-01, COMP-02, COMP-03, BOARD-01, BOARD-02 (5)
 - Phase 5 (Client Identity Hardening): IDENT-01, IDENT-02, IDENT-03 (3)
 - Phase 6 (In-Game Weekly Boards & Got-Passed Banner): BOARD-03, BOARD-04, RIVAL-01 (3)

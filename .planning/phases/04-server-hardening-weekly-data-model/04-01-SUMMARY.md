@@ -107,6 +107,10 @@ None - no external service configuration in this plan. (The `LEADERBOARD_HMAC_SE
 - Plan 02 (submit_score hardening) and Plan 03 (get_leaderboard scope) can now `from leaderboard_crypto import ...` against a stable, tested contract.
 - Phase 5 client signing has a locked canonical-JSON format to reproduce.
 
+## Self-Check: PASSED
+
+All 3 created files exist; all 3 task/RED/GREEN commits (8939f60, 7aefa2a, 710ee15) present in git log.
+
 ---
 *Phase: 04-server-hardening-weekly-data-model*
 *Completed: 2026-06-19*
