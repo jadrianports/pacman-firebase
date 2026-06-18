@@ -21,8 +21,24 @@ Note on the mock seam: the conftest patches `firestore.client` with
 `submit_module._mock_client` IS `db` directly (drive `.collection.return_value...`, not
 `.return_value.collection...`).
 """
+import hashlib
+import hmac
+import json
+
 from werkzeug.test import EnvironBuilder
 from flask import Request
+
+
+def _sign(machine_id, initials, score, secret="test-key"):
+    """Compute the expected HMAC hexdigest exactly as leaderboard_crypto does, so
+    the valid-signature tests are self-consistent (no hardcoded digest)."""
+    msg = json.dumps(
+        {"machine_id": machine_id, "initials": initials, "score": score},
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+    ).encode("utf-8")
+    return hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
 
 
 def make_request(body, method="POST"):
@@ -47,11 +63,79 @@ def test_bad_initials_returns_400(submit_module):
 
 
 def test_score_over_max_returns_400(submit_module):
-    """score above MAX_SCORE (500000) -> 400 'Invalid score' (overflow guard)."""
-    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 500001})
+    """score above MAX_SCORE (50000) -> 400 'Invalid score' (D-01 sanity ceiling)."""
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 50001})
     body, status, _ = submit_module.submit_score(req)
     assert status == 400
     assert body == {"success": False, "error": "Invalid score"}
+
+
+def test_score_at_max_accepted(submit_module):
+    """score exactly at MAX_SCORE (50000) -> accepted 200 (boundary is inclusive)."""
+    _stub_existing_doc(submit_module, stored_score=4000)
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 50000})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body["success"] is True
+
+
+# --- D-02 HMAC grace-period matrix (COMP-01) ----------------------------------------
+
+
+def test_unsigned_accepted_when_grace(submit_module, monkeypatch):
+    """No signature + REQUIRE_SIGNATURE unset/false -> accepted 200 (grace period)."""
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", "test-key")
+    monkeypatch.delenv("REQUIRE_SIGNATURE", raising=False)
+    _stub_existing_doc(submit_module, stored_score=4000)
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body["success"] is True
+
+
+def test_unsigned_rejected_when_required(submit_module, monkeypatch):
+    """No signature + REQUIRE_SIGNATURE=true -> rejected 401."""
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", "test-key")
+    monkeypatch.setenv("REQUIRE_SIGNATURE", "true")
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000})
+    body, status, _ = submit_module.submit_score(req)
+    assert status in (401, 403)
+    assert body["success"] is False
+
+
+def test_invalid_signature_rejected_when_grace(submit_module, monkeypatch):
+    """Forged signature + REQUIRE_SIGNATURE false -> rejected even in grace (invalid always 401)."""
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", "test-key")
+    monkeypatch.setenv("REQUIRE_SIGNATURE", "false")
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000,
+                        "signature": "deadbeef"})
+    body, status, _ = submit_module.submit_score(req)
+    assert status in (401, 403)
+    assert body["success"] is False
+
+
+def test_invalid_signature_rejected_when_required(submit_module, monkeypatch):
+    """Forged signature + REQUIRE_SIGNATURE=true -> rejected 401."""
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", "test-key")
+    monkeypatch.setenv("REQUIRE_SIGNATURE", "true")
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000,
+                        "signature": "deadbeef"})
+    body, status, _ = submit_module.submit_score(req)
+    assert status in (401, 403)
+    assert body["success"] is False
+
+
+def test_valid_signature_accepted(submit_module, monkeypatch):
+    """A correct HMAC over the test key -> accepted 200, even with enforcement on."""
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", "test-key")
+    monkeypatch.setenv("REQUIRE_SIGNATURE", "true")
+    _stub_existing_doc(submit_module, stored_score=4000)
+    sig = _sign("m1", "ABC", 5000)
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": 5000,
+                        "signature": sig})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 200
+    assert body["success"] is True
 
 
 def test_non_int_score_returns_400(submit_module):
