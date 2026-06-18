@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-06-18T22:31:11.719Z"
-last_activity: 2026-06-18 -- Phase 04 execution started
+stopped_at: Phase 04 plans 01-03 complete & green; 04-04 deploy deferred at human-verify checkpoint
+last_updated: "2026-06-19"
+last_activity: 2026-06-19 -- Phase 04 executed (plans 01-03 done); 04-04 live Console deploy deferred by operator
 progress:
   total_phases: 4
   completed_phases: 0
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 
 ## Current Position
 
-Phase: 04 (server-hardening-weekly-data-model) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute
-Last activity: 2026-06-18 -- Phase 04 execution started
+Phase: 04 (server-hardening-weekly-data-model) — EXECUTING (paused at deploy checkpoint)
+Plan: 04-04 of 4 — DEPLOY.md authored; Console deploy (Tasks 2-3) deferred by operator
+Status: Code complete & green (01-03 verified); live Cloud Console deploy not yet done
+Last activity: 2026-06-19 -- plans 01-03 complete; 04-04 deploy deferred
 
-Progress: [░░░░░░░░░░] 0%
+Progress (plans): [███████░░░] 3/4 (75%)
 
 ## Performance Metrics
 
@@ -81,9 +81,16 @@ None.
 
 ### Blockers/Concerns
 
-- **Phase 4 prerequisite:** `cloud_functions/*/main.py` may carry uncommitted working-tree
-  modifications (flagged at v1.0 close). Reconcile/commit that state BEFORE modifying the functions,
-  and keep the v1.0 cloud-function validator tests (TST-03) green against the reconciled baseline.
+- **Phase 4 prerequisite — RESOLVED (2026-06-19):** `cloud_functions/` working tree was clean at
+  execution start (no uncommitted main.py mods). TST-03 validators stayed green (baseline 21 passed →
+  full suite 88 passed/9 skipped after plans 01-03).
+- **OPEN — Phase 4 live deploy (04-04 Tasks 2-3, deferred by operator 2026-06-19):** The hardened
+  code is committed but NOT yet live. Manual Google Cloud Console steps remain (see
+  `cloud_functions/DEPLOY.md`): create Secret Manager secret `leaderboard-hmac-secret` + reference as
+  `LEADERBOARD_HMAC_SECRET` on both functions, set `REQUIRE_SIGNATURE=false` grace flag, set
+  max-instances 3-5, create `weekly` composite index (`week_id ASC, score DESC`), redeploy both
+  functions in asia-southeast1, run smoke checks. Phase 4 stays in-progress until done.
+  Resume: `/gsd-execute-phase 4` (re-enters 04-04 at the Task 2 checkpoint).
 
 ## Deferred Items
 
@@ -96,10 +103,12 @@ Items acknowledged and carried forward from v1.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-18T22:30:33.463Z
-Stopped at: Completed 04-01-PLAN.md
-Resume file: None
+Last session: 2026-06-19
+Stopped at: Phase 04 — plans 01-03 complete & green; 04-04 deploy deferred at human-verify checkpoint (Task 2)
+Resume file: .planning/phases/04-server-hardening-weekly-data-model/04-04-PLAN.md (Tasks 2-3 = Console deploy)
 
 ## Operator Next Steps
 
-- Plan the first phase with `/gsd-plan-phase 4`
+- When ready to deploy: follow `cloud_functions/DEPLOY.md`, then `/gsd-execute-phase 4` to close 04-04
+  and run phase verification (re-enters at the Task 2 human-verify checkpoint).
+- Phase 4 is NOT complete until the live deploy checkpoints are approved.
