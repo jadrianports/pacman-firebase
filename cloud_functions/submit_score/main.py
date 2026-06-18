@@ -22,17 +22,63 @@ MAX_SCORE = 50_000
 
 
 @firestore.transactional
-def _update_score(transaction, doc_ref, initials, score, machine_id):
-    doc = doc_ref.get(transaction=transaction)
-    if doc.exists and score <= doc.to_dict().get("score", 0):
-        return False
-    transaction.set(doc_ref, {
-        "initials": initials,
-        "score": score,
-        "machine_id": machine_id,
-        "updated_at": firestore.SERVER_TIMESTAMP,
-    })
-    return True
+def _update_score(transaction, all_time_ref, weekly_ref, stale_weekly_ref,
+                  initials, score, machine_id, week_id):
+    """Combined all-time + weekly read-modify-write + lazy prune in ONE transaction.
+
+    INVARIANT: all .get() calls precede all .set()/.delete() calls — Firestore
+    transactions require reads before writes; MagicMock tests do NOT catch a
+    violation, so verify this ordering by eye. The three phases below are kept
+    explicit (READS, then DECIDE, then WRITES/DELETES) to make that reviewable.
+
+    Returns is_new_best with ALL-TIME semantics (RESEARCH Pitfall 5) — the weekly
+    best is computed independently and never leaks into the response.
+    """
+    # --- (1) READS: every .get() happens here, before any write/delete ---
+    all_time_snap = all_time_ref.get(transaction=transaction)
+    weekly_snap = weekly_ref.get(transaction=transaction)
+
+    # --- (2) DECIDE: pure computation, no Firestore mutation ---
+    if all_time_snap.exists:
+        stored_all = all_time_snap.to_dict()
+        all_time_best = score > stored_all.get("score", 0)
+        # D-05: keep the originally-locked initials; the .get(..., initials) fallback
+        # keeps the existing test_is_new_best_* stubs (which omit initials) green.
+        locked_initials = stored_all.get("initials", initials)
+    else:
+        all_time_best = True
+        locked_initials = initials  # first submission locks the initials
+
+    if weekly_snap.exists:
+        weekly_best = score > weekly_snap.to_dict().get("score", 0)
+    else:
+        weekly_best = True
+
+    # --- (3) WRITES / DELETES: nothing above this line may .set()/.delete() ---
+    if all_time_best:
+        transaction.set(all_time_ref, {
+            "initials": locked_initials,  # D-05: NOT the new submission's initials
+            "score": score,
+            "machine_id": machine_id,
+            "updated_at": firestore.SERVER_TIMESTAMP,
+        })
+
+    if weekly_best:
+        # D-06..D-08: one best row per machine per week; week_id is server-time only
+        # and stored as a field for the Plan 03 composite-index query.
+        transaction.set(weekly_ref, {
+            "initials": locked_initials,  # weekly board shows the locked tag too
+            "score": score,
+            "machine_id": machine_id,
+            "week_id": week_id,
+            "updated_at": firestore.SERVER_TIMESTAMP,
+        })
+
+    # D-09 / A4: lazy prune the week-two-back doc. A delete of a non-existent doc is a
+    # harmless Firestore no-op, so no prior read is needed — issued in the WRITES phase.
+    transaction.delete(stale_weekly_ref)
+
+    return all_time_best
 
 
 @functions_framework.http
@@ -82,9 +128,21 @@ def submit_score(request):
         return ({"success": False, "error": "Invalid signature"}, 401, headers)
 
     try:
-        doc_ref = db.collection("leaderboard").document(machine_id)
+        # week_id is computed from server time only (D-06) — never a client timestamp.
+        week_id = leaderboard_crypto.current_week_id()
+        stale_week = leaderboard_crypto.previous_week_id(
+            leaderboard_crypto.previous_week_id(week_id)
+        )  # two weeks back: keep-set is {current, last week} (D-09)
+
+        all_time_ref = db.collection("leaderboard").document(machine_id)
+        weekly_ref = db.collection("weekly").document(f"{machine_id}_{week_id}")
+        stale_weekly_ref = db.collection("weekly").document(f"{machine_id}_{stale_week}")
+
         transaction = db.transaction()
-        is_new_best = _update_score(transaction, doc_ref, initials, score, machine_id)
+        is_new_best = _update_score(
+            transaction, all_time_ref, weekly_ref, stale_weekly_ref,
+            initials, score, machine_id, week_id,
+        )
         return ({"success": True, "is_new_best": is_new_best}, 200, headers)
     except Exception as e:
         print(f"Score submission failed: {e}")
