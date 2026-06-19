@@ -2,12 +2,16 @@ import os
 import sys
 
 import pygame
-from settings import WIDTH, HEIGHT, API_SUBMIT_SCORE_URL, API_LEADERBOARD_URL, HMAC_SECRET_FILE_NAME
+from settings import (
+    WIDTH, HEIGHT, API_SUBMIT_SCORE_URL, API_LEADERBOARD_URL, HMAC_SECRET_FILE_NAME,
+    BANNER_FETCH_TIMEOUT_SECONDS, BANNER_NAME_CAP,
+)
 from game import Game
 from menu import run_main_menu, run_initials_entry, run_leaderboard, run_game_over_screen
 from api_service import ApiService
 from local_storage import load_identity, save_initials, IDENTITY_STATUS_TAMPERED
 from leaderboard_crypto import sign_submission, de_obfuscate
+import marker
 
 
 def _load_hmac_secret():
@@ -43,6 +47,23 @@ def _load_hmac_secret():
     return os.environ.get("LEADERBOARD_HMAC_SECRET") or None
 
 
+def _format_banner(names):
+    """Build the got-passed banner line from sorted passer initials (D-06).
+
+    Applies the UI-SPEC cap (``BANNER_NAME_CAP`` = 3): list all names joined by
+    ", " when within the cap; otherwise list the first 3 then " +{K} more". Always
+    suffixes " passed you this week!". ``names`` is expected already sorted/deduped.
+    Returns None for an empty list (no banner).
+    """
+    if not names:
+        return None
+    if len(names) <= BANNER_NAME_CAP:
+        listed = ", ".join(names)
+    else:
+        listed = ", ".join(names[:BANNER_NAME_CAP]) + f" +{len(names) - BANNER_NAME_CAP} more"
+    return f"{listed} passed you this week!"
+
+
 def main():
     pygame.init()
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
@@ -68,9 +89,28 @@ def main():
             return
         save_initials(initials, secret)
 
+    # Launch got-passed banner compute (RIVAL-01), all best-effort — never break
+    # startup (SC-4). Load the unsigned marker; if absent (cold start, D-18) or it
+    # has no tracked this-week best (D-05: no score to be passed on), no banner.
+    # Otherwise do a SHORT-timeout This Week fetch (D-09, single blocking call, no
+    # threading); offline/slow -> no banner. New passers = board initials scoring
+    # above our tracked best, minus those already above us at last board view (D-11/D-12).
+    banner_text = None
+    tracked_best = None
+    initials_above = set()
+    _marker = marker.read_marker()
+    if _marker is not None and _marker.get("tracked_best") is not None:
+        tracked_best = _marker["tracked_best"]
+        initials_above = set(_marker.get("initials_above", []))
+        this_week = api.get_leaderboard(scope="week", timeout=BANNER_FETCH_TIMEOUT_SECONDS)
+        if this_week:
+            above_now = {e["initials"] for e in this_week if e["score"] > tracked_best}
+            new_passers = sorted(above_now - initials_above)
+            banner_text = _format_banner(new_passers)
+
     # Main state loop
     while True:
-        choice = run_main_menu(screen, timer)
+        choice = run_main_menu(screen, timer, banner_text=banner_text)
 
         if choice == "Quit":
             break
@@ -102,11 +142,31 @@ def main():
                     screen, timer, score, is_new_best, game_won, identity_error=False
                 )
 
+                # Submit-path tracked-best update (D-11): keep the locally tracked
+                # this-week best current so the next launch's passer comparison is
+                # accurate. Re-baseline to this score for the current client week and
+                # persist; the marker writer is best-effort (swallows errors).
+                if response is not None:
+                    week_id = marker.client_current_week_id()
+                    tracked_best = max(tracked_best or 0, score)
+                    marker.write_marker(week_id, tracked_best, initials_above)
+
             if action == "quit":
                 break
 
         elif choice == "Leaderboard":
-            run_leaderboard(screen, timer, api)
+            # Open the board; it returns the freshly-fetched This Week entries (O-3).
+            # Opening the board clears the on-screen banner for the session AND rewrites
+            # the marker baseline — the ONLY place initials_above is reset (D-07/D-10).
+            this_week_entries = run_leaderboard(screen, timer, api)
+            banner_text = None
+            if this_week_entries and tracked_best is not None:
+                initials_above = {
+                    e["initials"] for e in this_week_entries if e["score"] > tracked_best
+                }
+                marker.write_marker(
+                    marker.client_current_week_id(), tracked_best, initials_above
+                )
 
     pygame.quit()
 
