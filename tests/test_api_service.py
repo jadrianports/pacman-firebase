@@ -92,3 +92,54 @@ def test_get_leaderboard_network_error(service):
     with patch("api_service.urlopen", side_effect=Exception("timeout")):
         result = service.get_leaderboard()
     assert result is None
+
+
+def test_get_leaderboard_sends_scope_param(service):
+    """A truthy scope is urlencode'd into the query string (escaped, not
+    hand-concatenated), so the server returns that specific board."""
+    captured = {}
+
+    def _fake_urlopen(req, timeout=None):
+        captured["url"] = req.get_full_url()
+        return _mock_response({"entries": []})
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.get_leaderboard(scope="last_week")
+    assert "scope=last_week" in captured["url"]
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.get_leaderboard(scope="all")
+    assert "scope=all" in captured["url"]
+
+
+def test_get_leaderboard_no_scope_omits_param(service):
+    """No scope → no query param → URL is the bare base so the server defaults
+    to the current week."""
+    captured = {}
+
+    def _fake_urlopen(req, timeout=None):
+        captured["url"] = req.get_full_url()
+        return _mock_response({"entries": []})
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.get_leaderboard()
+    assert captured["url"] == service.leaderboard_url
+    assert "scope" not in captured["url"]
+
+
+def test_get_leaderboard_passes_timeout(service):
+    """The timeout kwarg threads into urlopen; default stays 10, the launch
+    banner can pass a short value."""
+    captured = {}
+
+    def _fake_urlopen(req, timeout=None):
+        captured["timeout"] = timeout
+        return _mock_response({"entries": []})
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.get_leaderboard(timeout=2)
+    assert captured["timeout"] == 2
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.get_leaderboard()
+    assert captured["timeout"] == 10
