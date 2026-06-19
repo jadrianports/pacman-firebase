@@ -124,9 +124,33 @@ def test_write_marker_never_raises_on_open_failure(tmp_marker_dir, monkeypatch):
 # --- no signing/obfuscation on the marker ----------------------------------------
 
 def test_marker_module_has_no_signing_imports():
-    """The marker is unsigned by design — it must not import the identity signing seam."""
-    src = open(marker.__file__).read()
-    assert "obfuscate" not in src
-    assert "sign_identity_blob" not in src
-    assert "sign_submission" not in src
-    assert "hmac" not in src
+    """The marker is unsigned by design — it must not import/call the identity signing seam.
+
+    Scan executable code only (docstrings/comments stripped) so prose explaining WHY
+    the marker is unsigned doesn't trip the guard. The marker must not pull in
+    obfuscate / sign_identity_blob / sign_submission / hmac at the code level.
+    """
+    import ast
+
+    tree = ast.parse(open(marker.__file__).read())
+    # Strip docstrings: drop the leading string-literal expression of every scope.
+    forbidden = {"obfuscate", "sign_identity_blob", "sign_submission", "hmac"}
+
+    referenced_names = set()
+    imported_modules = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name):
+            referenced_names.add(node.id)
+        elif isinstance(node, ast.Attribute):
+            referenced_names.add(node.attr)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                imported_modules.add(alias.name.split(".")[0])
+        elif isinstance(node, ast.ImportFrom):
+            if node.module:
+                imported_modules.add(node.module.split(".")[0])
+            for alias in node.names:
+                referenced_names.add(alias.name)
+
+    leaked = forbidden & (referenced_names | imported_modules)
+    assert not leaked, f"marker.py references signing seam: {leaked}"
