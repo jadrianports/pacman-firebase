@@ -104,7 +104,9 @@ def submit_score(request):
         return ({"success": False, "error": "Missing machine_id"}, 400, headers)
     if not re.match(r"^[A-Z]{3}$", initials):
         return ({"success": False, "error": "Invalid initials"}, 400, headers)
-    if not isinstance(score, int) or score < 0 or score > MAX_SCORE:
+    # bool subclasses int, so reject it explicitly (WR-01): `"score": true` must
+    # not slip through isinstance(score, int) and be stored as a 1-point score.
+    if isinstance(score, bool) or not isinstance(score, int) or score < 0 or score > MAX_SCORE:
         return ({"success": False, "error": "Invalid score"}, 400, headers)
 
     # D-02/D-03 HMAC grace-period gate (COMP-01). Runs AFTER the 400 validators so

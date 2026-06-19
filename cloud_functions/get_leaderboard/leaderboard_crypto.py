@@ -43,11 +43,24 @@ def verify_signature(machine_id, initials, score, provided_sig):
     constant) so it is never captured in source or import-time state. The
     expected digest is computed from the parsed/typed values, never from the
     raw HTTP body. Comparison is constant-time (hmac.compare_digest) to avoid a
-    timing oracle; a missing signature compares against "" and fails.
+    timing oracle.
+
+    This function is TOTAL / fail-closed (CR-01): non-string, non-ASCII, or
+    missing-secret inputs all return False and never raise, so the public
+    submit_score gate yields a deterministic 401 instead of an uncaught 500.
     """
-    secret = os.environ["LEADERBOARD_HMAC_SECRET"].encode("utf-8")
-    expected = hmac.new(secret, canonical_message(machine_id, initials, score), hashlib.sha256).hexdigest()
-    return hmac.compare_digest(expected, provided_sig or "")
+    if not isinstance(provided_sig, str):
+        return False  # non-string sig can never match a hex digest
+    secret = os.environ.get("LEADERBOARD_HMAC_SECRET")
+    if not secret:
+        return False  # fail closed: no secret -> no valid signature
+    expected = hmac.new(
+        secret.encode("utf-8"), canonical_message(machine_id, initials, score), hashlib.sha256
+    ).hexdigest()
+    try:
+        return hmac.compare_digest(expected, provided_sig)
+    except TypeError:
+        return False  # non-ASCII / non-comparable sig
 
 
 def current_week_id(now=None):
