@@ -98,7 +98,7 @@ API, comes last (Phase 7).
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — Relocate + consolidate identity into a single obfuscated, HMAC-signed blob in %LOCALAPPDATA%\PacMan\ with migrate-then-remove and a fail-closed tamper sentinel
+- [x] 05-02-PLAN.md — Relocate + consolidate identity into a single obfuscated, HMAC-signed blob in %LOCALAPPDATA%\PacMan\ with migrate-then-remove and a fail-closed tamper sentinel
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -169,6 +169,6 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
-| 5. Client Identity Hardening | v1.1 | 1/3 | In Progress|  |
+| 5. Client Identity Hardening | v1.1 | 2/3 | In Progress|  |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
