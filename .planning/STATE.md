@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 04 — server-hardening-weekly-data-model
+**Current focus:** Phase 5 — client-identity-hardening (Phase 4 complete; server live & enforcing)
 
 ## Current Position
 
-Phase: 5
+Phase: 5 (client-identity-hardening) — not started
 Plan: Not started
-Status: Plans 01-04 complete & green; hardened server LIVE and enforcing (COMP-01/BOARD-01/02)
-Last activity: 2026-06-19
+Status: Phase 4 COMPLETE & verified — hardened server LIVE and enforcing (COMP-01/02/03, BOARD-01/02). CR-01 fix deployed (rev pacman-00006-ltj / get-leaderboard-00004-rfr).
+Last activity: 2026-06-19 — Phase 4 complete; live deploy + CR-01 fix + smoke/UAT all green
 
-Progress (plans): [██████████] 4/4 (100%)
+Progress (Phase 4 plans): [██████████] 4/4 (100%)
 
 ## Performance Metrics
 
