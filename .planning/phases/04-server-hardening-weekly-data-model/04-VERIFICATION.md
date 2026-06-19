@@ -1,8 +1,9 @@
 ---
 phase: 04-server-hardening-weekly-data-model
 verified: 2026-06-19T08:00:00Z
-status: human_needed
+status: passed
 score: 5/5 must-haves verified
+human_verified: "2026-06-19 — all 3 live UAT checks passed on revisions pacman-00006-ltj / get-leaderboard-00004-rfr (see 04-HUMAN-UAT.md)"
 overrides_applied: 0
 human_verification:
   - test: "Confirm the live submit_score service (pacman) rejects a POST with a VALID but intentionally incorrect HMAC signature — i.e. a properly formed hex signature computed under a WRONG key — returning 401."
@@ -17,7 +18,7 @@ human_verification:
 
 **Phase Goal:** The Cloud Functions become the real enforcement boundary and the single source of weekly/all-time score data that every other feature consumes.
 **Verified:** 2026-06-19T08:00:00Z
-**Status:** human_needed
+**Status:** passed (human verification completed 2026-06-19 — all 3 live checks green; see 04-HUMAN-UAT.md)
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
