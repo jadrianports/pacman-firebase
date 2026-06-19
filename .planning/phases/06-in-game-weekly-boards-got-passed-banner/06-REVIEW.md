@@ -1,6 +1,6 @@
 ---
 phase: 06-in-game-weekly-boards-got-passed-banner
-reviewed: 2026-06-20T00:00:00Z
+reviewed: 2026-06-19T18:41:52Z
 depth: standard
 files_reviewed: 9
 files_reviewed_list:
@@ -14,239 +14,176 @@ files_reviewed_list:
   - tests/test_get_leaderboard.py
   - tests/test_marker.py
 findings:
-  critical: 1
-  warning: 5
-  info: 3
-  total: 9
+  critical: 0
+  warning: 4
+  info: 4
+  total: 8
 status: issues_found
 ---
 
 # Phase 6: Code Review Report
 
-**Reviewed:** 2026-06-20T00:00:00Z
+**Reviewed:** 2026-06-19T18:41:52Z
 **Depth:** standard
 **Files Reviewed:** 9
 **Status:** issues_found
 
 ## Summary
 
-Reviewed the Phase 6 in-game weekly boards & got-passed banner changes: the
-`scope=last_week` read branch on `get_leaderboard` (Cloud Function), the
-`scope`/`timeout` params on `ApiService.get_leaderboard`, the unsigned best-effort
-marker IO module (`marker.py`), and the `menu.py`/`main.py` wiring for the in-board
-toggle and launch banner.
+Reviewed the Phase 6 work: the `scope=last_week` read branch in the get_leaderboard
+Cloud Function, the scope/timeout-aware client fetch in `api_service.py`, the unsigned
+best-effort marker IO module (`marker.py`), and the menu/main UI wiring for the This
+Week/All Time board toggle plus the got-passed launch banner.
 
-The Cloud Function scope branch, `api_service` changes, and `marker.py` IO module are
-clean, well-tested, and faithful to their stated contracts (no scope is forwarded to
-Firestore as a forged value; marker IO never raises; week math matches the server).
+The security posture is sound for this scope: the scope param is parsed tolerantly and
+clamped to a fixed allowlist before touching Firestore (no injection surface), week IDs
+are computed server-side only (no forged-week request possible), and only
+`initials`+`score` are projected outward. The marker's deliberately-unsigned design is
+correct for a cosmetic banner and is well-guarded by tests. The all-best-effort
+degradation in `main.py` keeps the game playable offline.
 
-The one serious problem is in `main.py`: the launch banner compute is documented as
-"all best-effort — never break startup," but the actual consumption block has no
-`try/except` and trusts both the marker's `tracked_best` type and the server response
-shape. A malformed marker or leaderboard payload crashes the game at startup — the
-exact failure the design says cannot happen. Several rivalry-computation correctness
-smells and quality issues follow.
-
-## Critical Issues
-
-### CR-01: Launch banner compute is not exception-guarded — a malformed marker or leaderboard response crashes startup
-
-**File:** `main.py:101-109`
-**Issue:** The docstring at lines 92-97 states the banner compute is "all best-effort
-— never break startup (SC-4)," and `marker.read_marker()` is carefully written to never
-raise. But the block that *consumes* the marker and the network response has no guard:
-
-```python
-if _marker is not None and _marker.get("tracked_best") is not None:
-    tracked_best = _marker["tracked_best"]
-    initials_above = set(_marker.get("initials_above", []))
-    this_week = api.get_leaderboard(scope="week", timeout=BANNER_FETCH_TIMEOUT_SECONDS)
-    if this_week:
-        above_now = {e["initials"] for e in this_week if e["score"] > tracked_best}
-        new_passers = sorted(above_now - initials_above)
-        banner_text = _format_banner(new_passers)
-```
-
-Two concrete crash vectors, both reachable without any code change elsewhere:
-
-1. **Untyped `tracked_best` from a hand-edited / partially-corrupt marker.**
-   `read_marker()` only validates `week_id` — it does NOT validate the type of
-   `tracked_best`. A marker `{"week_id": "<this Monday>", "tracked_best": "1000"}`
-   passes `read_marker`, then `e["score"] > tracked_best` raises
-   `TypeError: '>' not supported between instances of 'int' and 'str'`. The design
-   doc claims "a missing, corrupt, or wrong-week marker is HARMLESS" — this one is not.
-
-2. **Malformed leaderboard entry.** `e["initials"]` / `e["score"]` assume every entry
-   is a dict with both keys. If the server (or a future schema drift) returns an entry
-   missing `score`, `KeyError` propagates out of `main()` and the game never reaches the
-   menu loop.
-
-Because this runs before `run_main_menu`, the failure is a hard startup crash, not a
-degraded banner.
-
-**Fix:** Wrap the entire compute in the best-effort guard the docstring promises:
-
-```python
-try:
-    if _marker is not None and _marker.get("tracked_best") is not None:
-        tracked_best = _marker["tracked_best"]
-        initials_above = set(_marker.get("initials_above", []))
-        this_week = api.get_leaderboard(scope="week", timeout=BANNER_FETCH_TIMEOUT_SECONDS)
-        if this_week:
-            above_now = {
-                e["initials"] for e in this_week
-                if isinstance(e.get("score"), (int, float))
-                and isinstance(tracked_best, (int, float))
-                and e["score"] > tracked_best
-            }
-            new_passers = sorted(above_now - initials_above)
-            banner_text = _format_banner(new_passers)
-except Exception:
-    banner_text = None  # best-effort: never break startup (SC-4)
-```
-
-Optionally also type-check `tracked_best` inside `read_marker()` so other consumers
-(the submit-path `max(tracked_best or 0, score)` at line 151) are equally protected.
+The defects found are correctness/robustness issues, not security holes. The most
+significant is a window-close (QUIT) event being swallowed in `run_leaderboard`, which
+breaks the expected "close the window to quit" behavior while the board is open.
 
 ## Warnings
 
-### WR-01: Submit-path re-baseline updates `tracked_best` but leaves `initials_above` stale, corrupting the next launch's passer set
+### WR-01: Window-close (QUIT) is swallowed while the leaderboard is open
 
-**File:** `main.py:149-152`
-**Issue:** After a successful submit, `tracked_best` is raised to the new score, and the
-marker is rewritten — but `initials_above` is persisted unchanged:
-
+**File:** `menu.py:243-245`
+**Issue:** `run_leaderboard` handles `pygame.QUIT` by returning `views["week"]` — the
+exact same value it returns for ESC/ENTER ("go back"). There is no out-of-band signal
+for a quit. Back in `main.py`, the `Leaderboard` branch (lines 161-169) has no way to
+distinguish "user pressed back" from "user closed the window," so it falls through to
+the top of the `while True` loop and re-displays the main menu. The window-close request
+is silently dropped; the user must trigger close again from the menu. This is
+inconsistent with every sibling screen: `run_initials_entry` returns `None` on QUIT and
+`main.py` quits (lines 87-89); `run_game_over_screen` returns `"quit"` on QUIT and
+`main.py` breaks (lines 154-155). Only `run_leaderboard` cannot propagate a quit.
+**Fix:** Give the leaderboard a distinct quit signal and honor it in the caller. For
+example, return a 2-tuple `(quit_requested, week_entries)`:
 ```python
-if response is not None:
-    week_id = marker.client_current_week_id()
-    tracked_best = max(tracked_best or 0, score)
-    marker.write_marker(week_id, tracked_best, initials_above)
+# menu.py — run_leaderboard
+if event.type == pygame.QUIT:
+    return True, (views["week"] if views["week"] is not _UNFETCHED else None)
+...
+if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
+    return False, (views["week"] if views["week"] is not _UNFETCHED else None)
 ```
-
-`initials_above` was computed against the *old* `tracked_best`. After raising the bar,
-that set no longer means "initials currently above me." On the next launch,
-`new_passers = above_now - initials_above` subtracts a set that is keyed to a different
-threshold. Net effect: rivals who are genuinely above your new (higher) best but happened
-to be above your old best too are silently suppressed, while rivals no longer above you
-linger in the baseline. The banner becomes unreliable specifically after the player
-improves — the most common case. Note `initials_above` is correctly recomputed only on
-board-open (lines 163-169), so a player who never opens the board accumulates this drift.
-
-**Fix:** Either recompute `initials_above` against the new `tracked_best` from the
-`response`/known entries on the submit path, or — simpler and consistent with the
-board-open seam being the single source of truth — clear `initials_above` to an empty set
-when `tracked_best` increases, so the next launch re-baselines cleanly:
-
 ```python
-if response is not None:
-    new_best = max(tracked_best or 0, score)
-    if new_best > (tracked_best or 0):
-        initials_above = set()  # threshold moved; old baseline is meaningless
-    tracked_best = new_best
-    marker.write_marker(marker.client_current_week_id(), tracked_best, initials_above)
-```
-
-### WR-02: Board-open re-baseline skips empty and offline boards, leaving a stale `initials_above`
-
-**File:** `main.py:163-169`
-**Issue:** The marker is rewritten only when `this_week_entries` is truthy:
-
-```python
+# main.py — Leaderboard branch
+quit_requested, this_week_entries = run_leaderboard(screen, timer, api)
+banner_text = None
 if this_week_entries and tracked_best is not None:
     initials_above = {e["initials"] for e in this_week_entries if e["score"] > tracked_best}
-    marker.write_marker(...)
-```
-
-An empty board (`[]`) and an offline board (`None`) are both falsy, so opening the board
-in those states does NOT reset the baseline. If everyone above you has rolled off (board
-now empty), the correct `initials_above` is the empty set, but the stale non-empty set
-persists and will suppress legitimate future passers. The comment at 158-160 claims board
-open is "the ONLY place initials_above is reset," but it actually skips the reset in two
-of the three return states.
-
-**Fix:** Treat an explicit empty list as a valid re-baseline (reset to empty set); only
-skip on the offline/`None` case where there is genuinely no fresh truth:
-
-```python
-if this_week_entries is not None and tracked_best is not None:
-    initials_above = {
-        e["initials"] for e in this_week_entries if e["score"] > tracked_best
-    }
     marker.write_marker(marker.client_current_week_id(), tracked_best, initials_above)
+if quit_requested:
+    break
 ```
 
-(`this_week_entries is not None` distinguishes `[]` from offline `None`.)
+### WR-02: Leaderboard rows raise KeyError if a Firestore doc lacks `initials`/`score`
 
-### WR-03: `e["score"] > tracked_best` and entry-key access unguarded inside `run_leaderboard` render loop
+**File:** `cloud_functions/get_leaderboard/main.py:84`
+**Issue:** `entries.append({"initials": data["initials"], "score": data["score"]})` uses
+direct subscripting. A leaderboard/weekly document written without one of these fields
+(partial write, schema drift, a manually-seeded doc) raises `KeyError` mid-iteration.
+The surrounding `try/except` (line 86) catches it and turns the entire response into a
+500 with an empty entries list — one malformed document blackholes the whole board for
+every reader, even though every other document is valid. The client then renders "Could
+not connect to leaderboard." (offline state) for what is actually a server-side data
+issue.
+**Fix:** Skip malformed documents instead of failing the whole query:
+```python
+for d in docs:
+    data = d.to_dict()
+    initials = data.get("initials")
+    score = data.get("score")
+    if initials is None or score is None:
+        continue  # skip partial/legacy docs rather than 500 the whole board
+    entries.append({"initials": initials, "score": score})
+```
 
-**File:** `menu.py:227-232`
-**Issue:** The board render loop dereferences `entry["initials"]` and `entry["score"]`
-with no key/type guard. `run_leaderboard` is reached from the menu loop, not startup, so a
-malformed entry here raises out of the menu loop and crashes the whole program (the outer
-`while True` in `main()` has no guard either). This is the same class of trust-the-payload
-issue as CR-01 but in a different entrypoint; downgraded to WARNING because it requires a
-malformed server response rather than a local file the user can corrupt.
-**Fix:** Defensively read fields, e.g. `entry.get("initials", "???")` and
-`entry.get("score", 0)`, or validate/normalize entries once at fetch time in
-`ApiService.get_leaderboard` before they reach the renderer.
+### WR-03: Negative dot-fill width when rank/initials/score exceed the 30-char budget
 
-### WR-04: Banner/rivalry keyed on non-unique initials collapses distinct rivals
+**File:** `menu.py:231`
+**Issue:** `dots = "." * (30 - len(rank) - len(initials) - len(score))`. The score is
+server-supplied and unbounded; for a high enough score (or longer initials than the
+expected 3) the subtraction goes negative. `"." * -n` yields `""` so this does not crash,
+but the row silently loses its alignment dots and the layout breaks with no warning. The
+magic number `30` is also undocumented. Relying on "negative repeat count is empty
+string" is fragile — a future refactor that, e.g., slices `dots[:-1]` or asserts a
+minimum width would break.
+**Fix:** Clamp explicitly and name the constant:
+```python
+LEADERBOARD_LINE_WIDTH = 30  # in settings.py
+...
+fill = max(0, LEADERBOARD_LINE_WIDTH - len(rank) - len(initials) - len(score))
+dots = "." * fill
+```
 
-**File:** `main.py:107-108`, `menu.py:164-166`
-**Issue:** `initials_above` and `above_now` are `set[str]` of initials, but initials are
-explicitly non-unique (3-letter codes, many machines can share "AAA"). Two different
-players who both pass you under the same initials register as one; a genuine new passer
-"AAA" is masked if any prior "AAA" was already in the baseline (`above_now - initials_above`
-removes it). The banner can both under-count and mis-attribute. The server only ships
-`{initials, score}` (D-10), so there is no stable identity to key on — this is a design
-constraint, not a coding slip, but it should be acknowledged because the "who passed you"
-feature can silently mislead. **Fix:** Document the limitation explicitly at the compute
-site, or key the comparison on `(initials, score)` tuples so at least distinct scores under
-the same initials are treated as distinct rivals (still imperfect on ties, but closer).
+### WR-04: `submit_score` timeout is hardcoded while `get_leaderboard` made it configurable
 
-### WR-05: Three sequential blocking fetches at default 10s timeout on board open
-
-**File:** `menu.py:170-171`, `254`
-**Issue:** `run_leaderboard` issues `get_leaderboard(scope="week")` and
-`get_leaderboard(scope="last_week")` back-to-back on open (each defaulting to the 10s
-timeout), plus a third `scope="all"` fetch on first toggle. When offline, the board-open
-path blocks for up to 20 seconds (week + last_week) on the main thread with only a single
-"Loading..." frame, and the window is unresponsive to QUIT during that window. This is a
-robustness/UX defect, not raw perf: the user cannot close the window or back out while the
-two serial timeouts elapse. **Fix:** Pass a short timeout to the non-critical `last_week`
-subtitle fetch (it is cosmetic — mirror `BANNER_FETCH_TIMEOUT_SECONDS`), and consider
-fetching `last_week` lazily/only-if-week-succeeded so an offline open fails fast once
-rather than twice.
+**File:** `api_service.py:25` (vs `api_service.py:30,36`)
+**Issue:** Phase 6 introduced a `timeout` parameter on `get_leaderboard` (default 10,
+overridable to `BANNER_FETCH_TIMEOUT_SECONDS=2` for the launch banner) so a slow network
+does not stall startup. `submit_score` still hardcodes `urlopen(req, timeout=10)`. The
+asymmetry is a latent robustness gap: the submit call runs synchronously on the
+game-over path (`main.py:139`) and a stalled connection blocks the UI for up to 10s with
+no way for callers to tune it. Not a bug today, but the two network methods should share
+one configurable timeout convention.
+**Fix:** Add a `timeout=10` parameter to `submit_score` mirroring `get_leaderboard`, and
+thread it into `urlopen(req, timeout=timeout)`.
 
 ## Info
 
-### IN-01: Banner-block comment over-promises a guarantee the code does not provide
+### IN-01: Dead defensive branch — `views["week"]` is never `_UNFETCHED` at return
 
-**File:** `main.py:92-97`
-**Issue:** The comment asserts the banner compute is "all best-effort — never break
-startup (SC-4)," which is currently false (see CR-01). Even after CR-01 is fixed, keep the
-comment and code in sync. **Fix:** Once the `try/except` is added, the comment becomes
-accurate; until then it is misleading documentation.
+**File:** `menu.py:245,248`
+**Issue:** Both return sites guard `views["week"] if views["week"] is not _UNFETCHED else
+None`, but `views["week"]` is unconditionally assigned a real fetch result on line 170
+before the event loop is ever entered, so it can never be `_UNFETCHED` at any return. The
+`else None` arm is unreachable.
+**Fix:** Simplify to `return views["week"]` (and fold into the WR-01 tuple change), or add
+a comment if the guard is intentionally retained for defensiveness.
 
-### IN-02: `_marker` underscore-prefixed local name is non-idiomatic
+### IN-02: `_marker` underscore-prefixed local reads as a throwaway but is used
 
 **File:** `main.py:101-104`
-**Issue:** `_marker` uses a leading underscore for an ordinary local variable (the
-underscore convention signals "private/unused"), and it shadows the intent of the imported
-`marker` module by near-name collision, which is easy to misread. **Fix:** Rename to
-`saved_marker` or `last_view` for clarity.
+**Issue:** `_marker = marker.read_marker()` is then read on the next three lines. The
+leading underscore conventionally signals "unused/throwaway," which is misleading here
+since the value drives the whole banner-compute block. Minor naming clarity issue.
+**Fix:** Rename to `marker_data` (or `last_viewed`) to avoid the unused-throwaway
+connotation.
 
-### IN-03: `last_week_initials` assumes entry shape without guarding the cosmetic path
+### IN-03: Server-time vs client-time week skew can produce a transient wrong banner
 
-**File:** `menu.py:172`
-**Issue:** `last_week[0]["initials"]` indexes and key-accesses a network response for a
-purely cosmetic subtitle. `last_week` truthiness guards emptiness/None, but a malformed
-first entry (missing `initials`) raises during board open. Lower severity than WR-03
-because it is a single field on the open path. **Fix:** `last_week[0].get("initials")` and
-fall back to hiding the subtitle when absent.
+**File:** `marker.py:29-40` + `main.py:105-109`
+**Issue:** The banner compares the marker's client-computed `week_id`
+(`client_current_week_id`) against scores fetched from the server's `current_week_id`
+weekly bucket. The two Monday-UTC computations are intentionally mirrored and tested for
+parity (`test_client_current_week_id_matches_server`), but they read the clock at
+slightly different instants on two machines. Within the ~seconds around a Monday-00:00-UTC
+rollover, a client whose clock has not crossed midnight can still hold last week's marker
+while the server already serves the new week — yielding a momentary spurious/empty banner.
+This is cosmetic and self-corrects on the next launch (consistent with the documented
+"wrong banner is harmless" contract), so it is informational only.
+**Fix:** No action required for v1. If ever tightened, gate the banner on the server
+echoing its own week_id rather than trusting client week math.
+
+### IN-04: Broad `except Exception` swallows all errors uniformly in client network calls
+
+**File:** `api_service.py:27,39`; `marker.py:63,80`
+**Issue:** Every network/IO path catches bare `Exception` and returns `None`/passes. For
+`marker.py` this is the explicit, documented best-effort contract and is correct. For
+`api_service.py` it conflates genuinely-offline conditions with programming errors (e.g.
+a malformed URL, a `json` bug, an unexpected response shape) — all surface to the user as
+the same "Could not connect" state with no log, making field diagnosis hard.
+**Fix:** Acceptable for graceful-degrade, but consider narrowing to
+`(urllib.error.URLError, TimeoutError, json.JSONDecodeError)` or logging the exception
+before swallowing so non-network failures are distinguishable in dev.
 
 ---
 
-_Reviewed: 2026-06-20T00:00:00Z_
+_Reviewed: 2026-06-19T18:41:52Z_
 _Reviewer: Claude (gsd-code-reviewer)_
 _Depth: standard_
