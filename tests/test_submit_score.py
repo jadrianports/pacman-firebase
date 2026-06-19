@@ -146,6 +146,18 @@ def test_non_int_score_returns_400(submit_module):
     assert body == {"success": False, "error": "Invalid score"}
 
 
+def test_bool_score_returns_400(submit_module):
+    """WR-01: score that is a JSON bool (true/false) -> 400 'Invalid score'.
+
+    bool subclasses int, so isinstance(True, int) is True; the validator must
+    reject bool explicitly so `"score": true` is not stored as a 1-point score.
+    """
+    req = make_request({"machine_id": "m1", "initials": "ABC", "score": True})
+    body, status, _ = submit_module.submit_score(req)
+    assert status == 400
+    assert body == {"success": False, "error": "Invalid score"}
+
+
 def test_negative_score_returns_400(submit_module):
     """score below 0 -> 400 'Invalid score' (lower-bound of the range guard)."""
     req = make_request({"machine_id": "m1", "initials": "ABC", "score": -1})

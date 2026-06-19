@@ -74,6 +74,37 @@ def test_verify_signature_lifted_to_other_machine(monkeypatch):
     assert verify_signature("m2", "BOB", 5000, sig_for_m1) is False
 
 
+# --- CR-01: verify_signature is TOTAL (fail-closed, never raises) -------------
+
+
+def test_verify_signature_non_string_sig_returns_false(monkeypatch):
+    """CR-01(a): a non-string signature (list/int/bool) returns False, never raises.
+
+    Previously `provided_sig or ""` passed a truthy non-string straight into
+    hmac.compare_digest, which raised TypeError -> uncaught 500.
+    """
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", TEST_SECRET)
+    for bad_sig in (["x"], 123, True, {"a": 1}):
+        assert verify_signature("m1", "BOB", 5000, bad_sig) is False
+
+
+def test_verify_signature_non_ascii_sig_returns_false(monkeypatch):
+    """CR-01(b): a non-ASCII string signature returns False, never raises.
+
+    hmac.compare_digest raises TypeError on non-ASCII string operands.
+    """
+    monkeypatch.setenv("LEADERBOARD_HMAC_SECRET", TEST_SECRET)
+    assert verify_signature("m1", "BOB", 5000, "naïve") is False
+
+
+def test_verify_signature_missing_secret_returns_false(monkeypatch):
+    """CR-01(c): a present signature with LEADERBOARD_HMAC_SECRET unset returns
+    False, never raises (previously os.environ[...] subscript -> KeyError -> 500)."""
+    monkeypatch.delenv("LEADERBOARD_HMAC_SECRET", raising=False)
+    sig = _sign("m1", "BOB", 5000)
+    assert verify_signature("m1", "BOB", 5000, sig) is False
+
+
 # --- current_week_id ---------------------------------------------------------
 
 def test_current_week_id_monday_start():
