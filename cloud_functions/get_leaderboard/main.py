@@ -81,7 +81,13 @@ def get_leaderboard(request):
             data = d.to_dict()
             # D-10 / T-04-11: only initials+score ship on BOTH scopes — machine_id,
             # week_id, and updated_at never leave the server.
-            entries.append({"initials": data["initials"], "score": data["score"]})
+            # Skip partial/legacy/schema-drift docs missing a projected field rather
+            # than letting one malformed doc KeyError and 500 the whole board (WR-02).
+            initials = data.get("initials")
+            score = data.get("score")
+            if initials is None or score is None:
+                continue
+            entries.append({"initials": initials, "score": score})
         return ({"entries": entries}, 200, headers)
     except Exception as e:
         print(f"Leaderboard fetch failed: {e}")
