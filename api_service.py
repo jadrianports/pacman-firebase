@@ -8,7 +8,7 @@ class ApiService:
         self.submit_score_url = submit_score_url.rstrip("/")
         self.leaderboard_url = leaderboard_url.rstrip("/")
 
-    def submit_score(self, machine_id, initials, score, signature=None):
+    def submit_score(self, machine_id, initials, score, signature=None, timeout=10):
         try:
             data = json.dumps({
                 "machine_id": machine_id,
@@ -22,7 +22,7 @@ class ApiService:
                 headers={"Content-Type": "application/json"},
                 method="POST",
             )
-            with urlopen(req, timeout=10) as resp:
+            with urlopen(req, timeout=timeout) as resp:
                 return json.loads(resp.read())
         except Exception:
             return None
