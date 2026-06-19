@@ -1,4 +1,5 @@
 import json
+from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 
 
@@ -26,10 +27,13 @@ class ApiService:
         except Exception:
             return None
 
-    def get_leaderboard(self):
+    def get_leaderboard(self, scope=None, timeout=10):
         try:
-            req = Request(self.leaderboard_url, method="GET")
-            with urlopen(req, timeout=10) as resp:
+            url = self.leaderboard_url
+            if scope:
+                url += f"?{urlencode({'scope': scope})}"
+            req = Request(url, method="GET")
+            with urlopen(req, timeout=timeout) as resp:
                 data = json.loads(resp.read())
                 return data.get("entries")
         except Exception:
