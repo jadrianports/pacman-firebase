@@ -148,6 +148,36 @@ not yet `Enabled` — wait for it to finish building and retry.
 
 ---
 
+## Actual deploy path used (Cloud Run via gcloud — faster than the Console clicks above)
+
+> **Recorded 2026-06-19 from the live Phase 4 deploy.** The two functions are **Cloud Run
+> services** (`pacman` = `submit_score` code, `get-leaderboard` = `get_leaderboard` code), so
+> the Console steps above map 1:1 to `gcloud run deploy` from **Cloud Shell**. This is the
+> real, faster path; the Console click-path above remains an equivalent fallback. The runtime
+> service account is `991339031546-compute@developer.gserviceaccount.com` (granted
+> `roles/secretmanager.secretAccessor` on `leaderboard-hmac-secret`).
+
+```bash
+# submit_score service (pacman): secret + grace flag + flood cap
+gcloud run deploy pacman \
+  --source=cloud_functions/submit_score --function=submit_score \
+  --region=asia-southeast1 --allow-unauthenticated --max-instances=5 \
+  --update-secrets=LEADERBOARD_HMAC_SECRET=leaderboard-hmac-secret:latest \
+  --update-env-vars=REQUIRE_SIGNATURE=false
+
+# get_leaderboard service: secret + flood cap (no REQUIRE_SIGNATURE env var)
+gcloud run deploy get-leaderboard \
+  --source=cloud_functions/get_leaderboard --function=get_leaderboard \
+  --region=asia-southeast1 --allow-unauthenticated --max-instances=5 \
+  --update-secrets=LEADERBOARD_HMAC_SECRET=leaderboard-hmac-secret:latest
+```
+
+The weekly composite index (Step 5) is still created via Console → Firestore → Indexes (or the
+auto-link). Live revisions from this deploy: `pacman-00005-7rk` and `get-leaderboard-00003-fzk`,
+each serving 100% traffic; `weekly` index id `CICAgOjXh4EK` (Enabled).
+
+---
+
 ## Notes
 
 - **No CLI in this deploy model** — every operation above is a Console action. There is no

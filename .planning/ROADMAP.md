@@ -39,7 +39,7 @@ API, comes last (Phase 7).
 - Integer phases (4, 5, 6, 7): Planned milestone work (continues from v1.0's Phase 3)
 - Decimal phases (e.g. 4.1): Urgent insertions (marked INSERTED)
 
-- [ ] **Phase 4: Server Hardening & Weekly Data Model** — Reconcile the Cloud Functions, then make the server the enforcement boundary: HMAC verification, sanity ceiling, permanent initials, week-bucketed scores + a scope-aware leaderboard API.
+- [ ] **Phase 4: Server Hardening & Weekly Data Model** — Reconcile the Cloud Functions, then make the server the enforcement boundary: HMAC verification, sanity ceiling, permanent initials, week-bucketed scores + a scope-aware leaderboard API. (plans 4/4 complete; awaiting phase verification)
 - [ ] **Phase 5: Client Identity Hardening** — Relocate identity files out of the game folder, store them obfuscated, and HMAC-sign them so the client detects tampering and its submissions pass the server's signature check end-to-end.
 - [ ] **Phase 6: In-Game Weekly Boards & Got-Passed Banner** — Surface the scoped API in-game: This Week / All Time toggle, last week's champion, and a launch banner naming whoever passed your score.
 - [ ] **Phase 7: Web Leaderboard Page** — A public, mobile-first Firebase Hosting page that mirrors the in-game This Week / All Time boards by consuming the existing API.
@@ -70,7 +70,7 @@ API, comes last (Phase 7).
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-04-PLAN.md — cloud_functions/DEPLOY.md + manual Console ops (Secret Manager, REQUIRE_SIGNATURE, max-instances, weekly composite index, redeploy)
+- [x] 04-04-PLAN.md — cloud_functions/DEPLOY.md + manual Console ops (Secret Manager, REQUIRE_SIGNATURE, max-instances, weekly composite index, redeploy)
 
 **Notes:**
 
@@ -156,7 +156,7 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 1. Test Safety Net | v1.0 | 7/7 | Complete | 2026-06-11 |
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
-| 4. Server Hardening & Weekly Data Model | v1.1 | 3/4 | In Progress|  |
+| 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete   | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 0/TBD | Not started | - |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |

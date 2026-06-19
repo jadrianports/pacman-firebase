@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
 status: executing
-stopped_at: Phase 04 plans 01-03 complete & green; 04-04 deploy deferred at human-verify checkpoint
+stopped_at: Phase 04 plans 01-04 complete; 04-04 live deploy done + smoke-verified; awaiting phase verification
 last_updated: "2026-06-19"
-last_activity: 2026-06-19 -- Phase 04 executed (plans 01-03 done); 04-04 live Console deploy deferred by operator
+last_activity: 2026-06-19 -- Phase 04 04-04 complete; both Cloud Run services live + smoke-verified (COMP-01/BOARD-01/02)
 progress:
   total_phases: 4
   completed_phases: 0
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 
 ## Current Position
 
-Phase: 04 (server-hardening-weekly-data-model) — EXECUTING (paused at deploy checkpoint)
-Plan: 04-04 of 4 — DEPLOY.md authored; Console deploy (Tasks 2-3) deferred by operator
-Status: Code complete & green (01-03 verified); live Cloud Console deploy not yet done
-Last activity: 2026-06-19 -- plans 01-03 complete; 04-04 deploy deferred
+Phase: 04 (server-hardening-weekly-data-model) — plans 4/4 complete; awaiting phase verification
+Plan: 04-04 of 4 — DEPLOY.md authored + both Cloud Run services live (smoke-verified)
+Status: Plans 01-04 complete & green; hardened server LIVE and enforcing (COMP-01/BOARD-01/02)
+Last activity: 2026-06-19 -- 04-04 complete; live deploy + smoke checks passed
 
-Progress (plans): [███████░░░] 3/4 (75%)
+Progress (plans): [██████████] 4/4 (100%)
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress (plans): [███████░░░] 3/4 (75%)
 | Phase 04 P01 | 12min | 2 tasks | 3 files |
 | Phase 04 P02 | 10min | 2 tasks | 2 files |
 | Phase 04 P03 | 8min | 1 tasks | 2 files |
+| Phase 04 P04 | operator-paced | 3 tasks | 1 file |
 
 ## Accumulated Context
 
@@ -74,6 +75,8 @@ Full decision log lives in PROJECT.md (Key Decisions) and the archived
 - [Phase ?]: Plan 04-02: MAX_SCORE lowered to 50_000; HMAC grace gate (invalid always 401, missing rejected only when REQUIRE_SIGNATURE on)
 - [Phase ?]: Plan 04-02: permanent initials locked server-side; weekly doc {machine_id}_{week_id} only-if-higher from server time; two-weeks-back lazy prune; is_new_best stays all-time
 - [Phase ?]: Plan 04-03: get_leaderboard scope-aware (?scope=week|all); default+unknown -> week; weekly path filters week_id==current_week_id(); {initials,score}-only projection on both scopes (D-10)
+- [Phase 4]: Plan 04-04: the two functions are Cloud Run services (pacman=submit_score, get-leaderboard=get_leaderboard), deployed via `gcloud run deploy --source --function=<entrypoint>` from Cloud Shell — NOT GCF API objects / Console clicks (equivalent outcome; faster path recorded in DEPLOY.md)
+- [Phase 4]: Plan 04-04: both services LIVE (revisions pacman-00005-7rk, get-leaderboard-00003-fzk, 100% traffic); secret leaderboard-hmac-secret referenced as LEADERBOARD_HMAC_SECRET on both; REQUIRE_SIGNATURE=false on pacman (grace, flip true after Phase 5 ships); max-instances=5 both (D-11); weekly composite index week_id ASC/score DESC Enabled (id CICAgOjXh4EK). Smoke: 401 on bogus sig, 200 {"entries":[]} weekly, 200 all-time {initials,score}
 
 ### Pending Todos
 
@@ -84,13 +87,17 @@ None.
 - **Phase 4 prerequisite — RESOLVED (2026-06-19):** `cloud_functions/` working tree was clean at
   execution start (no uncommitted main.py mods). TST-03 validators stayed green (baseline 21 passed →
   full suite 88 passed/9 skipped after plans 01-03).
-- **OPEN — Phase 4 live deploy (04-04 Tasks 2-3, deferred by operator 2026-06-19):** The hardened
-  code is committed but NOT yet live. Manual Google Cloud Console steps remain (see
-  `cloud_functions/DEPLOY.md`): create Secret Manager secret `leaderboard-hmac-secret` + reference as
-  `LEADERBOARD_HMAC_SECRET` on both functions, set `REQUIRE_SIGNATURE=false` grace flag, set
-  max-instances 3-5, create `weekly` composite index (`week_id ASC, score DESC`), redeploy both
-  functions in asia-southeast1, run smoke checks. Phase 4 stays in-progress until done.
-  Resume: `/gsd-execute-phase 4` (re-enters 04-04 at the Task 2 checkpoint).
+- **RESOLVED (2026-06-19) — Phase 4 live deploy (04-04 Tasks 2-3):** Both Cloud Run services are now
+  LIVE. Operator (via Cloud Shell) confirmed Secret Manager secret `leaderboard-hmac-secret`, granted
+  `roles/secretmanager.secretAccessor` to the runtime SA, referenced it as `LEADERBOARD_HMAC_SECRET` on
+  both services, set `REQUIRE_SIGNATURE=false` on `pacman`, set `--max-instances=5` on both, created the
+  `weekly` composite index (`week_id ASC, score DESC`, id `CICAgOjXh4EK`, Enabled), and redeployed both
+  (revisions `pacman-00005-7rk`, `get-leaderboard-00003-fzk`). Smoke checks passed (401 bogus sig; 200
+  weekly `{"entries":[]}`; 200 all-time `{initials,score}`). Phase 4 plans 4/4 complete; phase
+  verification runs next.
+- **CARRY TO PHASE 5 — HMAC secret + grace-flag flip:** Phase 5 client build must embed the identical
+  `leaderboard-hmac-secret` value (operator's safe copy). After the signed client ships and friends
+  update, flip `REQUIRE_SIGNATURE` to `true` on `pacman` (D-02).
 
 ## Deferred Items
 
@@ -104,11 +111,11 @@ Items acknowledged and carried forward from v1.0 milestone close:
 ## Session Continuity
 
 Last session: 2026-06-19
-Stopped at: Phase 04 — plans 01-03 complete & green; 04-04 deploy deferred at human-verify checkpoint (Task 2)
-Resume file: .planning/phases/04-server-hardening-weekly-data-model/04-04-PLAN.md (Tasks 2-3 = Console deploy)
+Stopped at: Phase 04 — plans 01-04 complete; 04-04 live deploy done + smoke-verified; awaiting phase verification
+Resume file: .planning/phases/04-server-hardening-weekly-data-model/04-04-SUMMARY.md
 
 ## Operator Next Steps
 
-- When ready to deploy: follow `cloud_functions/DEPLOY.md`, then `/gsd-execute-phase 4` to close 04-04
-  and run phase verification (re-enters at the Task 2 human-verify checkpoint).
-- Phase 4 is NOT complete until the live deploy checkpoints are approved.
+- Phase 04 plans 4/4 complete and the hardened server is LIVE. Phase verification runs next (orchestrator).
+- Keep the `leaderboard-hmac-secret` value safe — Phase 5 client build embeds the identical string.
+- After Phase 5 signed client ships and friends update, flip `REQUIRE_SIGNATURE` to `true` on `pacman` (D-02).
