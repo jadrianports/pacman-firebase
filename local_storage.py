@@ -47,6 +47,12 @@ IDENTITY_FILE = user_data_path(IDENTITY_FILE_NAME)
 # Load-status sentinels.
 IDENTITY_STATUS_OK = "ok"
 IDENTITY_STATUS_TAMPERED = "tampered"
+# Degraded mode: no HMAC secret is available (e.g. dev run with no hmac_secret.local,
+# or a shipped exe where the baked-secret import failed). We cannot sign or verify the
+# integrity HMAC, and submissions cannot be signed either, so the game runs fully
+# offline. The identity is read best-effort WITHOUT verification and is NEVER accused
+# of tampering — that keeps the "fully playable offline / graceful degrade" contract.
+IDENTITY_STATUS_NO_SECRET = "no_secret"
 
 # Internal sentinel: the blob file does not exist (genuine first launch, not tamper).
 _STATUS_MISSING = "missing"
@@ -153,7 +159,17 @@ def load_identity(
        (never lose the identity). Migrated values are adopted as-is (not re-prompted).
     3. Else (no blob, no legacy) → genuine first launch: mint a fresh uuid4
        machine_id, initials None, write the blob, status OK.
+
+    When ``secret`` is None we have no key to sign or verify with, so the signed
+    path above cannot run (it would crash on ``None.encode``). Degrade gracefully
+    via the no-secret loader instead — read any existing identity best-effort, never
+    accuse tamper, and never write an unsigned blob (D-05 / graceful-degrade contract).
     """
+    if secret is None:
+        return _load_identity_no_secret(
+            blob_path, legacy_machine_id_path, legacy_player_data_path
+        )
+
     machine_id, initials, status = _read_identity_blob(secret, blob_path)
     if status != _STATUS_MISSING:
         # Present blob (OK or TAMPERED) — authoritative; do not migrate or regenerate.
@@ -185,6 +201,50 @@ def load_identity(
     return {"machine_id": fresh_machine_id, "initials": None, "status": IDENTITY_STATUS_OK}
 
 
+def _load_identity_no_secret(blob_path, legacy_machine_id_path, legacy_player_data_path):
+    """Resolve the identity when no HMAC secret is available (graceful degrade).
+
+    Without the shared secret we cannot verify the integrity HMAC and cannot sign a
+    new blob, so we never write to disk here (an unsigned blob would later be rejected
+    as TAMPERED once a real secret returns). Existing identity is read best-effort:
+    de-obfuscation uses the public ``OBFUSCATION_XOR_KEY``, not the secret, so the blob
+    payload is still recoverable. Every path returns status NO_SECRET — never TAMPERED —
+    so submission is skipped (main() guards on a real secret) while play continues.
+    """
+    if os.path.exists(blob_path):
+        try:
+            with open(blob_path, "r") as f:
+                envelope = json.load(f)
+            payload = de_obfuscate(envelope["blob"].encode("ascii"))
+            data = json.loads(payload.decode("utf-8"))
+            return {
+                "machine_id": data["machine_id"],
+                "initials": data["initials"],
+                "status": IDENTITY_STATUS_NO_SECRET,
+            }
+        except Exception:
+            # Unreadable blob and no secret to re-sign with: fall through to a fresh
+            # in-session identity rather than crashing or accusing tamper.
+            pass
+
+    legacy_machine_id = _read_legacy_machine_id(legacy_machine_id_path)
+    if legacy_machine_id is not None:
+        # Surface legacy values but do NOT migrate/delete — migration writes a signed
+        # blob, which we cannot produce without the secret.
+        return {
+            "machine_id": legacy_machine_id,
+            "initials": _read_legacy_initials(legacy_player_data_path),
+            "status": IDENTITY_STATUS_NO_SECRET,
+        }
+
+    # Genuine first launch with no secret: mint an in-session id, persist nothing.
+    return {
+        "machine_id": str(uuid.uuid4()),
+        "initials": None,
+        "status": IDENTITY_STATUS_NO_SECRET,
+    }
+
+
 def _safe_remove(path):
     """Delete ``path`` if present; never raise (best-effort legacy cleanup)."""
     try:
@@ -200,7 +260,14 @@ def save_initials(initials, secret, *, blob_path=IDENTITY_FILE):
     Reads the current machine_id from the existing blob (minting a fresh uuid4 if the
     blob is missing), then rewrites the signed blob carrying the new initials. A
     subsequent load returns the saved initials with status OK.
+
+    No-op when ``secret`` is None: we cannot sign the blob, and writing an unsigned one
+    would later read back as TAMPERED. Initials still live in-session via the caller;
+    they simply do not persist until a secret is available (graceful-degrade contract).
     """
+    if secret is None:
+        return
+
     machine_id, _existing_initials, status = _read_identity_blob(secret, blob_path)
     if status != IDENTITY_STATUS_OK or not machine_id:
         machine_id = str(uuid.uuid4())

@@ -17,6 +17,7 @@ from local_storage import (
     save_initials,
     IDENTITY_STATUS_OK,
     IDENTITY_STATUS_TAMPERED,
+    IDENTITY_STATUS_NO_SECRET,
 )
 
 SECRET = "test-secret-key"
@@ -227,3 +228,80 @@ def test_load_identity_invalid_legacy_initials_become_none(blob_path, legacy_pat
     assert result["machine_id"] == "mid-2"
     assert result["initials"] is None
     assert result["status"] == IDENTITY_STATUS_OK
+
+
+# --- No-secret graceful degrade (CR-01/CR-02 regression) -------------------------
+# When _load_hmac_secret() returns None (dev with no hmac_secret.local, or a shipped
+# exe where the baked-secret import failed), identity loading must NOT crash and must
+# NOT misreport a valid blob as TAMPERED. It degrades to status NO_SECRET (play
+# offline, do not submit) and never writes an unsigned blob.
+
+
+def test_load_identity_no_secret_fresh_launch_does_not_crash(blob_path, legacy_paths):
+    """CR-01: fresh launch with secret=None returns a usable identity, no crash."""
+    legacy_mid, legacy_pd = legacy_paths
+    result = load_identity(
+        None,
+        blob_path=blob_path,
+        legacy_machine_id_path=legacy_mid,
+        legacy_player_data_path=legacy_pd,
+    )
+    assert result["status"] == IDENTITY_STATUS_NO_SECRET
+    assert result["initials"] is None
+    assert len(result["machine_id"]) == 36  # in-session uuid4
+    # No key to sign with → no unsigned blob written (would later read as TAMPERED).
+    assert not os.path.exists(blob_path)
+
+
+def test_load_identity_no_secret_existing_valid_blob_not_tampered(blob_path, legacy_paths):
+    """CR-02: an existing valid blob read with secret=None is NOT a tamper accusation."""
+    legacy_mid, legacy_pd = legacy_paths
+    _write_identity_blob("m1", "BOB", SECRET, blob_path)
+    result = load_identity(
+        None,
+        blob_path=blob_path,
+        legacy_machine_id_path=legacy_mid,
+        legacy_player_data_path=legacy_pd,
+    )
+    assert result["status"] == IDENTITY_STATUS_NO_SECRET
+    assert result["machine_id"] == "m1"
+    assert result["initials"] == "BOB"
+
+
+def test_load_identity_no_secret_reads_legacy_without_deleting(blob_path, legacy_paths):
+    legacy_mid, legacy_pd = legacy_paths
+    open(legacy_mid, "w").write("legacy-machine-id")
+    json.dump({"initials": "JAM"}, open(legacy_pd, "w"))
+    result = load_identity(
+        None,
+        blob_path=blob_path,
+        legacy_machine_id_path=legacy_mid,
+        legacy_player_data_path=legacy_pd,
+    )
+    assert result["status"] == IDENTITY_STATUS_NO_SECRET
+    assert result["machine_id"] == "legacy-machine-id"
+    assert result["initials"] == "JAM"
+    # Cannot sign a migrated blob without the secret → legacy files survive, no blob.
+    assert os.path.exists(legacy_mid)
+    assert os.path.exists(legacy_pd)
+    assert not os.path.exists(blob_path)
+
+
+def test_load_identity_no_secret_unreadable_blob_falls_back(blob_path, legacy_paths):
+    """A corrupt blob with no secret degrades to a fresh in-session id, not a crash."""
+    legacy_mid, legacy_pd = legacy_paths
+    open(blob_path, "w").write("{ not valid json")
+    result = load_identity(
+        None,
+        blob_path=blob_path,
+        legacy_machine_id_path=legacy_mid,
+        legacy_player_data_path=legacy_pd,
+    )
+    assert result["status"] == IDENTITY_STATUS_NO_SECRET
+    assert len(result["machine_id"]) == 36
+
+
+def test_save_initials_no_secret_is_noop(blob_path):
+    """save_initials(initials, None) must not crash and must not write a blob."""
+    save_initials("CAT", None, blob_path=blob_path)
+    assert not os.path.exists(blob_path)
