@@ -121,13 +121,24 @@ API, comes last (Phase 7).
   3. On launch, if someone has beaten the player's score since they last viewed the board, a banner names that player (or players).
   4. When offline or on first launch, these features degrade gracefully — no error, no banner, the game stays fully playable.
 
-**Plans**: TBD
+**Plans**: 4 plans
 **UI hint**: yes
+
+**Wave 1** *(parallel — no file overlap)*
+
+- [ ] 06-01-PLAN.md — Server `scope=last_week` read branch in `get_leaderboard` + validator tests (BOARD-04; the one server touch — reuses `previous_week_id(current_week_id())`, no data-model change)
+- [ ] 06-02-PLAN.md — Client `api_service.get_leaderboard(scope, timeout)` param (urlencode'd query string, None/[]-on-failure contract preserved) + request-capture tests (BOARD-03/BOARD-04 plumbing, D-14)
+- [ ] 06-03-PLAN.md — `settings.py` marker/banner constants + new `marker.py` unsigned last-viewed marker IO (plain JSON, best-effort, Monday-UTC week stamp) + tests (RIVAL-01 foundation, D-13)
+
+**Wave 2** *(blocked on 06-02 + 06-03)*
+
+- [ ] 06-04-PLAN.md — Board screen This Week/All Time toggle + last-week subtitle + per-view empty/offline states (`run_leaderboard`); main-menu banner line (`run_main_menu`); `main.py` launch banner compute (short-timeout fetch), submit-path tracked-best update, board-open baseline rewrite (BOARD-03/BOARD-04/RIVAL-01)
 
 **Notes:**
 
 - Consumer of the Phase 4 scoped API — no new server data model here.
 - "Since you last looked" requires persisting a last-viewed marker locally (rides on the Phase 5 identity storage).
+- Live BOARD-04 (`scope=last_week`) requires a manual `get_leaderboard` redeploy (Google Cloud Console / Cloud Shell) — the in-repo gate is the validator tests; live behavior depends on the operator deploying.
 
 ### Phase 7: Web Leaderboard Page
 
@@ -170,5 +181,5 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
-| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
+| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/4 | Planned | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
