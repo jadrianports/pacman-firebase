@@ -7,11 +7,28 @@ from settings import (
     MENU_OPTIONS,
 )
 
+# Sentinel distinguishing "this view has never been fetched" from the three
+# meaningful cache states a fetch can yield (Pitfall 1 / board-view truth table):
+#   _UNFETCHED -> needs a fetch (never sits across frames)
+#   None       -> offline ("Could not connect to leaderboard.")
+#   []         -> empty (per-view empty-state string)
+#   [...]      -> data (board rows)
+# A plain None cache value would collide with the offline state, so a dedicated
+# object() identity is used instead.
+_UNFETCHED = object()
 
-def run_main_menu(screen, timer):
-    """Display main menu. Returns the selected option string: 'Play', 'Leaderboard', or 'Quit'."""
+
+def run_main_menu(screen, timer, banner_text=None):
+    """Display main menu. Returns the selected option string: 'Play', 'Leaderboard', or 'Quit'.
+
+    When ``banner_text`` is truthy, a got-passed banner line is rendered in yellow at
+    y=230 (between the title and the first option), mirroring the passive-notice idiom
+    in run_game_over_screen. The string is built/capped by main.py (D-06); this only
+    renders it. With ``banner_text=None`` the menu renders exactly as before.
+    """
     title_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
     option_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
+    banner_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
     selected = 0
 
     while True:
@@ -110,38 +127,94 @@ def run_initials_entry(screen, timer, current_initials=None):
         pygame.display.flip()
 
 
-def run_leaderboard(screen, timer, api_service):
-    """Fetch and display top 10 leaderboard. Returns when user presses ESC or ENTER."""
-    header_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
-    entry_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-    hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-
-    # Show loading screen
+def _show_loading(screen, header_font):
+    """Render the existing white centered 'Loading...' frame (shown before a fetch)."""
     screen.fill("black")
     loading = header_font.render("Loading...", True, COLOR_WHITE)
     loading_rect = loading.get_rect(center=(WIDTH // 2, HEIGHT // 2))
     screen.blit(loading, loading_rect)
     pygame.display.flip()
 
-    # Fetch data
-    entries = api_service.get_leaderboard()
+
+def run_leaderboard(screen, timer, api_service):
+    """Display the weekly/all-time leaderboard with a This Week <-> All Time toggle.
+
+    Opens on This Week (D-02). LEFT/RIGHT flip the active view; All Time is
+    lazy-fetched once on the first toggle to it (D-14). The last-week champion
+    subtitle shows on This Week only, hidden when absent (D-04/D-16). Returns when
+    the user presses ESC or ENTER.
+
+    Board-open seam (O-3, return-based): returns the freshly-fetched This Week
+    entries (the same list rendered, no extra network call) so main.py can rewrite
+    the marker baseline exactly once per board open. Returns ``None`` if This Week
+    was offline / unavailable, ``[]`` if empty, or the entries list on success.
+    """
+    header_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
+    entry_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
+    hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
+
+    # Per-view lazy cache. This Week is fetched on open; All Time stays _UNFETCHED
+    # until the first toggle. None=offline, []=empty, [...]=data (truth table).
+    views = {"week": _UNFETCHED, "all": _UNFETCHED}
+    active = "week"
+
+    # Fetch This Week up front (open-on view, D-02), plus a best-effort last-week
+    # champion fetch for the subtitle. last_week is independent of the toggle cache.
+    _show_loading(screen, header_font)
+    views["week"] = api_service.get_leaderboard(scope="week")
+    last_week = api_service.get_leaderboard(scope="last_week")
+    last_week_initials = last_week[0]["initials"] if last_week else None
+
+    empty_text = {
+        "week": "No scores yet this week. Be the first!",
+        "all": "No scores yet. Be the first!",
+    }
 
     while True:
         timer.tick(FPS)
         screen.fill("black")
+
+        entries = views[active]
 
         # Header
         header = header_font.render("LEADERBOARD", True, COLOR_YELLOW)
         header_rect = header.get_rect(center=(WIDTH // 2, 80))
         screen.blit(header, header_rect)
 
+        # Tab indicator: active side yellow, inactive side + separators gray (D-03).
+        # Rendered as three runs so only the active label is yellow.
+        prefix = entry_font.render("< ", True, COLOR_GRAY)
+        week_label = entry_font.render(
+            "This Week", True, COLOR_YELLOW if active == "week" else COLOR_GRAY
+        )
+        sep = entry_font.render(" | ", True, COLOR_GRAY)
+        all_label = entry_font.render(
+            "All Time", True, COLOR_YELLOW if active == "all" else COLOR_GRAY
+        )
+        suffix = entry_font.render(" >", True, COLOR_GRAY)
+        tab_w = (prefix.get_width() + week_label.get_width() + sep.get_width()
+                 + all_label.get_width() + suffix.get_width())
+        tx = WIDTH // 2 - tab_w // 2
+        ty = 128
+        for surf in (prefix, week_label, sep, all_label, suffix):
+            screen.blit(surf, (tx, ty - surf.get_height() // 2))
+            tx += surf.get_width()
+
+        # Last-week champion subtitle — This Week only, hidden when absent (D-16).
+        if active == "week" and last_week_initials:
+            subtitle = entry_font.render(
+                f"Last week: {last_week_initials}", True, COLOR_GRAY
+            )
+            subtitle_rect = subtitle.get_rect(center=(WIDTH // 2, 152))
+            screen.blit(subtitle, subtitle_rect)
+
         if entries is None:
-            # Offline
+            # Offline (per active view; the other cached view still renders when toggled)
             msg = entry_font.render("Could not connect to leaderboard.", True, COLOR_GRAY)
             msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
             screen.blit(msg, msg_rect)
         elif len(entries) == 0:
-            msg = entry_font.render("No scores yet. Be the first!", True, COLOR_GRAY)
+            msg = entry_font.render(empty_text[active], True, COLOR_GRAY)
             msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
             screen.blit(msg, msg_rect)
         else:
@@ -157,16 +230,22 @@ def run_leaderboard(screen, timer, api_service):
                 screen.blit(text, text_rect)
 
         # Hint
-        hint = hint_font.render("Press ESC or ENTER to go back", True, COLOR_GRAY)
+        hint = hint_font.render("LEFT/RIGHT: switch board   ESC/ENTER: back", True, COLOR_GRAY)
         hint_rect = hint.get_rect(center=(WIDTH // 2, HEIGHT - 80))
         screen.blit(hint, hint_rect)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                return
+                return views["week"] if views["week"] is not _UNFETCHED else None
             if event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
-                    return
+                    return views["week"] if views["week"] is not _UNFETCHED else None
+                elif event.key in (pygame.K_LEFT, pygame.K_RIGHT):
+                    active = "all" if active == "week" else "week"
+                    # Lazy-fetch All Time the first time it becomes active (D-14).
+                    if views[active] is _UNFETCHED:
+                        _show_loading(screen, header_font)
+                        views[active] = api_service.get_leaderboard(scope="all")
 
         pygame.display.flip()
 
