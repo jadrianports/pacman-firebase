@@ -94,7 +94,7 @@ API, comes last (Phase 7).
 
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Client leaderboard_crypto module: canonical_message/sign_submission (server-contract mirror) + obfuscation + domain-separated file-integrity HMAC, with the loop-closing oracle test
+- [x] 05-01-PLAN.md — Client leaderboard_crypto module: canonical_message/sign_submission (server-contract mirror) + obfuscation + domain-separated file-integrity HMAC, with the loop-closing oracle test
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -169,6 +169,6 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
-| 5. Client Identity Hardening | v1.1 | 0/3 | Planned | - |
+| 5. Client Identity Hardening | v1.1 | 1/3 | In Progress|  |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
