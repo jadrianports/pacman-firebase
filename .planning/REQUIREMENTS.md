@@ -76,11 +76,11 @@ Which phase covers which requirement. Populated during roadmap creation.
 | IDENT-01 | Phase 5 | Pending |
 | IDENT-02 | Phase 5 | Pending |
 | IDENT-03 | Phase 5 | Pending |
-| COMP-01 | Phase 4 | In Progress |
-| COMP-02 | Phase 4 | In Progress |
-| COMP-03 | Phase 4 | In Progress |
-| BOARD-01 | Phase 4 | In Progress |
-| BOARD-02 | Phase 4 | In Progress |
+| COMP-01 | Phase 4 | Complete |
+| COMP-02 | Phase 4 | Complete |
+| COMP-03 | Phase 4 | Complete |
+| BOARD-01 | Phase 4 | Complete |
+| BOARD-02 | Phase 4 | Complete |
 | BOARD-03 | Phase 6 | Pending |
 | BOARD-04 | Phase 6 | Pending |
 | WEB-01 | Phase 7 | Pending |

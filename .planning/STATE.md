@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
-status: executing
-stopped_at: Phase 04 plans 01-04 complete; 04-04 live deploy done + smoke-verified; awaiting phase verification
-last_updated: "2026-06-19"
-last_activity: 2026-06-19 -- Phase 04 04-04 complete; both Cloud Run services live + smoke-verified (COMP-01/BOARD-01/02)
+status: completed
+stopped_at: Phase 04 — plans 01-04 complete; 04-04 live deploy done + smoke-verified; awaiting phase verification
+last_updated: "2026-06-19T07:31:50.508Z"
+last_activity: 2026-06-19
 progress:
   total_phases: 4
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
   completed_plans: 4
-  percent: 0
+  percent: 25
 ---
 
 # Project State
@@ -25,10 +25,10 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 
 ## Current Position
 
-Phase: 04 (server-hardening-weekly-data-model) — plans 4/4 complete; awaiting phase verification
-Plan: 04-04 of 4 — DEPLOY.md authored + both Cloud Run services live (smoke-verified)
+Phase: 5
+Plan: Not started
 Status: Plans 01-04 complete & green; hardened server LIVE and enforcing (COMP-01/BOARD-01/02)
-Last activity: 2026-06-19 -- 04-04 complete; live deploy + smoke checks passed
+Last activity: 2026-06-19
 
 Progress (plans): [██████████] 4/4 (100%)
 
@@ -87,6 +87,7 @@ None.
 - **Phase 4 prerequisite — RESOLVED (2026-06-19):** `cloud_functions/` working tree was clean at
   execution start (no uncommitted main.py mods). TST-03 validators stayed green (baseline 21 passed →
   full suite 88 passed/9 skipped after plans 01-03).
+
 - **RESOLVED (2026-06-19) — Phase 4 live deploy (04-04 Tasks 2-3):** Both Cloud Run services are now
   LIVE. Operator (via Cloud Shell) confirmed Secret Manager secret `leaderboard-hmac-secret`, granted
   `roles/secretmanager.secretAccessor` to the runtime SA, referenced it as `LEADERBOARD_HMAC_SECRET` on
@@ -95,6 +96,7 @@ None.
   (revisions `pacman-00005-7rk`, `get-leaderboard-00003-fzk`). Smoke checks passed (401 bogus sig; 200
   weekly `{"entries":[]}`; 200 all-time `{initials,score}`). Phase 4 plans 4/4 complete; phase
   verification runs next.
+
 - **CARRY TO PHASE 5 — HMAC secret + grace-flag flip:** Phase 5 client build must embed the identical
   `leaderboard-hmac-secret` value (operator's safe copy). After the signed client ships and friends
   update, flip `REQUIRE_SIGNATURE` to `true` on `pacman` (D-02).
