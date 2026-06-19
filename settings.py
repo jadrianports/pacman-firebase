@@ -75,3 +75,10 @@ MENU_OPTIONS = ["Play", "Leaderboard", "Quit"]
 # API - Cloud Run function URLs
 API_SUBMIT_SCORE_URL = "https://pacman-991339031546.asia-southeast1.run.app"
 API_LEADERBOARD_URL = "https://get-leaderboard-991339031546.asia-southeast1.run.app"
+
+# Per-user identity storage (Phase 5, D-01).
+# IDENTITY_DIR_NAME is the exact folder name under %LOCALAPPDATA% on Windows.
+# IDENTITY_FILE_NAME is the single consolidated obfuscated+signed identity blob.
+# The HMAC secret is NOT stored here (D-09 — baked at build time, never a committed literal).
+IDENTITY_DIR_NAME = "PacMan"
+IDENTITY_FILE_NAME = "identity.dat"
