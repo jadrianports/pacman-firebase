@@ -126,9 +126,9 @@ API, comes last (Phase 7).
 
 **Wave 1** *(parallel — no file overlap)*
 
-- [ ] 06-01-PLAN.md — Server `scope=last_week` read branch in `get_leaderboard` + validator tests (BOARD-04; the one server touch — reuses `previous_week_id(current_week_id())`, no data-model change)
-- [ ] 06-02-PLAN.md — Client `api_service.get_leaderboard(scope, timeout)` param (urlencode'd query string, None/[]-on-failure contract preserved) + request-capture tests (BOARD-03/BOARD-04 plumbing, D-14)
-- [ ] 06-03-PLAN.md — `settings.py` marker/banner constants + new `marker.py` unsigned last-viewed marker IO (plain JSON, best-effort, Monday-UTC week stamp) + tests (RIVAL-01 foundation, D-13)
+- [x] 06-01-PLAN.md — Server `scope=last_week` read branch in `get_leaderboard` + validator tests (BOARD-04; the one server touch — reuses `previous_week_id(current_week_id())`, no data-model change)
+- [x] 06-02-PLAN.md — Client `api_service.get_leaderboard(scope, timeout)` param (urlencode'd query string, None/[]-on-failure contract preserved) + request-capture tests (BOARD-03/BOARD-04 plumbing, D-14)
+- [x] 06-03-PLAN.md — `settings.py` marker/banner constants + new `marker.py` unsigned last-viewed marker IO (plain JSON, best-effort, Monday-UTC week stamp) + tests (RIVAL-01 foundation, D-13)
 
 **Wave 2** *(blocked on 06-02 + 06-03)*
 
@@ -181,5 +181,5 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
-| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/4 | Planned | - |
+| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 3/4 | In Progress|  |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |

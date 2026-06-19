@@ -4,12 +4,12 @@ milestone: v1.1
 milestone_name: More Competitive
 status: executing
 stopped_at: Phase 6 UI-SPEC approved
-last_updated: "2026-06-19T17:18:02.521Z"
-last_activity: 2026-06-19 -- Phase 06 planning complete
+last_updated: "2026-06-19T17:41:12.914Z"
+last_activity: 2026-06-19 -- Phase 06 execution started
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 7
+  total_plans: 11
   completed_plans: 7
   percent: 50
 ---
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 6 — in-game-weekly-boards-&-got-passed-banner (Phase 5 complete)
+**Current focus:** Phase 06 — in-game-weekly-boards-got-passed-banner
 
 ## Current Position
 
-Phase: 6
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-19 -- Phase 06 planning complete
+Phase: 06 (in-game-weekly-boards-got-passed-banner) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 06
+Last activity: 2026-06-19 -- Phase 06 execution started
 
 Progress (Phase 4 plans): [██████████] 4/4 (100%)
 
