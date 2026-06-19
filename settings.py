@@ -87,3 +87,14 @@ IDENTITY_FILE_NAME = "identity.dat"
 # hmac_secret.local holds the real value (never committed). build.py reads it at build
 # time and bakes it non-literally; dev runs read it directly via main._load_hmac_secret.
 HMAC_SECRET_FILE_NAME = "hmac_secret.local"
+
+# Phase 6 — in-game weekly boards & got-passed banner.
+# MARKER_FILE_NAME (D-13): the unsigned plain-JSON last-viewed marker under
+#   %LOCALAPPDATA%\PacMan\ — the deliberate INVERSE of the identity blob (no obfuscation,
+#   no HMAC; a missing/corrupt/wrong-week marker is harmless and silently re-baselines).
+# BANNER_FETCH_TIMEOUT_SECONDS (D-09 / UI-SPEC): the short launch-fetch timeout for the
+#   got-passed banner — NOT the 10s in-board default.
+# BANNER_NAME_CAP (D-06 / UI-SPEC): max passer initials shown before "+K more".
+MARKER_FILE_NAME = "last_viewed.json"
+BANNER_FETCH_TIMEOUT_SECONDS = 2
+BANNER_NAME_CAP = 3
