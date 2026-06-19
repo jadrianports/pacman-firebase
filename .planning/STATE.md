@@ -25,9 +25,9 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 
 ## Current Position
 
-Phase: 05 (client-identity-hardening) — EXECUTING
+Phase: 05 (client-identity-hardening) — GAPS FOUND
 Plan: 3 of 3
-Status: all plans complete (05-01, 05-02, 05-03); awaiting phase verification
+Status: all 3 plans executed; verification gaps_found (3/4 must-haves) — 2 BLOCKERs on the no-secret graceful-degrade path; awaiting gap closure (/gsd-plan-phase 05 --gaps)
 Last activity: 2026-06-19 -- Phase 05 execution started
 
 Progress (Phase 4 plans): [██████████] 4/4 (100%)

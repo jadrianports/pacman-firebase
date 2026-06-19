@@ -40,7 +40,7 @@ API, comes last (Phase 7).
 - Decimal phases (e.g. 4.1): Urgent insertions (marked INSERTED)
 
 - [x] **Phase 4: Server Hardening & Weekly Data Model** — Reconcile the Cloud Functions, then make the server the enforcement boundary: HMAC verification, sanity ceiling, permanent initials, week-bucketed scores + a scope-aware leaderboard API. (completed 2026-06-19 — server live & enforcing; verified)
-- [x] **Phase 5: Client Identity Hardening** — Relocate identity files out of the game folder, store them obfuscated, and HMAC-sign them so the client detects tampering and its submissions pass the server's signature check end-to-end. (completed 2026-06-19)
+- [ ] **Phase 5: Client Identity Hardening** — Relocate identity files out of the game folder, store them obfuscated, and HMAC-sign them so the client detects tampering and its submissions pass the server's signature check end-to-end. (all 3 plans executed; verification gaps_found 3/4 — 2 BLOCKERs on the no-secret graceful-degrade path; awaiting gap closure)
 - [ ] **Phase 6: In-Game Weekly Boards & Got-Passed Banner** — Surface the scoped API in-game: This Week / All Time toggle, last week's champion, and a launch banner naming whoever passed your score.
 - [ ] **Phase 7: Web Leaderboard Page** — A public, mobile-first Firebase Hosting page that mirrors the in-game This Week / All Time boards by consuming the existing API.
 
