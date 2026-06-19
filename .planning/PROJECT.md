@@ -51,6 +51,7 @@ reconcile first.
 - ✓ **Behavior-preserving refactor** — centralized tile/board geometry (REF-01) + collapsed the 4× ghost-AI duplication into a data-driven `_move` + per-ghost profiles (REF-02), proven byte-identical by differential oracles + golden traces — *Phase 2 (safe-refactor), 2026-06-12*
 - ✓ **Ghost-box bounds unified** (BUG-01) — collapsed the two divergent box rectangles into a single `GHOST_BOX_BOUNDS` (collision box wins); the milestone's **one sanctioned behavior change**, oracle-proven isolated to the box ring (18,496 comparisons, 0 out-of-ring) + golden masters re-blessed (all 9, frame-340-rooted) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
 - ✓ **Repo hygiene** (HYG-01..04) — pinned client deps, untracked `settings.local.json` + reconciled `.gitignore`, fixed box-exit doc drift, removed dead asset folders (human `.exe` smoke-run verified) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
+- ✓ **Anti-cheat & identity hardening** (COMP-01..03, IDENT-01..03) — server is the enforcement boundary (HMAC signature verification, score sanity ceiling, server-enforced permanent initials, week-bucketed scores) *Phase 4*; client identity relocated out of the game folder to `%LOCALAPPDATA%\PacMan\` as a single obfuscated, HMAC-signed blob with fail-closed tamper detection, seamless legacy migration, and a graceful no-secret offline degrade — client submissions carry a server-verified signature, closing the signing↔verification loop end-to-end *Phase 5* — *Phases 4-5, 2026-06-19*
 
 ### Active
 
@@ -58,7 +59,7 @@ reconcile first.
 
 Building toward **v1.1 More Competitive**:
 
-- [ ] Anti-cheat & identity hardening — relocated/obfuscated identity files, HMAC tamper-detection + server-side signature verification, server-enforced permanent initials, score sanity ceiling
+- [x] Anti-cheat & identity hardening — relocated/obfuscated identity files, HMAC tamper-detection + server-side signature verification, server-enforced permanent initials, score sanity ceiling — *delivered Phases 4-5 (2026-06-19)*
 - [ ] Weekly boards (This Week + All Time, Monday-UTC reset, last-week's champ)
 - [ ] Web leaderboard page (Firebase Hosting, public, mobile-first)
 - [ ] "You got passed" launch banner
@@ -130,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-14 after starting v1.1 (More Competitive) milestone*
+*Last updated: 2026-06-19 after Phase 5 (Client Identity Hardening) completion — anti-cheat & identity hardening delivered end-to-end across Phases 4-5*
