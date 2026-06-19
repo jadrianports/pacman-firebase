@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
-status: verifying
+status: executing
 stopped_at: Phase 5 context gathered
-last_updated: "2026-06-19T08:38:21.022Z"
+last_updated: "2026-06-19T09:21:23.729Z"
 last_activity: 2026-06-19 — Phase 4 complete; live deploy + CR-01 fix + smoke/UAT all green
 progress:
   total_phases: 4
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 
 Phase: 5 (client-identity-hardening) — not started
 Plan: Not started
-Status: Phase 4 COMPLETE & verified — hardened server LIVE and enforcing (COMP-01/02/03, BOARD-01/02). CR-01 fix deployed (rev pacman-00006-ltj / get-leaderboard-00004-rfr).
+Status: Ready to execute
 Last activity: 2026-06-19 — Phase 4 complete; live deploy + CR-01 fix + smoke/UAT all green
 
 Progress (Phase 4 plans): [██████████] 4/4 (100%)
