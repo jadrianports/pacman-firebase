@@ -3,13 +3,17 @@ from firebase_admin import firestore, initialize_app
 import firebase_admin
 
 # leaderboard_crypto is the Plan 04-01 helper, duplicated byte-identical into this
-# Gen2 function dir. At deploy time the function dir IS the import root, so the bare
-# `import leaderboard_crypto` works; under the test harness this module is imported as
-# the package `cloud_functions.get_leaderboard.main`, so fall back to the relative import.
-try:
-    import leaderboard_crypto
-except ModuleNotFoundError:  # pragma: no cover - exercised only under the test harness
+# Gen2 function dir. At deploy time the function dir IS the import root and this module
+# is loaded as a top-level module (__package__ == ""), so the bare
+# `import leaderboard_crypto` resolves the co-located copy. Under the test harness this
+# module is imported as the package `cloud_functions.get_leaderboard.main`, so prefer the
+# package-relative import — that pins the co-located server copy even when an unrelated
+# top-level `leaderboard_crypto` (e.g. the Phase 5 CLIENT copy at the repo root) shadows
+# the bare name on sys.path.
+if __package__:
     from . import leaderboard_crypto
+else:  # pragma: no cover - exercised only at deploy time (function dir is the import root)
+    import leaderboard_crypto
 
 if not firebase_admin._apps:
     initialize_app()
