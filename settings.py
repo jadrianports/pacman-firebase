@@ -82,3 +82,8 @@ API_LEADERBOARD_URL = "https://get-leaderboard-991339031546.asia-southeast1.run.
 # The HMAC secret is NOT stored here (D-09 — baked at build time, never a committed literal).
 IDENTITY_DIR_NAME = "PacMan"
 IDENTITY_FILE_NAME = "identity.dat"
+
+# Build/dev HMAC secret filename (D-09). This is the FILENAME only — the gitignored
+# hmac_secret.local holds the real value (never committed). build.py reads it at build
+# time and bakes it non-literally; dev runs read it directly via main._load_hmac_secret.
+HMAC_SECRET_FILE_NAME = "hmac_secret.local"
