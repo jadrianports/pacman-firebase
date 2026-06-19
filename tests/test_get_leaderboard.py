@@ -170,3 +170,36 @@ def test_weekly_path_projects_only_initials_and_score(leaderboard_module):
     )
     assert status == 200
     assert body == {"entries": [{"initials": "JAM", "score": 8000}]}
+
+
+def test_scope_last_week_queries_weekly_with_previous_week(leaderboard_module):
+    """BOARD-04: ?scope=last_week queries weekly filtered to previous_week_id(current_week_id())."""
+    from cloud_functions.get_leaderboard import leaderboard_crypto
+
+    _stub_stream(leaderboard_module, [_make_doc("JAM", 8000)])
+    body, status, _ = leaderboard_module.get_leaderboard(
+        make_request(query_string="scope=last_week")
+    )
+    assert status == 200
+    assert body == {"entries": [{"initials": "JAM", "score": 8000}]}
+    db = leaderboard_module._mock_client
+    db.collection.assert_called_with("weekly")
+    # the where filter pins the PREVIOUS server-time week id (last week's champ)
+    db.collection.return_value.where.assert_called_with(
+        "week_id", "==",
+        leaderboard_crypto.previous_week_id(leaderboard_crypto.current_week_id()),
+    )
+
+
+def test_scope_last_week_projects_only_initials_and_score(leaderboard_module):
+    """D-10: the last_week path also drops machine_id/week_id/updated_at — only initials+score ship."""
+    _stub_stream(leaderboard_module, [
+        _make_doc("JAM", 8000, extra={
+            "machine_id": "m1", "week_id": "2026-06-08", "updated_at": "ts",
+        }),
+    ])
+    body, status, _ = leaderboard_module.get_leaderboard(
+        make_request(query_string="scope=last_week")
+    )
+    assert status == 200
+    assert body == {"entries": [{"initials": "JAM", "score": 8000}]}
