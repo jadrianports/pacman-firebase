@@ -21,21 +21,56 @@ def _mock_response(data, status=200):
 def test_submit_score_new_best(service):
     response = _mock_response({"success": True, "is_new_best": True})
     with patch("api_service.urlopen", return_value=response):
-        result = service.submit_score("machine-1", "JAM", 5000)
+        result = service.submit_score("machine-1", "JAM", 5000, signature="abc123")
     assert result == {"success": True, "is_new_best": True}
 
 
 def test_submit_score_not_new_best(service):
     response = _mock_response({"success": True, "is_new_best": False})
     with patch("api_service.urlopen", return_value=response):
-        result = service.submit_score("machine-1", "JAM", 5000)
+        result = service.submit_score("machine-1", "JAM", 5000, signature="abc123")
     assert result == {"success": True, "is_new_best": False}
 
 
 def test_submit_score_network_error(service):
     with patch("api_service.urlopen", side_effect=Exception("timeout")):
-        result = service.submit_score("machine-1", "JAM", 5000)
+        result = service.submit_score("machine-1", "JAM", 5000, signature="abc123")
     assert result is None
+
+
+def test_submit_score_sends_signature_field(service):
+    """The POST body carries the signature in the locked "signature" field, and
+    score stays an int (the signature was computed over the int)."""
+    captured = {}
+
+    def _fake_urlopen(req, timeout=None):
+        captured["body"] = json.loads(req.data.decode())
+        return _mock_response({"success": True, "is_new_best": False})
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.submit_score("machine-1", "JAM", 5000, signature="deadbeef")
+
+    body = captured["body"]
+    assert body["signature"] == "deadbeef"
+    assert body["machine_id"] == "machine-1"
+    assert body["initials"] == "JAM"
+    assert body["score"] == 5000
+    assert isinstance(body["score"], int)
+
+
+def test_submit_score_signature_defaults_to_none(service):
+    """Without a signature the body sends null (server grace-accepts during the
+    grace period)."""
+    captured = {}
+
+    def _fake_urlopen(req, timeout=None):
+        captured["body"] = json.loads(req.data.decode())
+        return _mock_response({"success": True, "is_new_best": False})
+
+    with patch("api_service.urlopen", side_effect=_fake_urlopen):
+        service.submit_score("machine-1", "JAM", 5000)
+
+    assert captured["body"]["signature"] is None
 
 
 def test_get_leaderboard_success(service):

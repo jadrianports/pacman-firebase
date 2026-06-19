@@ -171,8 +171,14 @@ def run_leaderboard(screen, timer, api_service):
         pygame.display.flip()
 
 
-def run_game_over_screen(screen, timer, score, is_new_best, game_won):
-    """Show game over/victory screen with score. Returns after user presses SPACE."""
+def run_game_over_screen(screen, timer, score, is_new_best, game_won, identity_error=False):
+    """Show game over/victory screen with score. Returns after user presses SPACE.
+
+    When ``identity_error`` is set (a tampered/invalid identity blocked the submit,
+    D-05/D-06), render a small gray "Score not saved — identity error" line so the
+    player sees why the score did not reach the board. The game stays fully playable;
+    this is a passive notice, not a modal.
+    """
     title_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
     score_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
     hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
@@ -199,6 +205,13 @@ def run_game_over_screen(screen, timer, score, is_new_best, game_won):
             best_text = score_font.render("NEW BEST!", True, COLOR_YELLOW)
             best_rect = best_text.get_rect(center=(WIDTH // 2, 480))
             screen.blit(best_text, best_rect)
+
+        # Identity error — score could not be submitted (D-06). Gray, passive notice
+        # mirroring the "Could not connect to leaderboard." graceful-degrade tone.
+        if identity_error:
+            notice = hint_font.render("Score not saved — identity error", True, COLOR_GRAY)
+            notice_rect = notice.get_rect(center=(WIDTH // 2, 540))
+            screen.blit(notice, notice_rect)
 
         # Hint
         hint = hint_font.render("Press SPACE for menu", True, COLOR_GRAY)

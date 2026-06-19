@@ -2,6 +2,12 @@
 machine_id.txt
 player_data.json
 
+# Build-time HMAC secret (D-09). The real value lives only in hmac_secret.local
+# (never committed); the repo ships hmac_secret.example as a placeholder. The
+# generated _baked_secret.py is build output carrying the obfuscated secret.
+hmac_secret.local
+_baked_secret.py
+
 # Python
 __pycache__/
 *.pyc

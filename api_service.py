@@ -7,12 +7,13 @@ class ApiService:
         self.submit_score_url = submit_score_url.rstrip("/")
         self.leaderboard_url = leaderboard_url.rstrip("/")
 
-    def submit_score(self, machine_id, initials, score):
+    def submit_score(self, machine_id, initials, score, signature=None):
         try:
             data = json.dumps({
                 "machine_id": machine_id,
                 "initials": initials,
                 "score": score,
+                "signature": signature,
             }).encode()
             req = Request(
                 self.submit_score_url,
