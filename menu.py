@@ -4,7 +4,7 @@ from settings import (
     WIDTH, HEIGHT, FPS,
     COLOR_YELLOW, COLOR_WHITE, COLOR_GRAY, COLOR_RED, COLOR_GREEN,
     FONT_TITLE, FONT_MENU, FONT_SMALL,
-    MENU_OPTIONS,
+    MENU_OPTIONS, LEADERBOARD_LINE_WIDTH,
 )
 
 # Sentinel distinguishing "this view has never been fetched" from the three
@@ -228,7 +228,8 @@ def run_leaderboard(screen, timer, api_service):
                 rank = f"{i + 1}."
                 initials = entry["initials"]
                 score = str(entry["score"])
-                dots = "." * (30 - len(rank) - len(initials) - len(score))
+                fill = max(0, LEADERBOARD_LINE_WIDTH - len(rank) - len(initials) - len(score))
+                dots = "." * fill
                 line = f"{rank} {initials} {dots} {score}"
                 color = COLOR_YELLOW if i == 0 else COLOR_WHITE
                 text = entry_font.render(line, True, color)

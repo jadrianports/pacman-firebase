@@ -72,6 +72,11 @@ FONT_SMALL = 24
 # Menu options
 MENU_OPTIONS = ["Play", "Leaderboard", "Quit"]
 
+# Leaderboard row layout: total character budget for "rank initials dots score".
+# The dot-fill is clamped to >= 0 against this width so an unbounded server score or
+# longer-than-expected initials never produce a negative repeat count (WR-03).
+LEADERBOARD_LINE_WIDTH = 30
+
 # API - Cloud Run function URLs
 API_SUBMIT_SCORE_URL = "https://pacman-991339031546.asia-southeast1.run.app"
 API_LEADERBOARD_URL = "https://get-leaderboard-991339031546.asia-southeast1.run.app"
