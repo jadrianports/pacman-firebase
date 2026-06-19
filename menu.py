@@ -40,6 +40,12 @@ def run_main_menu(screen, timer, banner_text=None):
         title_rect = title.get_rect(center=(WIDTH // 2, 150))
         screen.blit(title, title_rect)
 
+        # Got-passed banner (D-06) — yellow, only when present (passive-notice idiom).
+        if banner_text:
+            banner = banner_font.render(banner_text, True, COLOR_YELLOW)
+            banner_rect = banner.get_rect(center=(WIDTH // 2, 230))
+            screen.blit(banner, banner_rect)
+
         # Menu options
         for i, option in enumerate(MENU_OPTIONS):
             color = COLOR_YELLOW if i == selected else COLOR_WHITE
