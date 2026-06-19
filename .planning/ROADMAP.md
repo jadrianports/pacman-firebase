@@ -41,7 +41,7 @@ API, comes last (Phase 7).
 
 - [x] **Phase 4: Server Hardening & Weekly Data Model** — Reconcile the Cloud Functions, then make the server the enforcement boundary: HMAC verification, sanity ceiling, permanent initials, week-bucketed scores + a scope-aware leaderboard API. (completed 2026-06-19 — server live & enforcing; verified)
 - [x] **Phase 5: Client Identity Hardening** — Relocate identity files out of the game folder, store them obfuscated, and HMAC-sign them so the client detects tampering and its submissions pass the server's signature check end-to-end. (completed 2026-06-19 — 3/3 plans; verified 4/4 after closing 2 no-secret graceful-degrade blockers)
-- [ ] **Phase 6: In-Game Weekly Boards & Got-Passed Banner** — Surface the scoped API in-game: This Week / All Time toggle, last week's champion, and a launch banner naming whoever passed your score.
+- [x] **Phase 6: In-Game Weekly Boards & Got-Passed Banner** — Surface the scoped API in-game: This Week / All Time toggle, last week's champion, and a launch banner naming whoever passed your score. (completed 2026-06-19)
 - [ ] **Phase 7: Web Leaderboard Page** — A public, mobile-first Firebase Hosting page that mirrors the in-game This Week / All Time boards by consuming the existing API.
 
 ## Phase Details
@@ -132,7 +132,7 @@ API, comes last (Phase 7).
 
 **Wave 2** *(blocked on 06-02 + 06-03)*
 
-- [ ] 06-04-PLAN.md — Board screen This Week/All Time toggle + last-week subtitle + per-view empty/offline states (`run_leaderboard`); main-menu banner line (`run_main_menu`); `main.py` launch banner compute (short-timeout fetch), submit-path tracked-best update, board-open baseline rewrite (BOARD-03/BOARD-04/RIVAL-01)
+- [x] 06-04-PLAN.md — Board screen This Week/All Time toggle + last-week subtitle + per-view empty/offline states (`run_leaderboard`); main-menu banner line (`run_main_menu`); `main.py` launch banner compute (short-timeout fetch), submit-path tracked-best update, board-open baseline rewrite (BOARD-03/BOARD-04/RIVAL-01)
 
 **Notes:**
 
@@ -181,5 +181,5 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
-| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 3/4 | In Progress|  |
+| 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete   | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
