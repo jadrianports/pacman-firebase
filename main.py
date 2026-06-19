@@ -155,10 +155,10 @@ def main():
                 break
 
         elif choice == "Leaderboard":
-            # Open the board; it returns the freshly-fetched This Week entries (O-3).
+            # Open the board; it returns (quit_requested, this_week_entries) (O-3).
             # Opening the board clears the on-screen banner for the session AND rewrites
             # the marker baseline — the ONLY place initials_above is reset (D-07/D-10).
-            this_week_entries = run_leaderboard(screen, timer, api)
+            quit_requested, this_week_entries = run_leaderboard(screen, timer, api)
             banner_text = None
             if this_week_entries and tracked_best is not None:
                 initials_above = {
@@ -167,6 +167,10 @@ def main():
                 marker.write_marker(
                     marker.client_current_week_id(), tracked_best, initials_above
                 )
+            # Honor a window-close while the board was open (WR-01) — without an
+            # out-of-band quit signal this fell through and re-displayed the menu.
+            if quit_requested:
+                break
 
     pygame.quit()
 

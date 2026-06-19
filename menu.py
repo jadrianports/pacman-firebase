@@ -150,10 +150,15 @@ def run_leaderboard(screen, timer, api_service):
     subtitle shows on This Week only, hidden when absent (D-04/D-16). Returns when
     the user presses ESC or ENTER.
 
-    Board-open seam (O-3, return-based): returns the freshly-fetched This Week
-    entries (the same list rendered, no extra network call) so main.py can rewrite
-    the marker baseline exactly once per board open. Returns ``None`` if This Week
-    was offline / unavailable, ``[]`` if empty, or the entries list on success.
+    Board-open seam (O-3, return-based): returns a ``(quit_requested, week_entries)``
+    tuple. ``week_entries`` is the freshly-fetched This Week entries (the same list
+    rendered, no extra network call) so main.py can rewrite the marker baseline exactly
+    once per board open — ``None`` if This Week was offline / unavailable, ``[]`` if
+    empty, or the entries list on success. ``quit_requested`` is True only when the user
+    closed the window (pygame.QUIT); ESC/ENTER ("back") returns it False. This gives the
+    caller an out-of-band quit signal so a window-close while the board is open is honored
+    instead of silently re-displaying the main menu (WR-01), matching the quit-propagation
+    contract of every sibling screen.
     """
     header_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
     entry_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
@@ -242,11 +247,12 @@ def run_leaderboard(screen, timer, api_service):
         screen.blit(hint, hint_rect)
 
         for event in pygame.event.get():
+            week_entries = views["week"] if views["week"] is not _UNFETCHED else None
             if event.type == pygame.QUIT:
-                return views["week"] if views["week"] is not _UNFETCHED else None
+                return True, week_entries
             if event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_ESCAPE, pygame.K_RETURN):
-                    return views["week"] if views["week"] is not _UNFETCHED else None
+                    return False, week_entries
                 elif event.key in (pygame.K_LEFT, pygame.K_RIGHT):
                     active = "all" if active == "week" else "week"
                     # Lazy-fetch All Time the first time it becomes active (D-14).
