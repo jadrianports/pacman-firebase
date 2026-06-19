@@ -13,9 +13,9 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Identity & Tamper-Resistance (client-side)
 
-- [ ] **IDENT-01**: Player identity files (`machine_id`, initials) are stored outside the game folder (not next to the exe), so they aren't trivially discovered
-- [ ] **IDENT-02**: Identity files are stored obfuscated rather than as human-readable plaintext
-- [ ] **IDENT-03**: Identity files carry an HMAC signature; the game detects tampering on load and refuses to submit a tampered identity
+- [x] **IDENT-01**: Player identity files (`machine_id`, initials) are stored outside the game folder (not next to the exe), so they aren't trivially discovered
+- [x] **IDENT-02**: Identity files are stored obfuscated rather than as human-readable plaintext
+- [x] **IDENT-03**: Identity files carry an HMAC signature; the game detects tampering on load and refuses to submit a tampered identity
 
 ### Anti-Cheat / Score Integrity (server-side)
 
@@ -73,9 +73,9 @@ Which phase covers which requirement. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| IDENT-01 | Phase 5 | Pending |
-| IDENT-02 | Phase 5 | Pending |
-| IDENT-03 | Phase 5 | Pending |
+| IDENT-01 | Phase 5 | Complete |
+| IDENT-02 | Phase 5 | Complete |
+| IDENT-03 | Phase 5 | Complete |
 | COMP-01 | Phase 4 | Complete |
 | COMP-02 | Phase 4 | Complete |
 | COMP-03 | Phase 4 | Complete |
