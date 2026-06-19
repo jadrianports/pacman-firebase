@@ -90,7 +90,19 @@ API, comes last (Phase 7).
   3. If an identity file is altered out-of-band, the game detects the broken HMAC on load and refuses to submit that tampered identity.
   4. A normally-played score submitted by the client carries a valid HMAC signature and is accepted onto the board by the Phase 4 server (the signing↔verification loop is closed end-to-end).
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+**Wave 1**
+
+- [ ] 05-01-PLAN.md — Client leaderboard_crypto module: canonical_message/sign_submission (server-contract mirror) + obfuscation + domain-separated file-integrity HMAC, with the loop-closing oracle test
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md — Relocate + consolidate identity into a single obfuscated, HMAC-signed blob in %LOCALAPPDATA%\PacMan\ with migrate-then-remove and a fail-closed tamper sentinel
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 05-03-PLAN.md — Wire it up: signed submissions (signature field), startup load/migrate, tamper submit-gate + game-over notice, and build.py baking the gitignored secret non-literally
 
 **Notes:**
 
@@ -157,6 +169,6 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 2. Safe Refactor | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 3. Box-Bug Fix + Hygiene | v1.0 | 2/2 | Complete | 2026-06-12 |
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
-| 5. Client Identity Hardening | v1.1 | 0/TBD | Not started | - |
+| 5. Client Identity Hardening | v1.1 | 0/3 | Planned | - |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 0/TBD | Not started | - |
 | 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
