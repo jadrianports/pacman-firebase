@@ -36,7 +36,7 @@ def get_leaderboard(request):
     # (T-04-12). Default + any unknown value falls back to "week" (confirmed decision:
     # default week; the shipped v1.0 exe shows the weekly board on redeploy, accepted).
     scope = (request.args.get("scope") or "week").lower()
-    if scope not in ("week", "all"):
+    if scope not in ("week", "all", "last_week"):
         scope = "week"
 
     try:
@@ -44,6 +44,23 @@ def get_leaderboard(request):
             # All-time path (D-08 retained, unchanged).
             query = (
                 db.collection("leaderboard")
+                .order_by("score", direction=firestore.Query.DESCENDING)
+                .limit(10)
+            )
+        elif scope == "last_week":
+            # BOARD-04 / D-01: last week's champ. Same weekly chain as the current-week
+            # branch, but pinned to previous_week_id(current_week_id()) — both computed
+            # from server time only (D-06), so the client can never request a forged
+            # week. Reuses the existing `week_id ASC, score DESC` composite index.
+            query = (
+                db.collection("weekly")
+                .where(
+                    "week_id",
+                    "==",
+                    leaderboard_crypto.previous_week_id(
+                        leaderboard_crypto.current_week_id()
+                    ),
+                )
                 .order_by("score", direction=firestore.Query.DESCENDING)
                 .limit(10)
             )
