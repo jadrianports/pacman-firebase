@@ -89,3 +89,35 @@ test('index.html: references styles.css, app.js (module) and favicon.svg', () =>
   assert.match(html, /<script type="module" src="app\.js"><\/script>/);
   assert.match(html, /href="favicon\.svg"/);
 });
+
+// ---------------------------------------------------------------------------
+// Task 2 — Firebase Hosting config + ESM marker
+// ---------------------------------------------------------------------------
+
+test('firebase.json: valid JSON, hosting.public points at web/public', () => {
+  const cfg = JSON.parse(read('firebase.json'));
+  assert.equal(cfg.hosting.public, 'web/public');
+});
+
+test('firebase.json: ignore excludes firebase.json itself', () => {
+  const cfg = JSON.parse(read('firebase.json'));
+  assert.ok(Array.isArray(cfg.hosting.ignore), 'ignore is an array');
+  assert.ok(cfg.hosting.ignore.includes('firebase.json'), 'ignore drops firebase.json');
+});
+
+test('firebase.json: hosting-only — no functions/rewrites-to-backend blocks', () => {
+  const cfg = JSON.parse(read('firebase.json'));
+  assert.equal(cfg.functions, undefined, 'no functions block');
+  assert.equal(cfg.hosting.rewrites, undefined, 'no rewrites block');
+});
+
+test('.firebaserc: default project pins pacman-firebase (D-15)', () => {
+  const rc = JSON.parse(read('.firebaserc'));
+  assert.equal(rc.projects.default, 'pacman-firebase');
+});
+
+test('web/package.json: ESM type marker with no dependencies block (D-01 no build step)', () => {
+  const pkg = JSON.parse(read('web/package.json'));
+  assert.equal(pkg.type, 'module');
+  assert.equal(pkg.dependencies, undefined, 'no dependencies block');
+});
