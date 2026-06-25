@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: More Competitive
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-06-25T21:37:31.189Z"
+last_updated: "2026-06-25T21:49:00.707Z"
 last_activity: 2026-06-25 -- Phase 07 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 75
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-06-14)
 ## Current Position
 
 Phase: 07 (web-leaderboard-page) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-25 -- Phase 07 execution started
 
@@ -50,6 +50,7 @@ Progress (Phase 4 plans): [██████████] 4/4 (100%)
 | Phase 04 P03 | 8min | 1 tasks | 2 files |
 | Phase 04 P04 | operator-paced | 3 tasks | 1 file |
 | Phase 07 P01 | 2min | 2 tasks | 5 files |
+| Phase 07 P02 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Full decision log lives in PROJECT.md (Key Decisions) and the archived
 - [Phase ?]: Plan 07-01: index.html fixes the DOM hook contract (.wordmark, nav#tabbar > button.tab[data-scope], #subtitle[hidden], ol#board, button#refresh, #hint) so Plan 02 app.js + Plan 03 styles.css attach independently in parallel wave 2
 - [Phase ?]: Plan 07-01: tab DOM order mirrors in-game 'This Week | All Time' but tab--active defaults to All Time (D-08 web divergence); Press Start 2P self-hosted via @font-face (D-16 zero-tracking, no Google Fonts/preconnect)
 - [Phase ?]: Plan 07-01: single root firebase.json, hosting-only, public=web/public (T-07-02 root key never deployable); .firebaserc default=pacman-firebase enables one-command firebase deploy --only hosting (D-15)
+- [Phase 7]: Plan 07-02: app.js = no-dep ESM; fetchEntries mirrors api_service null=offline sentinel; lazy per-view cache (UNFETCHED Symbol), All Time on load (D-08), This Week+last-week lazy on toggle (D-11), Refresh re-pulls active view only (D-10)
+- [Phase 7]: Plan 07-02: boardMarkup returns escaped HTML string (node-testable; escapeHtml on all API data = T-07-01 XSS mitigation); rank-1 gets rank-row--first; subtitle hides when no champion (D-09)
 
 ### Pending Todos
 
@@ -116,7 +119,7 @@ Items acknowledged and carried forward from v1.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-25T21:36:30.107Z
+Last session: 2026-06-25T21:47:39.791Z
 Stopped at: Phase 7 UI-SPEC approved
 Resume file: .planning/phases/07-web-leaderboard-page/07-UI-SPEC.md
 
