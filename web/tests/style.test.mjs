@@ -92,3 +92,53 @@ test('styles.css: self-hosted font file is present on disk (no Google Fonts fetc
   const woff2 = existsSync(path('web/public/fonts/PressStart2P-Regular.woff2'));
   assert.ok(ttf || woff2, 'a self-hosted Press Start 2P font file must exist under web/public/fonts/');
 });
+
+// ===========================================================================
+// Plan 03 — Task 2: branding assets (favicon.svg + ~1200x630 og-preview.png)
+// ===========================================================================
+
+test('favicon.svg: exists and is a valid scalable SVG with a viewBox (D-14)', () => {
+  assert.ok(existsSync(path('web/public/favicon.svg')), 'favicon.svg must exist');
+  const svg = read('web/public/favicon.svg');
+  assert.match(svg, /<svg/, 'favicon must have an <svg> root');
+  assert.match(svg, /viewBox\s*=/, 'favicon must declare a viewBox so it scales in the tab');
+});
+
+test('favicon.svg: depicts Pac-Man in arcade yellow, no executable script', () => {
+  const svg = read('web/public/favicon.svg');
+  assert.ok(/#FFFF00/i.test(svg), 'Pac-Man disc must use accent yellow #FFFF00');
+  assert.ok(!/<script/i.test(svg), 'favicon must contain no <script> (T-07-01)');
+});
+
+test('og-preview.png: exists and IHDR dimensions are 1200x630 (D-13)', () => {
+  assert.ok(existsSync(path('web/public/og-preview.png')), 'og-preview.png must exist');
+  const buf = readFileSync(path('web/public/og-preview.png'));
+  // PNG signature check.
+  assert.deepEqual(
+    [...buf.subarray(0, 8)],
+    [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+    'file must be a real PNG (signature)',
+  );
+  // IHDR: 4-byte big-endian width @ offset 16, height @ offset 20.
+  const width = buf.readUInt32BE(16);
+  const height = buf.readUInt32BE(20);
+  if (width === 1200 && height === 630) {
+    assert.ok(true);
+  } else {
+    // Allow any 1.91:1 card >= 1200px wide as a fallback (D-13 ~1200x630).
+    const ratio = width / height;
+    assert.ok(width >= 1200, `og width must be >= 1200, got ${width}`);
+    assert.ok(ratio >= 1.9 && ratio <= 1.92, `og aspect must be ~1.91:1, got ${ratio.toFixed(3)}`);
+  }
+});
+
+test('index.html: og:image / twitter:image resolve to the created og-preview.png', () => {
+  const html = read('web/public/index.html');
+  assert.match(html, /property="og:image"[^>]*content="[^"]*og-preview\.png"/);
+  assert.match(html, /name="twitter:image"[^>]*content="[^"]*og-preview\.png"/);
+});
+
+test('index.html: favicon link resolves to the created favicon.svg', () => {
+  const html = read('web/public/index.html');
+  assert.match(html, /rel="icon"[^>]*href="favicon\.svg"/);
+});

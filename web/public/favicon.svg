@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Pac-Man">
+  <!-- Arcade-yellow Pac-Man disc with an open wedge mouth (D-14). The path
+       starts at the center, cuts out to the upper jaw, sweeps the full body,
+       and closes along the lower jaw — leaving the classic mouth wedge. -->
+  <path fill="#FFFF00"
+        d="M16 16 L30 9 A15 15 0 1 0 30 23 Z"/>
+  <!-- Eye -->
+  <circle cx="15" cy="9" r="1.9" fill="#000000"/>
+</svg>
