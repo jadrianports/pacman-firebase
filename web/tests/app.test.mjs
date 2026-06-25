@@ -13,6 +13,9 @@ import {
   loadView,
   views,
   activeView,
+  boardMarkup,
+  formatScore,
+  init,
   _resetState,
 } from "../public/app.js";
 
@@ -119,6 +122,83 @@ test("loadView caches per scope — a second call does not refetch", async () =>
   try {
     const second = await loadView("all");
     assert.deepEqual(second, first);
+  } finally {
+    restoreFetch();
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Task 2 — render + interaction: state branches, rank rows, escaping, bootstrap
+// ---------------------------------------------------------------------------
+
+function countMatches(haystack, re) {
+  return (haystack.match(re) || []).length;
+}
+
+test("boardMarkup(null, view) renders the verbatim offline line for both views", () => {
+  for (const view of ["all", "week"]) {
+    const html = boardMarkup(null, view);
+    assert.match(html, /class="state-msg"/);
+    assert.ok(
+      html.includes("Could not connect to leaderboard."),
+      `offline copy must be verbatim for view=${view}`
+    );
+  }
+});
+
+test("boardMarkup([], view) renders the view-specific verbatim empty line", () => {
+  const week = boardMarkup([], "week");
+  assert.match(week, /class="state-msg"/);
+  assert.ok(week.includes("No scores yet this week. Be the first!"));
+
+  const all = boardMarkup([], "all");
+  assert.match(all, /class="state-msg"/);
+  assert.ok(all.includes("No scores yet. Be the first!"));
+});
+
+test("boardMarkup(entries) renders one rank-row each; only rank 1 is --first", () => {
+  const html = boardMarkup(
+    [
+      { initials: "BOB", score: 12345 },
+      { initials: "AMY", score: 9000 },
+    ],
+    "all"
+  );
+  assert.equal(countMatches(html, /class="rank-row/g), 2, "one row per entry");
+  assert.equal(
+    countMatches(html, /rank-row--first/g),
+    1,
+    "exactly one rank-1 highlight"
+  );
+  // Rank 1 (BOB) carries the highlight; row 2 (AMY) does not.
+  const firstRowIdx = html.indexOf("rank-row--first");
+  assert.ok(firstRowIdx >= 0);
+  assert.ok(html.indexOf("BOB") > firstRowIdx, "rank-1 row holds the top score");
+  assert.ok(html.includes("AMY"));
+  // Formatted score with thousands separators present.
+  assert.ok(html.includes("12,345"));
+});
+
+test("boardMarkup escapes hostile initials — no live <img> element (T-07-01)", () => {
+  const html = boardMarkup([{ initials: "<img src=x>", score: 1 }], "all");
+  assert.ok(!html.includes("<img"), "raw <img must not appear in the markup");
+  assert.ok(html.includes("&lt;img"), "hostile initials must be HTML-escaped");
+});
+
+test("formatScore applies en-US thousands separators and tolerates strings", () => {
+  assert.equal(formatScore(12345), "12,345");
+  assert.equal(formatScore("9000"), "9,000");
+});
+
+test("init() is inert without a document — no fetch at import/call time", async () => {
+  let called = false;
+  stubFetch(async () => {
+    called = true;
+    return { ok: true, json: async () => ({ entries: [] }) };
+  });
+  try {
+    await init();
+    assert.equal(called, false, "init must not fetch when document is undefined");
   } finally {
     restoreFetch();
   }
