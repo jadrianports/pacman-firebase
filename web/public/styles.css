@@ -1,0 +1,324 @@
+/* ===========================================================================
+   PAC-MAN — Leaderboard  ·  retro-arcade stylesheet
+   Built through the `frontend-design` skill (D-05, hard user directive).
+
+   Visual thesis: an arcade cabinet screen. Black void, deep-navy CRT panel,
+   Pac-Man yellow used like a coin-op marquee. The signature device is the
+   dot-leader between each initials/score pair — rendered as the maze PELLETS
+   Pac-Man eats (CSS radial-gradient, never literal "." glyphs).
+
+   Token contract (07-UI-SPEC.md) — echoes settings.py COLOR_* exactly:
+     --bg     #000000  dominant 60%  page void
+     --panel  #10102E  secondary 30% board / tab cabinet surface (arcade navy)
+     --accent #FFFF00  accent   10%  RESERVED → wordmark, active tab,
+                                      rank-1 row, Refresh focus. Nothing else.
+     --white  #FFFFFF  ranks 2–10
+     --gray   #808080  hints, subtitle, inactive tab, state lines, pellets
+   ========================================================================== */
+
+/* Self-hosted pixel display face (D-16 zero third-party tracking — no Google
+   Fonts request). TTF is browser-native via format("truetype"). */
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("fonts/PressStart2P-Regular.woff2") format("woff2"),
+       url("fonts/PressStart2P-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Color tokens */
+  --bg: #000000;
+  --panel: #10102E;
+  --accent: #FFFF00;
+  --white: #FFFFFF;
+  --gray: #808080;
+
+  /* Spacing scale — 4px multiples (UI-SPEC) */
+  --xs: 4px;
+  --sm: 8px;
+  --md: 16px;
+  --lg: 24px;
+  --xl: 32px;
+  --2xl: 48px;
+
+  /* Type families (D-06) — pixel display vs. legible monospace body */
+  --font-display: "Press Start 2P", "Courier New", monospace;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+
+  /* Minimum mobile touch target (WCAG 2.5.5 / Apple HIG) */
+  --touch: 44px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.5;
+  /* Faint scanline wash over the whole void — pure CRT atmosphere, no yellow. */
+  background-image: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.025) 0,
+    rgba(255, 255, 255, 0.025) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ---- Page shell (mobile-first single column) -------------------------- */
+.page {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--2xl) var(--md);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--lg);
+}
+
+/* ---- Wordmark — accent use (1/4): yellow + marquee glow ---------------- */
+.wordmark {
+  margin: var(--xl) 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(22px, 7vw, 28px);
+  line-height: 1.2;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: var(--accent);
+  text-shadow:
+    0 0 8px rgba(255, 255, 0, 0.55),
+    0 0 20px rgba(255, 255, 0, 0.25);
+}
+
+/* ---- Tab bar (segmented control over the navy cabinet surface) --------- */
+.tabbar {
+  display: flex;
+  gap: var(--sm);
+  background: var(--panel);
+  border: 2px solid var(--panel);
+  border-radius: 6px;
+  padding: var(--xs);
+}
+
+.tab {
+  flex: 1 1 0;
+  min-height: var(--touch); /* 44px touch target — the one scale exception */
+  padding: var(--sm) var(--md);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: var(--gray); /* inactive tab = gray */
+  font-family: var(--font-display);
+  font-size: clamp(11px, 3.6vw, 16px);
+  line-height: 1.2;
+  letter-spacing: 0;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+
+.tab:hover {
+  color: var(--white);
+}
+
+/* Active tab — accent use (2/4): yellow label + underline indicator */
+.tab--active,
+.tab--active:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---- Last-week champion subtitle (This Week only) --------------------- */
+.subtitle {
+  margin: 0;
+  text-align: center;
+  color: var(--gray);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+}
+
+.subtitle[hidden] {
+  display: none;
+}
+
+/* ---- Board panel — the cabinet screen -------------------------------- */
+.board {
+  list-style: none;
+  margin: 0;
+  padding: var(--md);
+  background: var(--panel);
+  border: 2px solid #1c1c44;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sm);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+/* CRT scanlines confined to the board (navy/black only — never accent). */
+.board::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.18) 0,
+    rgba(0, 0, 0, 0.18) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}
+
+/* ---- Rank row — flex layout with pellet dot-leaders ------------------- */
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: var(--xs);
+  margin: 0;
+  padding: var(--xs) 0;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--white); /* ranks 2–10 = white */
+}
+
+.rank-row .rank {
+  flex: 0 0 auto;
+  min-width: 2.4ch;
+  text-align: right;
+  color: var(--gray);
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-row .initials {
+  flex: 0 0 auto;
+  letter-spacing: 1px;
+}
+
+/* Pellet dot-leaders — the maze dots Pac-Man eats. Pure CSS, no "." glyphs:
+   a repeating radial-gradient of gray pellets fills the flex gap. */
+.rank-row .dots {
+  flex: 1 1 auto;
+  min-width: var(--lg);
+  align-self: center;
+  height: 4px;
+  margin: 0 var(--sm);
+  background-image: radial-gradient(circle, var(--gray) 1.6px, transparent 1.8px);
+  background-size: 10px 4px;
+  background-position: left center;
+  background-repeat: repeat-x;
+}
+
+.rank-row .score {
+  flex: 0 0 auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rank-1 row — accent use (3/4): the champion glows arcade yellow. */
+.rank-row--first {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.rank-row--first .rank,
+.rank-row--first .score {
+  color: var(--accent);
+}
+
+.rank-row--first .dots {
+  background-image: radial-gradient(circle, rgba(255, 255, 0, 0.7) 1.6px, transparent 1.8px);
+}
+
+/* ---- State lines (loading / offline / empty) ------------------------- */
+.state-msg {
+  margin: 0;
+  padding: var(--md) var(--xs);
+  text-align: center;
+  color: var(--gray);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ---- Refresh — accent use (4/4): yellow on focus/active/hover -------- */
+.refresh {
+  align-self: center;
+  min-height: var(--touch); /* 44px touch target */
+  padding: var(--sm) var(--xl);
+  border: 2px solid var(--gray);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--white);
+  font-family: var(--font-mono);
+  font-size: 16px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.refresh:hover,
+.refresh:active,
+.refresh:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(255, 255, 0, 0.35);
+  outline: none;
+}
+
+/* ---- Hint ------------------------------------------------------------ */
+.hint {
+  margin: 0;
+  text-align: center;
+  color: var(--gray);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* ---- Desktop centering / breathing room ------------------------------ */
+@media (min-width: 600px) {
+  .page {
+    padding: var(--3xl, 64px) var(--lg);
+  }
+
+  .rank-row {
+    font-size: 18px;
+  }
+}
+
+/* ---- Honor reduced-motion (transitions only; nothing animates) ------- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
+}
