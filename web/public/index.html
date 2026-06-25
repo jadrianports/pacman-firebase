@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>PAC-MAN — Leaderboard</title>
+  <meta name="description" content="The PAC-MAN high-score leaderboard — This Week and All Time. Beat your friends.">
+
+  <!-- Open Graph (rich link unfurl). og:image must be an ABSOLUTE url for scrapers. -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="PAC-MAN — Leaderboard">
+  <meta property="og:description" content="The PAC-MAN high-score leaderboard — This Week and All Time. Beat your friends.">
+  <meta property="og:image" content="https://pacman-firebase.web.app/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:url" content="https://pacman-firebase.web.app/">
+
+  <!-- Twitter Card (same absolute preview image). -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PAC-MAN — Leaderboard">
+  <meta name="twitter:description" content="The PAC-MAN high-score leaderboard — This Week and All Time. Beat your friends.">
+  <meta name="twitter:image" content="https://pacman-firebase.web.app/og-preview.png">
+
+  <!-- Pac-Man favicon (created in Plan 03). -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+  <!-- Styling (created in Plan 03). Press Start 2P is self-hosted via @font-face there
+       (D-16 zero third-party tracking — no Google Fonts request, no preconnect). -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- App logic (created in Plan 02). Modules defer by default; no render-blocking. -->
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <main class="page">
+    <!-- Wordmark (arcade-yellow, color applied in styles.css per D-14). -->
+    <h1 class="wordmark">PAC-MAN</h1>
+
+    <!-- Tab bar — mirrors in-game order "This Week | All Time" (D-12).
+         Default-active view on the web is All Time (D-08), so tab--active starts on #tab-all. -->
+    <nav id="tabbar" class="tabbar" role="tablist" aria-label="Leaderboard scope">
+      <button id="tab-week" class="tab" data-scope="week" role="tab" type="button">This Week</button>
+      <button id="tab-all" class="tab tab--active" data-scope="all" role="tab" type="button" aria-selected="true">All Time</button>
+    </nav>
+
+    <!-- Last-week champion slot — This Week view only; hidden until app.js populates it (D-09). -->
+    <p id="subtitle" class="subtitle" hidden></p>
+
+    <!-- Board: rank rows / state-message region, filled by app.js. Seeded with the
+         in-game "Loading..." line so the first paint is meaningful before app.js runs. -->
+    <ol id="board" class="board">
+      <li class="state-msg">Loading...</li>
+    </ol>
+
+    <!-- Refresh — the web's only added affordance vs the in-game LEFT/RIGHT/ESC keys (D-10). -->
+    <button id="refresh" class="refresh" type="button">Refresh</button>
+
+    <!-- Web-appropriate hint (touch, not keyboard). -->
+    <p id="hint" class="hint">Tap a tab to switch boards.</p>
+  </main>
+</body>
+</html>
