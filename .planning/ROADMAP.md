@@ -151,12 +151,28 @@ API, comes last (Phase 7).
   2. The page is mobile-first and readable on a phone, in an arcade style matching the game.
   3. The page mirrors the in-game boards — both "This Week" and "All Time" views are available.
 
-**Plans**: TBD
+**Plans**: 4 plans
 **UI hint**: yes
+
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — Static markup contract: `index.html` (PAC-MAN wordmark, `This Week | All Time` tabs defaulting to All Time per D-08, last-week subtitle slot, board container, Refresh, hint) + branding head (title `PAC-MAN — Leaderboard`, OG/Twitter Card, favicon + font links) + root `firebase.json` + `.firebaserc` (project `pacman-firebase`) + `web/package.json` ESM marker (WEB-01/03)
+
+**Wave 2** *(parallel — no file overlap; both depend on 07-01's DOM contract)*
+
+- [ ] 07-02-PLAN.md — Client logic `app.js`: fetch `get_leaderboard` (`scope=all|week|last_week`), `null`=offline sentinel mirroring `api_service`, lazy per-view cache (default All Time), three render states (verbatim copy), rank-1 highlight, last-week subtitle, Refresh; `node --test` coverage + XSS-safe rendering (WEB-01/03)
+- [ ] 07-03-PLAN.md — Retro arcade `styles.css` via the **frontend-design** skill (UI-SPEC tokens #000000/#10102E/#FFFF00, mobile-first, 44px touch targets, dot-leaders, Press Start 2P + monospace) + Pac-Man `favicon.svg` + ~1200×630 `og-preview.png` (WEB-02/03)
+
+**Wave 3** *(blocked on 07-02 + 07-03)*
+
+- [ ] 07-04-PLAN.md — Local visual/behavior human-verify on a phone-width viewport + manual operator `firebase deploy --only hosting` (D-03) + live smoke on `pacman-firebase.web.app` (WEB-01/02/03)
 
 **Notes:**
 
 - Pure consumer of the finished API — intentionally last so it mirrors the boards exactly as shipped in Phases 4 and 6.
+- No server/API change this phase: the page only CALLS the already-deployed `get_leaderboard` (CORS `*`), it does not modify `cloud_functions/`.
+- The web page opens on **All Time** by default (D-08) — a deliberate divergence from the in-game This Week default; not to be "fixed".
+- Visual build is a hard directive to route through the **frontend-design** skill (D-05); deploy is a manual operator step (D-03), same pattern as the Phase 4/6 function redeploys.
 
 ### 📋 More Fun (Planned)
 
@@ -182,4 +198,4 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete   | 2026-06-19 |
-| 7. Web Leaderboard Page | v1.1 | 0/TBD | Not started | - |
+| 7. Web Leaderboard Page | v1.1 | 0/4 | Planned | - |
