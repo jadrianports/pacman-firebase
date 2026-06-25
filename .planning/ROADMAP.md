@@ -198,4 +198,4 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete   | 2026-06-19 |
-| 7. Web Leaderboard Page | v1.1 | 4/4 | Complete   | 2026-06-25 |
+| 7. Web Leaderboard Page | v1.1 | 4/4 | Complete    | 2026-06-25 |
