@@ -27,8 +27,8 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 - [x] **BOARD-01**: Scores are bucketed by week; a "This Week" board shows the current week's top scores, resetting at Monday 00:00 UTC
 - [x] **BOARD-02**: An "All Time" board is retained alongside the weekly board
-- [ ] **BOARD-03**: The player can toggle between "This Week" and "All Time" views in-game
-- [ ] **BOARD-04**: The previous week's champion is shown (e.g. "Last week: BOB")
+- [x] **BOARD-03**: The player can toggle between "This Week" and "All Time" views in-game
+- [x] **BOARD-04**: The previous week's champion is shown (e.g. "Last week: BOB")
 
 ### Web Leaderboard
 
@@ -38,7 +38,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 
 ### Rivalry
 
-- [ ] **RIVAL-01**: On launch, the game shows a banner naming any player(s) who have beaten the player's score since they last viewed the board (graceful no-op when offline or on first launch)
+- [x] **RIVAL-01**: On launch, the game shows a banner naming any player(s) who have beaten the player's score since they last viewed the board (graceful no-op when offline or on first launch)
 
 ## Future Requirements
 
@@ -81,12 +81,12 @@ Which phase covers which requirement. Populated during roadmap creation.
 | COMP-03 | Phase 4 | Complete |
 | BOARD-01 | Phase 4 | Complete |
 | BOARD-02 | Phase 4 | Complete |
-| BOARD-03 | Phase 6 | Pending |
-| BOARD-04 | Phase 6 | Pending |
+| BOARD-03 | Phase 6 | Complete |
+| BOARD-04 | Phase 6 | Complete |
 | WEB-01 | Phase 7 | Pending |
 | WEB-02 | Phase 7 | Pending |
 | WEB-03 | Phase 7 | Pending |
-| RIVAL-01 | Phase 6 | Pending |
+| RIVAL-01 | Phase 6 | Complete |
 
 **Coverage:**
 
