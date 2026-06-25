@@ -83,3 +83,144 @@ export async function loadView(scope) {
   }
   return views[scope];
 }
+
+// ---------------------------------------------------------------------------
+// Render layer — three-way state branch + rank rows + escaping
+// ---------------------------------------------------------------------------
+
+// Verbatim empty-state copy per view (D-12, mirror menu.py:179-182).
+const EMPTY_TEXT = {
+  week: "No scores yet this week. Be the first!",
+  all: "No scores yet. Be the first!",
+};
+const OFFLINE_TEXT = "Could not connect to leaderboard.";
+const LOADING_TEXT = "Loading...";
+
+// HTML-escape untrusted API data before it is written into #board. Defense in
+// depth: the server already enforces ^[A-Z]{3}$ on initials, but we never trust
+// raw API strings in markup (T-07-01 XSS mitigation).
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Score formatting — en-US thousands separators (D, Claude's discretion).
+// Tolerates string scores; falls back to the raw (escaped at call site) value
+// for anything non-numeric.
+export function formatScore(n) {
+  const num = Number(n);
+  return Number.isFinite(num) ? num.toLocaleString("en-US") : String(n);
+}
+
+// Build the #board inner markup for the active view (mirror menu.py:222-242):
+//   entries === null     -> offline line
+//   entries.length === 0 -> view-specific empty line
+//   else                 -> one rank-row <li> per entry, rank-1 gets rank-row--first
+// Returns an HTML string built ENTIRELY from escaped values (no raw API data
+// reaches innerHTML). The dot-leader is an empty span styled in CSS (Plan 03).
+export function boardMarkup(entries, view) {
+  if (entries === null) {
+    return `<li class="state-msg">${OFFLINE_TEXT}</li>`;
+  }
+  if (entries.length === 0) {
+    return `<li class="state-msg">${EMPTY_TEXT[view] ?? EMPTY_TEXT.all}</li>`;
+  }
+  return entries
+    .map((entry, i) => {
+      const cls = i === 0 ? "rank-row rank-row--first" : "rank-row";
+      const rank = `${i + 1}.`;
+      const initials = escapeHtml(entry?.initials);
+      const score = escapeHtml(formatScore(entry?.score));
+      return (
+        `<li class="${cls}">` +
+        `<span class="rank">${rank}</span>` +
+        `<span class="initials">${initials}</span>` +
+        `<span class="dots" aria-hidden="true"></span>` +
+        `<span class="score">${score}</span>` +
+        `</li>`
+      );
+    })
+    .join("");
+}
+
+// ---------------------------------------------------------------------------
+// Interaction layer — render active view, toggle, refresh, DOM bootstrap
+// ---------------------------------------------------------------------------
+
+function paintLoading() {
+  const board = document.getElementById("board");
+  if (board) board.innerHTML = `<li class="state-msg">${LOADING_TEXT}</li>`;
+}
+
+// Render the active view into the DOM: board content, tab highlight, and the
+// last-week subtitle (This Week only, shown only when a champion exists — D-09).
+export function renderActive() {
+  const board = document.getElementById("board");
+  if (board) board.innerHTML = boardMarkup(views[activeView], activeView);
+
+  const tabAll = document.getElementById("tab-all");
+  const tabWeek = document.getElementById("tab-week");
+  if (tabAll && tabWeek) {
+    tabAll.classList.toggle("tab--active", activeView === "all");
+    tabWeek.classList.toggle("tab--active", activeView === "week");
+    tabAll.setAttribute("aria-selected", String(activeView === "all"));
+    tabWeek.setAttribute("aria-selected", String(activeView === "week"));
+  }
+
+  const subtitle = document.getElementById("subtitle");
+  if (subtitle) {
+    const champ = lastWeekInitials(lastWeek === UNFETCHED ? null : lastWeek);
+    if (activeView === "week" && champ) {
+      subtitle.textContent = `Last week: ${champ}`;
+      subtitle.hidden = false;
+    } else {
+      subtitle.textContent = "";
+      subtitle.hidden = true;
+    }
+  }
+}
+
+// Tab tap — switch the active view, lazily fetching it the first time (D-11).
+export async function onTabClick(scope) {
+  if (scope !== "all" && scope !== "week") return;
+  activeView = scope;
+  if (views[scope] === UNFETCHED) {
+    paintLoading();
+    await loadView(scope);
+  }
+  renderActive();
+}
+
+// Refresh — force-refetch ONLY the active view, leaving the other view's cache
+// intact (D-10, independent degrade). On This Week also re-pull last-week.
+export async function onRefresh() {
+  views[activeView] = UNFETCHED;
+  if (activeView === "week") lastWeek = UNFETCHED;
+  paintLoading();
+  await loadView(activeView);
+  renderActive();
+}
+
+// DOM bootstrap — guarded so a non-browser import (node:test) is fully inert
+// and never touches fetch. Wires the tab buttons (by data-scope) and Refresh,
+// then loads the default All Time view (D-08).
+export async function init() {
+  if (typeof document === "undefined") return;
+
+  for (const tab of document.querySelectorAll("#tabbar .tab")) {
+    tab.addEventListener("click", () => onTabClick(tab.dataset.scope));
+  }
+  const refresh = document.getElementById("refresh");
+  if (refresh) refresh.addEventListener("click", () => onRefresh());
+
+  paintLoading();
+  await loadView("all");
+  renderActive();
+}
+
+// Self-guarded — inert when imported without a document.
+init();
