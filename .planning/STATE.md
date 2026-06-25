@@ -4,13 +4,13 @@ milestone: v1.1
 milestone_name: More Competitive
 status: executing
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-06-25T21:11:50.959Z"
-last_activity: 2026-06-19 -- Phase 06 execution started
+last_updated: "2026-06-25T21:37:31.189Z"
+last_activity: 2026-06-25 -- Phase 07 execution started
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 15
+  completed_plans: 12
   percent: 75
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-14)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 06 — in-game-weekly-boards-got-passed-banner
+**Current focus:** Phase 07 — web-leaderboard-page
 
 ## Current Position
 
-Phase: 06 (in-game-weekly-boards-got-passed-banner) — EXECUTING
-Plan: 1 of 4
+Phase: 07 (web-leaderboard-page) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-06-19 -- Phase 06 execution started
+Last activity: 2026-06-25 -- Phase 07 execution started
 
 Progress (Phase 4 plans): [██████████] 4/4 (100%)
 
@@ -49,6 +49,7 @@ Progress (Phase 4 plans): [██████████] 4/4 (100%)
 | Phase 04 P02 | 10min | 2 tasks | 2 files |
 | Phase 04 P03 | 8min | 1 tasks | 2 files |
 | Phase 04 P04 | operator-paced | 3 tasks | 1 file |
+| Phase 07 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -77,6 +78,9 @@ Full decision log lives in PROJECT.md (Key Decisions) and the archived
 - [Phase ?]: Plan 04-03: get_leaderboard scope-aware (?scope=week|all); default+unknown -> week; weekly path filters week_id==current_week_id(); {initials,score}-only projection on both scopes (D-10)
 - [Phase 4]: Plan 04-04: the two functions are Cloud Run services (pacman=submit_score, get-leaderboard=get_leaderboard), deployed via `gcloud run deploy --source --function=<entrypoint>` from Cloud Shell — NOT GCF API objects / Console clicks (equivalent outcome; faster path recorded in DEPLOY.md)
 - [Phase 4]: Plan 04-04: both services LIVE (revisions pacman-00005-7rk, get-leaderboard-00003-fzk, 100% traffic); secret leaderboard-hmac-secret referenced as LEADERBOARD_HMAC_SECRET on both; REQUIRE_SIGNATURE=false on pacman (grace, flip true after Phase 5 ships); max-instances=5 both (D-11); weekly composite index week_id ASC/score DESC Enabled (id CICAgOjXh4EK). Smoke: 401 on bogus sig, 200 {"entries":[]} weekly, 200 all-time {initials,score}
+- [Phase ?]: Plan 07-01: index.html fixes the DOM hook contract (.wordmark, nav#tabbar > button.tab[data-scope], #subtitle[hidden], ol#board, button#refresh, #hint) so Plan 02 app.js + Plan 03 styles.css attach independently in parallel wave 2
+- [Phase ?]: Plan 07-01: tab DOM order mirrors in-game 'This Week | All Time' but tab--active defaults to All Time (D-08 web divergence); Press Start 2P self-hosted via @font-face (D-16 zero-tracking, no Google Fonts/preconnect)
+- [Phase ?]: Plan 07-01: single root firebase.json, hosting-only, public=web/public (T-07-02 root key never deployable); .firebaserc default=pacman-firebase enables one-command firebase deploy --only hosting (D-15)
 
 ### Pending Todos
 
@@ -112,7 +116,7 @@ Items acknowledged and carried forward from v1.0 milestone close:
 
 ## Session Continuity
 
-Last session: 2026-06-25T20:45:19.794Z
+Last session: 2026-06-25T21:36:30.107Z
 Stopped at: Phase 7 UI-SPEC approved
 Resume file: .planning/phases/07-web-leaderboard-page/07-UI-SPEC.md
 

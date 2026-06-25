@@ -156,7 +156,7 @@ API, comes last (Phase 7).
 
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Static markup contract: `index.html` (PAC-MAN wordmark, `This Week | All Time` tabs defaulting to All Time per D-08, last-week subtitle slot, board container, Refresh, hint) + branding head (title `PAC-MAN — Leaderboard`, OG/Twitter Card, favicon + font links) + root `firebase.json` + `.firebaserc` (project `pacman-firebase`) + `web/package.json` ESM marker (WEB-01/03)
+- [x] 07-01-PLAN.md — Static markup contract: `index.html` (PAC-MAN wordmark, `This Week | All Time` tabs defaulting to All Time per D-08, last-week subtitle slot, board container, Refresh, hint) + branding head (title `PAC-MAN — Leaderboard`, OG/Twitter Card, favicon + font links) + root `firebase.json` + `.firebaserc` (project `pacman-firebase`) + `web/package.json` ESM marker (WEB-01/03)
 
 **Wave 2** *(parallel — no file overlap; both depend on 07-01's DOM contract)*
 
@@ -198,4 +198,4 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete   | 2026-06-19 |
-| 7. Web Leaderboard Page | v1.1 | 0/4 | Planned | - |
+| 7. Web Leaderboard Page | v1.1 | 1/4 | In Progress|  |
