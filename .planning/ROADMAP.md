@@ -161,7 +161,7 @@ API, comes last (Phase 7).
 **Wave 2** *(parallel — no file overlap; both depend on 07-01's DOM contract)*
 
 - [x] 07-02-PLAN.md — Client logic `app.js`: fetch `get_leaderboard` (`scope=all|week|last_week`), `null`=offline sentinel mirroring `api_service`, lazy per-view cache (default All Time), three render states (verbatim copy), rank-1 highlight, last-week subtitle, Refresh; `node --test` coverage + XSS-safe rendering (WEB-01/03)
-- [ ] 07-03-PLAN.md — Retro arcade `styles.css` via the **frontend-design** skill (UI-SPEC tokens #000000/#10102E/#FFFF00, mobile-first, 44px touch targets, dot-leaders, Press Start 2P + monospace) + Pac-Man `favicon.svg` + ~1200×630 `og-preview.png` (WEB-02/03)
+- [x] 07-03-PLAN.md — Retro arcade `styles.css` via the **frontend-design** skill (UI-SPEC tokens #000000/#10102E/#FFFF00, mobile-first, 44px touch targets, dot-leaders, Press Start 2P + monospace) + Pac-Man `favicon.svg` + ~1200×630 `og-preview.png` (WEB-02/03)
 
 **Wave 3** *(blocked on 07-02 + 07-03)*
 
@@ -198,4 +198,4 @@ Phases execute in numeric order: 4 → 5 → 6 → 7
 | 4. Server Hardening & Weekly Data Model | v1.1 | 4/4 | Complete    | 2026-06-19 |
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete    | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete   | 2026-06-19 |
-| 7. Web Leaderboard Page | v1.1 | 2/4 | In Progress|  |
+| 7. Web Leaderboard Page | v1.1 | 3/4 | In Progress|  |

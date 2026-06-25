@@ -33,7 +33,7 @@ Requirements for this milestone. Each maps to exactly one roadmap phase.
 ### Web Leaderboard
 
 - [x] **WEB-01**: A public web page hosted on Firebase Hosting displays the leaderboard, fetching from the existing API
-- [ ] **WEB-02**: The web page is mobile-first / readable on a phone, in an arcade style matching the game
+- [x] **WEB-02**: The web page is mobile-first / readable on a phone, in an arcade style matching the game
 - [x] **WEB-03**: The web page mirrors the in-game boards (This Week / All Time)
 
 ### Rivalry
@@ -84,7 +84,7 @@ Which phase covers which requirement. Populated during roadmap creation.
 | BOARD-03 | Phase 6 | Complete |
 | BOARD-04 | Phase 6 | Complete |
 | WEB-01 | Phase 7 | Complete |
-| WEB-02 | Phase 7 | Pending |
+| WEB-02 | Phase 7 | Complete |
 | WEB-03 | Phase 7 | Complete |
 | RIVAL-01 | Phase 6 | Complete |
 
