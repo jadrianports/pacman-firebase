@@ -11,6 +11,7 @@ from menu import run_main_menu, run_initials_entry, run_leaderboard, run_game_ov
 from api_service import ApiService
 from local_storage import load_identity, save_initials, IDENTITY_STATUS_TAMPERED
 from leaderboard_crypto import sign_submission, de_obfuscate
+from paths import resource_path
 import marker
 
 
@@ -66,6 +67,11 @@ def _format_banner(names):
 
 def main():
     pygame.init()
+    # Window / taskbar icon (cosmetic — never block startup if the asset is missing).
+    try:
+        pygame.display.set_icon(pygame.image.load(resource_path("assets/icon.png")))
+    except Exception:
+        pass
     # Normal 2-D display for menus; upgraded to OPENGL per Play session (Task 6).
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("PAC-MAN")

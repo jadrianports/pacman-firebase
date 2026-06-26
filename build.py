@@ -74,6 +74,7 @@ def main():
         "--name=pacman",
         "--onedir",
         "--windowed",
+        "--icon=assets/icon.ico",
         "--add-data=assets;assets",
         "--add-data=assets/fonts/PressStart2P-Regular.ttf;assets/fonts",
         "--add-data=freesansbold.ttf;.",
