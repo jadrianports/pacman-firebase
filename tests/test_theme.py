@@ -33,3 +33,17 @@ def test_glow_text_returns_padded_alpha_surface():
     assert glow.get_flags() & pygame.SRCALPHA
     # there is lit-up glow outside the crisp glyph box (top-left padding pixel)
     assert glow.get_at((1, 1))[3] > 0  # non-zero alpha in the glow margin
+
+
+def test_scanline_overlay_is_striped_alpha():
+    pygame.font.init()
+    surf = theme.scanline_overlay((40, 40), spacing=4, alpha=70)
+    assert surf.get_size() == (40, 40)
+    assert surf.get_flags() & pygame.SRCALPHA
+    # dark line rows carry alpha; gap rows are transparent
+    line_alpha = surf.get_at((0, 0))[3]
+    gap_alpha = surf.get_at((0, 2))[3]
+    assert line_alpha == 70
+    assert gap_alpha == 0
+    # cached: same args return the same object
+    assert theme.scanline_overlay((40, 40), spacing=4, alpha=70) is surf
