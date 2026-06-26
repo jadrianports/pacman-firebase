@@ -34,3 +34,7 @@ firebase-key.json
 
 # Contact-sheet capture output (regenerated)
 tools/_contact/
+
+# TUF private keys (never commit) + build repo output
+tuf-keys/
+repo/

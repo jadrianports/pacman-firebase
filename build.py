@@ -67,6 +67,14 @@ def _write_baked_module(secret):
 
 def main():
     secret = _read_secret()
+
+    root_json = os.path.join(ROOT, "assets", "tuf", "root.json")
+    if not os.path.exists(root_json):
+        raise SystemExit(
+            "ERROR: assets/tuf/root.json missing. Run `python release.py --init` once to "
+            "generate the TUF keys + root.json before the first build (see RELEASE.md)."
+        )
+
     _write_baked_module(secret)
 
     PyInstaller.__main__.run([
@@ -79,7 +87,11 @@ def main():
         "--add-data=assets/fonts/PressStart2P-Regular.ttf;assets/fonts",
         "--add-data=freesansbold.ttf;.",
         "--add-data=_baked_secret.py;.",
+        "--add-data=assets/tuf/root.json;assets/tuf",
         "--hidden-import=_baked_secret",
+        "--collect-submodules=tuf",
+        "--collect-submodules=tufup",
+        "--collect-submodules=securesystemslib",
     ])
 
 
