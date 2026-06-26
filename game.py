@@ -5,6 +5,8 @@ from ghost import Ghost
 from player import Player
 from paths import resource_path
 from sound import SoundManager
+import juice
+import theme
 from settings import (
     WIDTH, FPS, PI,
     TILE_HEIGHT, TILE_WIDTH,
@@ -101,6 +103,13 @@ class Game:
         self.score_popup_font = pygame.font.Font(resource_path('freesansbold.ttf'), 16)
         self.end_screen_timer = 0
 
+        # Bold presentation layer — OFF by default so the deterministic frame-hash /
+        # golden tests render the pure frame. main.py sets juice=True for real play.
+        self.juice = False
+        self.present_fn = pygame.display.flip
+        self.particles = juice.Particles()
+        self.shake = juice.Shake()
+
     def reset_ghost_positions(self):
         self.blinky_x = BLINKY_START_X
         self.blinky_y = BLINKY_START_Y
@@ -136,9 +145,20 @@ class Game:
         for i in range(len(self.level)):
             for j in range(len(self.level[i])):
                 if self.level[i][j] == 1:
-                    pygame.draw.circle(self.screen, 'white', (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 4)
+                    cx = j * TILE_WIDTH + (0.5 * TILE_WIDTH)
+                    cy = i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)
+                    if self.juice:
+                        juice.glow_circle(self.screen, (int(cx), int(cy)), (255, 240, 200), 4)
+                    else:
+                        pygame.draw.circle(self.screen, 'white', (cx, cy), 4)
                 if self.level[i][j] == 2 and not self.flicker:
-                    pygame.draw.circle(self.screen, 'white', (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)), 10)
+                    cx = j * TILE_WIDTH + (0.5 * TILE_WIDTH)
+                    cy = i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)
+                    if self.juice:
+                        pulse = 10 + int(2 * __import__("math").sin(self.counter * 0.3))
+                        juice.glow_circle(self.screen, (int(cx), int(cy)), (255, 230, 180), pulse)
+                    else:
+                        pygame.draw.circle(self.screen, 'white', (cx, cy), 10)
                 if self.level[i][j] == 3:
                     pygame.draw.line(self.screen, self.color, (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT),
                                      (j * TILE_WIDTH + (0.5 * TILE_WIDTH), i * TILE_HEIGHT + TILE_HEIGHT), 3)
@@ -171,7 +191,10 @@ class Game:
             self.screen.blit(text, text_rect)
 
     def draw_misc(self):
-        score_text = self.font.render(f'Score: {self.score}', True, 'white')
+        if self.juice:
+            score_text = theme.pixel_font(theme.SIZE_SMALL).render(f'SCORE {self.score}', True, 'yellow')
+        else:
+            score_text = self.font.render(f'Score: {self.score}', True, 'white')
         self.screen.blit(score_text, (10, 920))
         if self.powerup:
             pygame.draw.circle(self.screen, 'blue', (140, 930), 15)
@@ -547,7 +570,7 @@ class Game:
         self.player.wrap_around()
         self.check_ghost_in_box()
 
-        pygame.display.flip()
+        self.present_fn()
         return running
 
     def run(self):
