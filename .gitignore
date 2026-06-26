@@ -38,3 +38,4 @@ tools/_contact/
 # TUF private keys (never commit) + build repo output
 tuf-keys/
 repo/
+.tufup-repo-config
