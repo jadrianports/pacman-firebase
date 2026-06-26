@@ -26,6 +26,14 @@ def test_particles_spawn_update_decay_and_draw():
     p = juice.Particles()
     p.spawn(50, 50, (255, 255, 255), n=8)
     assert len(p) == 8
+    surf = pygame.Surface((100, 100))
+    surf.fill((0, 0, 0))
+    p.update(0.02)
+    p.draw(surf)                      # exercises fblits — must not raise
+    assert surf.get_at((50, 50))[:3] != (0, 0, 0) or any(
+        surf.get_at((x, y))[:3] != (0, 0, 0)
+        for x in range(40, 61, 2) for y in range(40, 61, 2)
+    )
     for _ in range(200):           # advance well past max life
         p.update(0.05)
     assert len(p) == 0             # all expired and pruned

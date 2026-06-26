@@ -60,7 +60,7 @@ class Particles:
             pygame.draw.circle(chip, (*color, int(220 * a)), (s, s), s)
             blits.append((chip, (x - s, y - s)))
         if blits:
-            surface.fblits(blits, special_flags=pygame.BLEND_RGB_ADD)
+            surface.fblits(blits, pygame.BLEND_RGB_ADD)
 
 
 def bloom(surface):
