@@ -1,2 +1,2 @@
-pygame==2.6.1
+pygame-ce==2.5.7
 pyinstaller==6.20.0
