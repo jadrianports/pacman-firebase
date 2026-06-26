@@ -17,6 +17,9 @@ venv/
 # Test artifacts (regenerated PNG/montage/GIF per run — never commit)
 tests/artifacts/
 
+# Brainstorm visual-companion mockups (throwaway)
+.superpowers/
+
 # IDE
 .idea/
 
