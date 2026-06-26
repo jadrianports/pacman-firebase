@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: More Competitive
-status: executing
+status: Awaiting next milestone
 stopped_at: Phase 7 UI-SPEC approved
-last_updated: "2026-06-25T22:58:23.535Z"
-last_activity: 2026-06-25
+last_updated: "2026-06-26T18:18:24.477Z"
+last_activity: 2026-06-26 — Milestone v1.1 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
@@ -18,19 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-14)
+See: .planning/PROJECT.md (updated 2026-06-27)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 07 — web-leaderboard-page
+**Current focus:** Planning next milestone (More Fun) — run `/gsd-new-milestone`. v1.0 and v1.1 both shipped.
 
 ## Current Position
 
-Phase: 07
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-25
-
-Progress (Phase 4 plans): [██████████] 4/4 (100%)
+Phase: Milestone v1.1 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-26 — Milestone v1.1 completed and archived
 
 ## Performance Metrics
 
@@ -93,26 +91,23 @@ None.
 
 ### Blockers/Concerns
 
-- **Phase 4 prerequisite — RESOLVED (2026-06-19):** `cloud_functions/` working tree was clean at
-  execution start (no uncommitted main.py mods). TST-03 validators stayed green (baseline 21 passed →
-  full suite 88 passed/9 skipped after plans 01-03).
+All v1.1 execution blockers resolved at milestone close. Standing operator note carried forward:
 
-- **RESOLVED (2026-06-19) — Phase 4 live deploy (04-04 Tasks 2-3):** Both Cloud Run services are now
-  LIVE. Operator (via Cloud Shell) confirmed Secret Manager secret `leaderboard-hmac-secret`, granted
-  `roles/secretmanager.secretAccessor` to the runtime SA, referenced it as `LEADERBOARD_HMAC_SECRET` on
-  both services, set `REQUIRE_SIGNATURE=false` on `pacman`, set `--max-instances=5` on both, created the
-  `weekly` composite index (`week_id ASC, score DESC`, id `CICAgOjXh4EK`, Enabled), and redeployed both
-  (revisions `pacman-00005-7rk`, `get-leaderboard-00003-fzk`). Smoke checks passed (401 bogus sig; 200
-  weekly `{"entries":[]}`; 200 all-time `{initials,score}`). Phase 4 plans 4/4 complete; phase
-  verification runs next.
-
-- **CARRY TO PHASE 5 — HMAC secret + grace-flag flip:** Phase 5 client build must embed the identical
-  `leaderboard-hmac-secret` value (operator's safe copy). After the signed client ships and friends
-  update, flip `REQUIRE_SIGNATURE` to `true` on `pacman` (D-02).
+- **OPERATOR — flip `REQUIRE_SIGNATURE` to `true` on `pacman`:** the hardened server shipped in grace
+  mode (`REQUIRE_SIGNATURE=false`) so pre-signing clients weren't locked out. Now that the signed client
+  (Phase 5) has shipped and friends have updated, flip it to `true` on the `pacman` Cloud Run service to
+  reject all unsigned submissions (D-02). The HMAC secret (`leaderboard-hmac-secret`) must stay backed up.
 
 ## Deferred Items
 
-Items acknowledged and carried forward from v1.0 milestone close:
+Items acknowledged and deferred at milestone close on 2026-06-27 (v1.1):
+
+| Category | Item | Status | Deferred At |
+|----------|------|--------|-------------|
+| uat | Phase 06 06-HUMAN-UAT.md — Test 4: live 2-player got-passed E2E (needs a 2nd live player; code paths unit-verified) | partial | v1.1 close (2026-06-27) |
+| verification | Phase 06 06-VERIFICATION.md — 2-player E2E + BOARD-04 live `scope=last_week` redeploy (inherently manual, can't be automated in-repo) | human_needed | v1.1 close (2026-06-27) |
+
+Carried forward from v1.0 milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -127,6 +122,4 @@ Resume file: .planning/phases/07-web-leaderboard-page/07-UI-SPEC.md
 
 ## Operator Next Steps
 
-- Phase 04 plans 4/4 complete and the hardened server is LIVE. Phase verification runs next (orchestrator).
-- Keep the `leaderboard-hmac-secret` value safe — Phase 5 client build embeds the identical string.
-- After Phase 5 signed client ships and friends update, flip `REQUIRE_SIGNATURE` to `true` on `pacman` (D-02).
+- Start the next milestone with /gsd-new-milestone

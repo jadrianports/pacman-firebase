@@ -2,37 +2,35 @@
 
 ## What This Is
 
-A complete, playable desktop **Pac-Man clone** (Python/PyGame) with an online high-score
-**leaderboard** backed by Google Cloud Functions + Firestore. It's built to be shared with friends
-arcade-style: machine-ID identity, permanent 3-letter initials, fully playable offline, and
-distributable as a Windows `.exe`. The **Solid-Foundation milestone is complete** — the codebase is now
-**safe to extend**, with ghost-AI behavior pinned by a CI-gated golden net and the one latent box bug fixed.
+A complete, playable desktop **Pac-Man clone** (Python/PyGame) with a **competitive, trustworthy online
+leaderboard** backed by Google Cloud Functions + Firestore. It's built to be shared with friends
+arcade-style: tamper-evident machine identity, permanent 3-letter initials, weekly + all-time boards,
+a "got-passed" launch banner, a public mobile web leaderboard, fully playable offline, and
+distributable as a Windows `.exe`. Two milestones are complete: **Solid Foundation** (the codebase is
+safe to extend — ghost-AI behavior pinned by a CI-gated golden net, the one latent box bug fixed) and
+**More Competitive** (the server is now the real enforcement boundary — HMAC-verified, sanity-ceilinged,
+week-bucketed — and the weekly fight surfaces both in-game and on the web).
 
 ## Core Value
 
 It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read
 and outplay. **That behavior is precious and must never silently regress.**
 
-## Current Milestone: v1.1 More Competitive
+## Current State
 
-**Goal:** Make the leaderboard something friends actually compete on — trustworthy enough that scores
-can't be casually forged, and alive enough that people keep fighting over it.
+**Shipped v1.1 More Competitive (2026-06-26).** The leaderboard is now something friends can actually
+compete on. The Cloud Functions are the real enforcement boundary (HMAC signature verification, score
+sanity ceiling, server-locked permanent initials, week-bucketed scores + scope-aware `get_leaderboard`);
+the client signs its submissions and stores a tamper-evident identity in `%LOCALAPPDATA%\PacMan\`; and
+the weekly fight is visible both in-game (This Week / All Time toggle, last-week champion, got-passed
+launch banner) and on a public mobile-first web page live at `pacman-firebase.web.app`.
 
-**Target features:**
-- **Anti-cheat & identity hardening** — relocate `machine_id`/initials out of the game folder + store
-  obfuscated (not plaintext); HMAC-stamp them so the client detects tampering and the server verifies
-  the *same* signature (rejects raw `curl` forgeries); server-enforced **permanent initials** (rename
-  impossible, locked on first submit); tightened server-side score validation (**sanity ceiling**)
-- **Weekly boards** — "This Week" (Monday-UTC reset) + "All Time" toggle; shows last week's champ
-- **Web leaderboard page** — Firebase Hosting, public link, mobile-first, mirrors the in-game boards
-- **"You got passed" launch banner** — names whoever beat *your* score since you last looked
+## Next Milestone Goals
 
-**Key context:** All three competitive features ride on **one backend change** — week-bucketed scores
-+ a scope-aware `get_leaderboard`. Build order falls out: harden functions → in-game weekly UI +
-got-passed → web page. Replay-verification (re-run inputs server-side) was considered as the
-unforgeable ceiling but deferred — HMAC + sanity ceiling is the right altitude for a friends board.
-`cloud_functions/*/main.py` may have uncommitted working-tree changes (flagged at v1.0 close) —
-reconcile first.
+**More Fun** (not yet broken into phases — run `/gsd-new-milestone` to define requirements). Gameplay
+depth: levels/mazes with a difficulty curve, fruit bonuses, new modes (time attack / endless), and an
+optional **arcade-accurate ghost mode** as an opt-in toggle (never the default — the hand-tuned AI
+stays the shipping spec). After that: **Easier to Share** (browser/web build, cross-platform, itch.io).
 
 ## Requirements
 
@@ -52,21 +50,18 @@ reconcile first.
 - ✓ **Ghost-box bounds unified** (BUG-01) — collapsed the two divergent box rectangles into a single `GHOST_BOX_BOUNDS` (collision box wins); the milestone's **one sanctioned behavior change**, oracle-proven isolated to the box ring (18,496 comparisons, 0 out-of-ring) + golden masters re-blessed (all 9, frame-340-rooted) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
 - ✓ **Repo hygiene** (HYG-01..04) — pinned client deps, untracked `settings.local.json` + reconciled `.gitignore`, fixed box-exit doc drift, removed dead asset folders (human `.exe` smoke-run verified) — *Phase 3 (box-bug-fix-hygiene), 2026-06-12*
 - ✓ **Anti-cheat & identity hardening** (COMP-01..03, IDENT-01..03) — server is the enforcement boundary (HMAC signature verification, score sanity ceiling, server-enforced permanent initials, week-bucketed scores) *Phase 4*; client identity relocated out of the game folder to `%LOCALAPPDATA%\PacMan\` as a single obfuscated, HMAC-signed blob with fail-closed tamper detection, seamless legacy migration, and a graceful no-secret offline degrade — client submissions carry a server-verified signature, closing the signing↔verification loop end-to-end *Phase 5* — *Phases 4-5, 2026-06-19*
+- ✓ **Weekly boards + got-passed banner** (BOARD-01..04, RIVAL-01) — week-bucketed scores (Monday-UTC reset) with a scope-aware `get_leaderboard` (week/all/last_week); in-game This Week / All Time toggle, last-week champion subtitle, and a launch banner naming whoever passed your score since you last looked — all degrading gracefully offline/first-launch — *Phases 4 & 6, 2026-06-19* (v1.1)
+- ✓ **Public web leaderboard** (WEB-01..03) — a no-dependency ESM page on Firebase Hosting (`pacman-firebase.web.app`) mirroring the in-game This Week / All Time boards, mobile-first with arcade styling (frontend-design skill), XSS-safe, phone-verified and live — *Phase 7, 2026-06-25* (v1.1)
 
 ### Active
 
-<!-- Milestone v1.1 (More Competitive) — started 2026-06-14. Detailed REQ-IDs in REQUIREMENTS.md. -->
+<!-- v1.0 and v1.1 shipped. Next milestone (More Fun) not yet defined — run /gsd-new-milestone. -->
 
-Building toward **v1.1 More Competitive**:
+No active milestone in flight. **v1.0 Solid Foundation** and **v1.1 More Competitive** are both shipped.
 
-- [x] Anti-cheat & identity hardening — relocated/obfuscated identity files, HMAC tamper-detection + server-side signature verification, server-enforced permanent initials, score sanity ceiling — *delivered Phases 4-5 (2026-06-19)*
-- [ ] Weekly boards (This Week + All Time, Monday-UTC reset, last-week's champ)
-- [ ] Web leaderboard page (Firebase Hosting, public, mobile-first)
-- [ ] "You got passed" launch banner
+**Future milestones (sequenced next):**
 
-**Future milestones (sequenced after Competitive):**
-
-- [ ] **More Fun** — gameplay depth (levels/mazes, difficulty curve, fruit, modes); optional **arcade-accurate ghost mode** (opt-in toggle)
+- [ ] **More Fun** — gameplay depth (levels/mazes, difficulty curve, fruit, modes); optional **arcade-accurate ghost mode** (opt-in toggle). Run `/gsd-new-milestone` to define requirements.
 - [ ] **Easier to Share** — browser/web build (e.g. pygbag), cross-platform, itch.io release
 
 ### Out of Scope
@@ -82,6 +77,14 @@ Building toward **v1.1 More Competitive**:
 
 ## Context
 
+- **Shipped v1.1 (More Competitive), 2026-06-26.** 4 phases · 15 plans · 25 tasks over ~12 days
+  (2026-06-14 → 2026-06-26). Added ~1,000 LOC across `web/` (no-dependency ESM + arcade CSS) and the
+  two `cloud_functions/` Gen2 Cloud Run services, plus client `leaderboard_crypto.py` / `marker.py` /
+  identity-storage rework. The leaderboard is now competitive and trustworthy: server-enforced
+  (HMAC + sanity ceiling + permanent initials + week buckets), tamper-evident client identity, and the
+  weekly board visible in-game and on a live public web page. **Known manual-only debt:** the live
+  2-player got-passed E2E and the `scope=last_week` operator redeploy can't be automated in-repo
+  (code paths unit-verified; see STATE.md Deferred Items).
 - **Shipped v1.0 (Solid Foundation), 2026-06-12.** 3 phases · 11 plans · 84 commits over ~10 days.
   ~3,500 LOC Python (client). The codebase is now safe to extend: ghost-AI behavior is pinned by a
   CI-gated golden net (9 traces + 15 micro tests + frame-hash + determinism guard), the 4× mover
@@ -110,8 +113,11 @@ Building toward **v1.1 More Competitive**:
 | Preserve ghost behavior; park arcade-accuracy as opt-in future | The hand-tuned AI is the spec | ✓ Good — behavior held byte-identical through v1.0; arcade mode parked for Fun milestone (FUN-04) |
 | Foundation work on a `solid-foundation` branch | Isolate risky AI-adjacent work from `main` | — Superseded — config branching=none; Phase 1 shipped via PR #1, Phases 2–3 committed on `main` with the CI net as the gate |
 | Milestone order: Foundation → Competitive → Fun → Share | Foundation makes the rest cheap and safe | ✓ Good — Competitive started 2026-06-14 (v1.1) |
-| Anti-cheat altitude: HMAC signing + server-side verification + score sanity ceiling, NOT full replay-verification | Friends board; client secrets are extractable anyway — raise the bar to stop casual/`curl` cheats rather than chase the unforgeable | — Pending (v1.1) |
-| Permanent initials enforced **server-side** (locked on first submit), not just client-hidden | v1.0 "permanence" was bypassable by editing the local JSON; the rule belongs where the player can't reach it | — Pending (v1.1) |
+| Anti-cheat altitude: HMAC signing + server-side verification + score sanity ceiling, NOT full replay-verification | Friends board; client secrets are extractable anyway — raise the bar to stop casual/`curl` cheats rather than chase the unforgeable | ✓ Good — shipped v1.1 (Phases 4-5); server rejects unsigned/forged/over-ceiling submissions, signing↔verification loop closed end-to-end |
+| Permanent initials enforced **server-side** (locked on first submit), not just client-hidden | v1.0 "permanence" was bypassable by editing the local JSON; the rule belongs where the player can't reach it | ✓ Good — shipped v1.1 (Phase 4); initials locked server-side on first submission |
+| Server owns week math; scores bucketed by week-id (Monday-UTC) + scope-aware `get_leaderboard` (week/all/last_week) | One backend change powers all three competitive features; server-time avoids client-clock spoofing | ✓ Good — shipped v1.1 (Phases 4 & 6); weekly composite index live, `{initials,score}`-only projection so machine_id never leaks |
+| Identity stored obfuscated + HMAC-signed in `%LOCALAPPDATA%\PacMan\`, fail-closed on tamper — no local encryption beyond that | Client secrets are extractable; the server is the enforcement boundary, so stronger local crypto is theater | ✓ Good — shipped v1.1 (Phase 5); single blob, migrate-then-remove of legacy plaintext, TAMPERED sentinel blocks submit |
+| Web page opens on **All Time** by default (D-08), diverging from the in-game This Week default; deploy is a manual operator step | A first-time public visitor has no weekly context; All Time is the meaningful first view. Manual deploy matches the function-redeploy pattern | ✓ Good — shipped v1.1 (Phase 7); live at `pacman-firebase.web.app` |
 
 ## Evolution
 
@@ -131,4 +137,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-19 after Phase 5 (Client Identity Hardening) completion — anti-cheat & identity hardening delivered end-to-end across Phases 4-5*
+*Last updated: 2026-06-27 after v1.1 More Competitive milestone — server enforcement boundary, tamper-evident client identity, in-game weekly boards + got-passed banner, and a live public web leaderboard delivered across Phases 4-7*

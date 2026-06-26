@@ -1,5 +1,27 @@
 # Milestones
 
+## v1.1 More Competitive (Shipped: 2026-06-26)
+
+**Delivered:** Turned the client-trusted leaderboard into something friends can actually compete on — the server became the enforcement boundary (HMAC-verified, sanity-ceilinged, server-locked initials, week-bucketed), the client signs its submissions and hides a tamper-evident identity, and the weekly fight surfaces both in-game and on a public mobile web page.
+
+**Stats:** 4 phases · 15 plans · 25 tasks · ~12 days (2026-06-14 → 2026-06-26) · ~1,000 LOC web/cloud_functions (HTML/CSS/JS + Python)
+
+**Key accomplishments:**
+
+- **Server is now the enforcement boundary (Phase 4)** — `submit_score` gained a 50k sanity ceiling, HMAC-SHA256 signature verification (constant-time, grace-flagged), server-locked permanent initials, and a week-bucketed write + lazy prune, all in one read-before-write Firestore transaction; `get_leaderboard` became scope-aware (`?scope=week|all|last_week`) with `machine_id` never projected. Both Cloud Run services redeployed live with the secret in Secret Manager and an Enabled weekly composite index.
+- **Tamper-evident client identity (Phase 5)** — identity moved out of the game folder into `%LOCALAPPDATA%\PacMan\` as a single obfuscated, HMAC-signed blob, with seamless migrate-then-remove of the two legacy plaintext files and a fail-closed TAMPERED sentinel that blocks submit without silently regenerating.
+- **Closed the signing↔verification loop end-to-end** — client `leaderboard_crypto.py` mirrors the server wire-format; valid runs are HMAC-signed and POSTed in the `"signature"` field and accepted by the live server; the build bakes the gitignored shared secret in non-literally.
+- **In-game weekly competition (Phase 6)** — This Week / All Time board toggle, last week's champion subtitle, and a launch "got-passed" banner naming whoever beat your score since you last looked — all degrading gracefully offline/first-launch.
+- **Public web leaderboard, live (Phase 7)** — a no-dependency ESM page on Firebase Hosting (`pacman-firebase.web.app`) that mirrors the in-game boards with a lazy per-view cache and XSS-safe rendering, styled through the frontend-design skill (retro-arcade palette, self-hosted Press Start 2P, dot-leaders, OG share card), mobile-first and phone-verified.
+
+**Requirements:** 14/14 v1.1 requirements complete (IDENT-01..03, COMP-01..03, BOARD-01..04, WEB-01..03, RIVAL-01).
+
+**Known deferred items at close:** 2 (see STATE.md Deferred Items) — Phase 6's live 2-player got-passed E2E (UAT Test 4) and the BOARD-04 `scope=last_week` live-redeploy check. Both are inherently manual (need a 2nd live player / operator redeploy) and cannot be automated in-repo; all code paths are unit-verified green.
+
+**Note:** The `v1.1-MILESTONE-AUDIT.md` (status `gaps_found`) was written against an earlier snapshot before Phase 7 was built — its sole blocker ("Phase 7 not started") was closed the same day by Phase 7's passing verification (17/17 must-haves). The milestone is complete; the audit file is retained as a stale historical artifact.
+
+---
+
 ## v1.0 Solid Foundation (Shipped: 2026-06-12)
 
 **Delivered:** Made a precious, untested Pac-Man codebase safe to extend — froze the hand-tuned ghost AI in a CI-gated golden net, refactored the highest-debt code byte-identically behind that net, and fixed the one latent box-bounds bug proven isolated to the box region.
