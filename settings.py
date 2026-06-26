@@ -1,5 +1,9 @@
 import math
 
+# Shipped app version (PEP440). tufup compares this to the signed update metadata
+# to decide whether a newer build is available. Bump on every release.
+APP_VERSION = "1.0.0"
+
 WIDTH = 900
 HEIGHT = 950
 FPS = 60
