@@ -4,8 +4,9 @@ os.environ.setdefault("SDL_AUDIODRIVER", "dummy")
 
 import pygame
 import pytest
-from settings import WIDTH, HEIGHT, COLOR_YELLOW
+from settings import WIDTH, HEIGHT, COLOR_YELLOW, COLOR_GRAY
 import menu
+import theme
 
 
 @pytest.fixture(autouse=True)
@@ -13,6 +14,11 @@ def _pygame():
     pygame.init()
     pygame.display.set_mode((WIDTH, HEIGHT))
     yield
+    pygame.quit()
+    # Clear theme caches so re-init in the next test creates fresh font objects
+    # (pygame.quit() invalidates all Font objects; stale cache entries error on use).
+    theme._font_cache.clear()
+    theme._scanline_cache.clear()
 
 
 def _has_color(surface, rgb, band=None, tol=40):
@@ -61,7 +67,7 @@ def test_leaderboard_data_rank1_yellow_and_tab_active():
     assert _has_color(screen, COLOR_YELLOW, band=(160, 220))
 
 
-def test_leaderboard_offline_shows_verbatim_copy():
+def test_leaderboard_offline_renders_without_error():
     screen = pygame.Surface((WIDTH, HEIGHT))
     # None == offline; renders without error. We assert the renderer handles the
     # sentinel (no exception) — copy correctness is covered by the string constant.
@@ -88,3 +94,4 @@ def test_game_over_lose_is_red_win_is_green():
 def test_game_over_identity_error_renders():
     screen = pygame.Surface((WIDTH, HEIGHT))
     menu._render_game_over(screen, score=10, is_new_best=False, game_won=False, identity_error=True)
+    assert _has_color(screen, COLOR_GRAY, band=(500, 570))

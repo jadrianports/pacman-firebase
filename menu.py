@@ -1,3 +1,4 @@
+import math
 import pygame
 import theme
 from settings import (
@@ -30,12 +31,16 @@ def _blit_center(screen, surface, center):
     screen.blit(surface, surface.get_rect(center=center))
 
 
-def _render_main_menu(screen, selected, banner_text=None):
+def _render_main_menu(screen, selected, banner_text=None, frame=0):
     """Draw one main-menu frame: glowing pixel title, optional banner, and the
-    Play/Leaderboard/Quit options with the selected one glowing yellow."""
+    Play/Leaderboard/Quit options with the selected one glowing yellow.
+
+    The title glow radius is modulated by ``frame`` so the wordmark "breathes"
+    with a gentle sine-wave pulse (6–8 px, ~12-frame period)."""
     _draw_backdrop(screen)
 
-    title = theme.glow_text("PAC-MAN", theme.pixel_font(theme.SIZE_TITLE), COLOR_YELLOW, radius=6)
+    pulse_radius = 6 + int(2 * (0.5 + 0.5 * math.sin(frame * 0.08)))   # 6..8 px, gentle
+    title = theme.glow_text("PAC-MAN", theme.pixel_font(theme.SIZE_TITLE), COLOR_YELLOW, radius=pulse_radius)
     _blit_center(screen, title, (WIDTH // 2, 150))
 
     if banner_text:
@@ -188,10 +193,12 @@ def run_main_menu(screen, timer, banner_text=None):
     renders it. With ``banner_text=None`` the menu renders exactly as before.
     """
     selected = 0
+    frame = 0
 
     while True:
         timer.tick(FPS)
-        _render_main_menu(screen, selected, banner_text)
+        frame += 1
+        _render_main_menu(screen, selected, banner_text, frame)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
