@@ -3,7 +3,7 @@ import sys
 
 import pygame
 from settings import (
-    WIDTH, HEIGHT, API_SUBMIT_SCORE_URL, API_LEADERBOARD_URL, HMAC_SECRET_FILE_NAME,
+    WIDTH, HEIGHT, FPS, API_SUBMIT_SCORE_URL, API_LEADERBOARD_URL, HMAC_SECRET_FILE_NAME,
     BANNER_FETCH_TIMEOUT_SECONDS, BANNER_NAME_CAP,
 )
 from game import Game
@@ -141,7 +141,7 @@ def main():
             game = Game(render_surface, timer)
             game.juice = True
             game.present_fn = lambda: _present.present(
-                _pscreen, render_surface, game.shake.update(1.0 / 60)
+                _pscreen, render_surface, game.shake.update(1.0 / FPS)
             )
             result = game.run()
 

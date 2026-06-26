@@ -144,6 +144,10 @@ def _vig(size):
 
 def _overlay_present(display, render_surface, shake_offset):
     """Software (overlay) present path — always safe, no GL required."""
+    if display.get_flags() & pygame.OPENGL:
+        # GL was lost mid-session; the OPENGL surface can't be blitted to.
+        # Recreate a normal 2D window so the software CRT can present.
+        display = pygame.display.set_mode(display.get_size())
     display.fill((0, 0, 0))
     display.blit(render_surface, shake_offset)
     size = display.get_size()
