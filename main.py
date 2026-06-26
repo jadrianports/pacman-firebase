@@ -138,33 +138,11 @@ def main():
 
         elif choice == "Play":
             import present as _present
-            if display.is_fullscreen():
-                # Fullscreen: overlay CRT only (OPENGL can't combine with SCALED letterbox).
-                _present._gl = None
-                _pscreen = screen
-            else:
-                # Windowed: try the real zengl GL CRT, fall back to the SCALED overlay.
-                _pscreen = screen
-                try:
-                    _gl_screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.OPENGL | pygame.DOUBLEBUF)
-                    if _present.try_init_crt((WIDTH, HEIGHT)):
-                        _pscreen = _gl_screen
-                    else:
-                        _pscreen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
-                except Exception:
-                    _present._gl = None
-                    _pscreen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
-
             game = Game(render_surface, timer)
             game.juice = True
-            game.present_fn = lambda: _present.present(
-                _pscreen, render_surface, game.shake.update(1.0 / FPS)
-            )
+            game.present_fn = lambda: _present.present(render_surface, game.shake.update(1.0 / FPS))
             result = game.run()
-
-            # Restore normal SCALED display after the play session so menus work.
-            _present._gl = None
-            screen = display.init()
+            screen = display.init()   # ensure window/logical are fresh for menus
 
             if result is None:  # Window closed during game
                 break

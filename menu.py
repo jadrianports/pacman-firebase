@@ -26,8 +26,14 @@ def _draw_backdrop(screen):
     starts here so the whole app shares one arcade canvas."""
     screen.fill(COLOR_BACKDROP)
     screen.blit(theme.scanline_overlay((WIDTH, HEIGHT), spacing=3, alpha=45), (0, 0))
-    hint = theme.pixel_font(theme.SIZE_SMALL).render("F11 FULLSCREEN", True, COLOR_GRAY)
-    screen.blit(hint, hint.get_rect(bottomright=(WIDTH - 16, HEIGHT - 12)))
+    # Fullscreen hint — discoverable: "F11" in accent yellow + label in light gray.
+    f = theme.pixel_font(theme.SIZE_BODY)
+    key = f.render("F11", True, COLOR_YELLOW)
+    label = f.render(" FULLSCREEN", True, (190, 190, 205))
+    y = HEIGHT - 16 - key.get_height()
+    x = WIDTH - 18 - (key.get_width() + label.get_width())
+    screen.blit(key, (x, y))
+    screen.blit(label, (x + key.get_width(), y))
 
 
 def _blit_center(screen, surface, center):
@@ -192,7 +198,7 @@ def _show_loading(screen):
     _draw_backdrop(screen)
     loading = theme.pixel_font(theme.SIZE_HEADING).render("Loading...", True, COLOR_WHITE)
     _blit_center(screen, loading, (WIDTH // 2, HEIGHT // 2))
-    pygame.display.flip()
+    display.flip(screen)
 
 
 def run_main_menu(screen, timer, banner_text=None):
@@ -224,7 +230,7 @@ def run_main_menu(screen, timer, banner_text=None):
                 elif event.key == pygame.K_RETURN:
                     return MENU_OPTIONS[selected]
 
-        pygame.display.flip()
+        display.flip(screen)
 
 
 def run_initials_entry(screen, timer, current_initials=None):
@@ -256,7 +262,7 @@ def run_initials_entry(screen, timer, current_initials=None):
                 elif event.key == pygame.K_RETURN:
                     return "".join(chr(ord("A") + l) for l in letters)
 
-        pygame.display.flip()
+        display.flip(screen)
 
 
 def run_leaderboard(screen, timer, api_service):
@@ -308,7 +314,7 @@ def run_leaderboard(screen, timer, api_service):
                         _show_loading(screen)
                         views[active] = api_service.get_leaderboard(scope="all")
 
-        pygame.display.flip()
+        display.flip(screen)
 
 
 def run_game_over_screen(screen, timer, score, is_new_best, game_won, identity_error=False):
@@ -332,4 +338,4 @@ def run_game_over_screen(screen, timer, score, is_new_best, game_won, identity_e
                 if event.key == pygame.K_SPACE:
                     return "menu"
 
-        pygame.display.flip()
+        display.flip(screen)
