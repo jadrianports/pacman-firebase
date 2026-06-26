@@ -31,3 +31,6 @@ freesansbold.ttf
 firebase-key.json
 /.vscode
 /.claude
+
+# Contact-sheet capture output (regenerated)
+tools/_contact/
