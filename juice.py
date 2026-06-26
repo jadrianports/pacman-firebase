@@ -19,12 +19,19 @@ def _rand():
 
 
 def glow_circle(surface, center, color, radius, glow=2.2):
-    """Draw a filled circle plus a soft additive halo of ~glow*radius."""
+    """Draw a filled circle plus a soft additive ROUND halo of ~glow*radius.
+
+    The halo surface is padded well beyond the glow circle so the gaussian blur fades
+    to fully transparent before the surface edge. Without that padding the blur clips
+    flat against the square surface boundary and the glow reads as a square."""
     gr = int(radius * glow)
-    halo = pygame.Surface((gr * 2, gr * 2), pygame.SRCALPHA)
-    pygame.draw.circle(halo, (*color, 90), (gr, gr), gr)
-    halo = pygame.transform.gaussian_blur(halo, max(1, gr // 2))
-    surface.blit(halo, (center[0] - gr, center[1] - gr), special_flags=pygame.BLEND_RGB_ADD)
+    blur = max(1, gr // 2)
+    pad = blur * 3                      # headroom for the blur to fade out (no square clip)
+    half = gr + pad
+    halo = pygame.Surface((half * 2, half * 2), pygame.SRCALPHA)
+    pygame.draw.circle(halo, (*color[:3], 90), (half, half), gr)
+    halo = pygame.transform.gaussian_blur(halo, blur)
+    surface.blit(halo, (center[0] - half, center[1] - half), special_flags=pygame.BLEND_RGB_ADD)
     pygame.draw.circle(surface, color, center, radius)
 
 
