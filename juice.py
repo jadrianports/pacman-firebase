@@ -18,19 +18,38 @@ def _rand():
     return _rng / 0x7FFFFFFF
 
 
+_halo_cache = {}
+
+
+def _halo(color, radius, glow):
+    """Build (and cache) the blurred ROUND glow halo for a given color/radius/glow.
+
+    The gaussian blur is the expensive op, so we do it ONCE per unique
+    (color, radius, glow) and reuse the surface — critical because draw_board calls
+    glow_circle for every dot every frame (~240×), and re-blurring each was the cause
+    of a massive FPS drop. The surface is padded beyond the circle so the blur fades to
+    transparent before the edge (otherwise the glow clips into a square)."""
+    c3 = tuple(int(c) for c in color[:3])
+    key = (c3, radius, round(glow, 2))
+    halo = _halo_cache.get(key)
+    if halo is None:
+        gr = int(radius * glow)
+        blur = max(1, gr // 2)
+        half = gr + blur * 3            # headroom for the blur to fade out (no square clip)
+        halo = pygame.Surface((half * 2, half * 2), pygame.SRCALPHA)
+        pygame.draw.circle(halo, (*c3, 90), (half, half), gr)
+        halo = pygame.transform.gaussian_blur(halo, blur)
+        _halo_cache[key] = halo
+    return halo
+
+
 def glow_circle(surface, center, color, radius, glow=2.2):
     """Draw a filled circle plus a soft additive ROUND halo of ~glow*radius.
 
-    The halo surface is padded well beyond the glow circle so the gaussian blur fades
-    to fully transparent before the surface edge. Without that padding the blur clips
-    flat against the square surface boundary and the glow reads as a square."""
-    gr = int(radius * glow)
-    blur = max(1, gr // 2)
-    pad = blur * 3                      # headroom for the blur to fade out (no square clip)
-    half = gr + pad
-    halo = pygame.Surface((half * 2, half * 2), pygame.SRCALPHA)
-    pygame.draw.circle(halo, (*color[:3], 90), (half, half), gr)
-    halo = pygame.transform.gaussian_blur(halo, blur)
+    The blurred halo is cached (see ``_halo``) so per-call cost is just two blits —
+    cheap enough to run for every maze dot each frame."""
+    halo = _halo(color, radius, glow)
+    half = halo.get_width() // 2
     surface.blit(halo, (center[0] - half, center[1] - half), special_flags=pygame.BLEND_RGB_ADD)
     pygame.draw.circle(surface, color, center, radius)
 
