@@ -24,23 +24,26 @@ def pixel_font(size):
     return _font_cache[size]
 
 
-def glow_text(text, font, color, glow_color=None, radius=6):
+def glow_text(text, font, color, glow_color=None, radius=6, intensity=0.5):
     """Render ``text`` with a soft additive glow behind the crisp glyphs.
 
     Returns a SRCALPHA Surface padded by ``radius`` px on every side. The glow is a
-    blurred bright copy (pygame-ce ``gaussian_blur``) additively blitted under the
-    sharp text. ``glow_color`` defaults to ``color``."""
+    blurred, dimmed copy (pygame-ce ``gaussian_blur``) additively blitted ONCE under
+    the sharp text. ``glow_color`` defaults to ``color``. ``intensity`` (0..1) scales
+    the glow brightness so bright colors (yellow) don't bloom into a blown-out blob —
+    lower is subtler; the crisp glyph on top stays full-brightness regardless."""
     glow_color = glow_color or color
     sharp = font.render(text, True, color)
     w, h = sharp.get_width() + 2 * radius, sharp.get_height() + 2 * radius
 
     out = pygame.Surface((w, h), pygame.SRCALPHA)
     blur_src = pygame.Surface((w, h), pygame.SRCALPHA)
-    tinted = font.render(text, True, glow_color)
+    # Dim the glow source before blurring so the additive halo stays soft.
+    dimmed = tuple(int(c * intensity) for c in glow_color[:3])
+    tinted = font.render(text, True, dimmed)
     blur_src.blit(tinted, (radius, radius))
     blurred = pygame.transform.gaussian_blur(blur_src, radius)
-    out.blit(blurred, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
-    out.blit(blurred, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)  # double for intensity
+    out.blit(blurred, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)  # single, dimmed pass
     out.blit(sharp, (radius, radius))
     return out
 
