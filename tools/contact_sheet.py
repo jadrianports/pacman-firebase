@@ -34,17 +34,57 @@ def _surface_to_pil(surface):
 def _capture_states():
     """Return a list of (title, Surface). One static frame per screen state.
 
-    NOTE: this renders each screen's *first frame* by calling its draw path with a
-    synthetic event that immediately exits. Branch-specific: the brand/bold branches
-    each implement ``render_once(screen, state)`` in menu.py / game.py for capture.
-    Until those exist, fall back to a single filled frame so the tool runs on base."""
+    Captures 5 frames:
+    1. Juiced gameplay (Bold reinvention): Game with juice=True, ~80 frames
+    2. Main menu (glowing yellow title with pulse, selected Play)
+    3. Initials entry (slot 1 with initials J, A, P)
+    4. Leaderboard (This Week, with sample data)
+    5. Game Over (score, new best indicator)
+    """
     pygame.font.init()
+    pygame.mixer.init()
     frames = []
-    surf = pygame.Surface((WIDTH, HEIGHT))
-    surf.fill("black")
-    title = theme.pixel_font(theme.SIZE_TITLE).render("PAC-MAN", True, (255, 255, 0))
-    surf.blit(title, title.get_rect(center=(WIDTH // 2, 150)))
-    frames.append(("title", surf))
+
+    # Import here to avoid circular deps and ensure pygame is initialized
+    import menu
+    from game import Game
+    from harness.replay import install_frame_driven_sound
+
+    # 1. Juiced gameplay frame (pre-CRT, juice colors visible)
+    game_surface = pygame.Surface((WIDTH, HEIGHT))
+    clock = pygame.time.Clock()
+    g = Game(game_surface, clock)
+    g.juice = True
+    install_frame_driven_sound(g)
+    for _ in range(80):
+        g.tick()
+    frames.append(("gameplay (juiced)", g.screen.copy()))
+
+    # 2. Main menu (glowing title with pulse at frame=30)
+    menu_surface = pygame.Surface((WIDTH, HEIGHT))
+    menu._render_main_menu(menu_surface, 0, None, 30)
+    frames.append(("menu (main)", menu_surface.copy()))
+
+    # 3. Initials entry (slot 1, letters J-A-P → [9,0,15])
+    initials_surface = pygame.Surface((WIDTH, HEIGHT))
+    menu._render_initials(initials_surface, [9, 0, 15], 1)
+    frames.append(("initials entry", initials_surface.copy()))
+
+    # 4. Leaderboard (This Week, with sample entries)
+    board_surface = pygame.Surface((WIDTH, HEIGHT))
+    sample_entries = [
+        {"initials": "JAP", "score": 7540},
+        {"initials": "JEM", "score": 4140},
+        {"initials": "ZZZ", "score": 7}
+    ]
+    menu._render_leaderboard(board_surface, "week", sample_entries, "JAP")
+    frames.append(("leaderboard (week)", board_surface.copy()))
+
+    # 5. Game Over (new best, loss)
+    gameover_surface = pygame.Surface((WIDTH, HEIGHT))
+    menu._render_game_over(gameover_surface, 7540, True, False, False)
+    frames.append(("game over", gameover_surface.copy()))
+
     return frames
 
 
