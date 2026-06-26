@@ -13,6 +13,8 @@ from local_storage import load_identity, save_initials, IDENTITY_STATUS_TAMPERED
 from leaderboard_crypto import sign_submission, de_obfuscate
 from paths import resource_path
 import marker
+import theme
+import updater
 
 
 def _load_hmac_secret():
@@ -76,6 +78,15 @@ def main():
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("PAC-MAN")
     timer = pygame.time.Clock()
+
+    # Best-effort auto-update (frozen builds only; never blocks startup).
+    def _update_notice(msg):
+        screen.fill((6, 6, 18))
+        surf = theme.pixel_font(theme.SIZE_HEADING).render(msg, True, (255, 255, 0))
+        screen.blit(surf, surf.get_rect(center=(WIDTH // 2, HEIGHT // 2)))
+        pygame.display.flip()
+
+    updater.check_and_apply(on_status=_update_notice)
 
     render_surface = pygame.Surface([WIDTH, HEIGHT])
 
