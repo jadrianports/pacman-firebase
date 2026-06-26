@@ -75,7 +75,8 @@ def main():
         pygame.display.set_icon(pygame.image.load(resource_path("assets/icon.png")))
     except Exception:
         pass
-    # Normal 2-D SCALED display for menus; upgraded to OPENGL per Play session (Task 6).
+    # display.init() returns the logical 900x950 surface; the real OS window is
+    # sized to fit the desktop (or fullscreen) and display.flip() scales into it.
     screen = display.init()
     pygame.display.set_caption("PAC-MAN")
     timer = pygame.time.Clock()

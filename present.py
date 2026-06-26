@@ -10,6 +10,7 @@ import theme
 import display
 
 _vignette = None
+_frame = None  # reused per-frame compose buffer (avoid a 900x950 alloc every frame)
 
 
 def _vig(size):
@@ -30,10 +31,13 @@ def _vig(size):
 def present(render_surface, shake_offset):
     """Compose the CRT-overlay frame at 900x950 (shake + scanlines + vignette) and
     present it scaled-to-fit via display."""
-    frame = pygame.Surface(render_surface.get_size())
+    global _frame
+    size = render_surface.get_size()
+    if _frame is None or _frame.get_size() != size:
+        _frame = pygame.Surface(size)
+    frame = _frame
     frame.fill((0, 0, 0))
     frame.blit(render_surface, shake_offset)
-    size = frame.get_size()
     frame.blit(theme.scanline_overlay(size, spacing=3, alpha=40), (0, 0))
     frame.blit(_vig(size), (0, 0))
     display.flip(frame)
