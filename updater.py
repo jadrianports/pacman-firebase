@@ -65,7 +65,7 @@ def _run_update(on_status):
     if not client.check_for_updates():
         return False
     if on_status:
-        on_status("Updating…")
+        on_status("Updating...")  # ASCII dots — the pixel font has no … glyph
     client.download_and_apply_update(skip_confirmation=True)
     return True
 
