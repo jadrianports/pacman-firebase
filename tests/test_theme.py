@@ -20,3 +20,16 @@ def test_pixel_font_is_cached_and_sized(tmp_path):
     # a known glyph renders to a non-empty surface
     surf = f1.render("A", True, (255, 255, 0))
     assert surf.get_width() > 0 and surf.get_height() > 0
+
+
+def test_glow_text_returns_padded_alpha_surface():
+    pygame.font.init()
+    font = theme.pixel_font(theme.SIZE_MENU)
+    bare = font.render("PLAY", True, (255, 255, 0))
+    glow = theme.glow_text("PLAY", font, (255, 255, 0), radius=6)
+    # padded by 2*radius on each axis
+    assert glow.get_width() == bare.get_width() + 12
+    assert glow.get_height() == bare.get_height() + 12
+    assert glow.get_flags() & pygame.SRCALPHA
+    # there is lit-up glow outside the crisp glyph box (top-left padding pixel)
+    assert glow.get_at((1, 1))[3] > 0  # non-zero alpha in the glow margin
