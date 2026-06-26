@@ -1,9 +1,9 @@
+import math
 import pygame
-from paths import resource_path
+import theme
 from settings import (
     WIDTH, HEIGHT, FPS,
     COLOR_YELLOW, COLOR_WHITE, COLOR_GRAY, COLOR_RED, COLOR_GREEN,
-    FONT_TITLE, FONT_MENU, FONT_SMALL,
     MENU_OPTIONS, LEADERBOARD_LINE_WIDTH,
 )
 
@@ -17,6 +17,172 @@ from settings import (
 # object() identity is used instead.
 _UNFETCHED = object()
 
+COLOR_BACKDROP = (6, 6, 18)  # deep navy-black, matches the web page body
+
+
+def _draw_backdrop(screen):
+    """Fill the navy backdrop and lay the CRT scanline overlay. Every screen
+    starts here so the whole app shares one arcade canvas."""
+    screen.fill(COLOR_BACKDROP)
+    screen.blit(theme.scanline_overlay((WIDTH, HEIGHT), spacing=3, alpha=45), (0, 0))
+
+
+def _blit_center(screen, surface, center):
+    screen.blit(surface, surface.get_rect(center=center))
+
+
+def _render_main_menu(screen, selected, banner_text=None, frame=0):
+    """Draw one main-menu frame: glowing pixel title, optional banner, and the
+    Play/Leaderboard/Quit options with the selected one glowing yellow.
+
+    The title glow radius is modulated by ``frame`` so the wordmark "breathes"
+    with a gentle sine-wave pulse (6–8 px, ~12-frame period)."""
+    _draw_backdrop(screen)
+
+    pulse_radius = 6 + int(2 * (0.5 + 0.5 * math.sin(frame * 0.08)))   # 6..8 px, gentle
+    title = theme.glow_text("PAC-MAN", theme.pixel_font(theme.SIZE_TITLE), COLOR_YELLOW, radius=pulse_radius)
+    _blit_center(screen, title, (WIDTH // 2, 150))
+
+    if banner_text:
+        banner = theme.pixel_font(theme.SIZE_SMALL).render(banner_text, True, COLOR_YELLOW)
+        _blit_center(screen, banner, (WIDTH // 2, 230))
+
+    menu_font = theme.pixel_font(theme.SIZE_MENU)
+    for i, option in enumerate(MENU_OPTIONS):
+        y = 350 + i * 70
+        if i == selected:
+            surf = theme.glow_text(option, menu_font, COLOR_YELLOW, radius=4)
+            rect = surf.get_rect(center=(WIDTH // 2, y))
+            screen.blit(surf, rect)
+            cursor = theme.glow_text(">", menu_font, COLOR_YELLOW, radius=4)
+            screen.blit(cursor, cursor.get_rect(midright=(rect.left - 16, y)))
+        else:
+            surf = menu_font.render(option, True, COLOR_WHITE)
+            _blit_center(screen, surf, (WIDTH // 2, y))
+
+
+def _render_initials(screen, letters, slot):
+    """Draw one initials-entry frame: header, three bracketed letter slots (the
+    active one glows yellow with up/down arrows), and the control hint."""
+    _draw_backdrop(screen)
+
+    header = theme.glow_text("ENTER YOUR INITIALS", theme.pixel_font(theme.SIZE_HEADING),
+                             COLOR_YELLOW, radius=4)
+    _blit_center(screen, header, (WIDTH // 2, 200))
+
+    letter_font = theme.pixel_font(theme.SIZE_TITLE)
+    hint_font = theme.pixel_font(theme.SIZE_SMALL)
+    total_width = 3 * 80 + 2 * 40
+    start_x = (WIDTH - total_width) // 2
+    for i in range(3):
+        letter_char = chr(ord("A") + letters[i])
+        x = start_x + i * 120 + 40
+        if i == slot:
+            bracket = theme.glow_text(f"[ {letter_char} ]", letter_font, COLOR_YELLOW, radius=4)
+            _blit_center(screen, bracket, (x, 400))
+            _blit_center(screen, hint_font.render("^", True, COLOR_GRAY), (x, 330))
+            _blit_center(screen, hint_font.render("v", True, COLOR_GRAY), (x, 470))
+        else:
+            bracket = letter_font.render(f"[ {letter_char} ]", True, COLOR_WHITE)
+            _blit_center(screen, bracket, (x, 400))
+
+    hint = hint_font.render("UP/DOWN: change letter   LEFT/RIGHT: move   ENTER: confirm",
+                            True, COLOR_GRAY)
+    _blit_center(screen, hint, (WIDTH // 2, 600))
+
+
+_EMPTY_TEXT = {
+    "week": "No scores yet this week. Be the first!",
+    "all": "No scores yet. Be the first!",
+}
+
+
+def _render_leaderboard(screen, active, entries, last_week_initials):
+    """Draw one leaderboard frame: glowing header, This Week | All Time tab bar
+    (active side yellow), optional last-week subtitle (This Week only), and the
+    board — offline/empty messages or dot-leader rows with rank 1 in yellow."""
+    _draw_backdrop(screen)
+    entry_font = theme.pixel_font(theme.SIZE_BODY)
+    hint_font = theme.pixel_font(theme.SIZE_SMALL)
+
+    header = theme.glow_text("LEADERBOARD", theme.pixel_font(theme.SIZE_HEADING),
+                             COLOR_YELLOW, radius=5)
+    _blit_center(screen, header, (WIDTH // 2, 80))
+
+    # Tab bar: only the active label is yellow; separators/inactive gray.
+    prefix = entry_font.render("< ", True, COLOR_GRAY)
+    week_label = entry_font.render("This Week", True,
+                                   COLOR_YELLOW if active == "week" else COLOR_GRAY)
+    sep = entry_font.render(" | ", True, COLOR_GRAY)
+    all_label = entry_font.render("All Time", True,
+                                  COLOR_YELLOW if active == "all" else COLOR_GRAY)
+    suffix = entry_font.render(" >", True, COLOR_GRAY)
+    runs = (prefix, week_label, sep, all_label, suffix)
+    tab_w = sum(s.get_width() for s in runs)
+    tx, ty = WIDTH // 2 - tab_w // 2, 128
+    for surf in runs:
+        screen.blit(surf, (tx, ty - surf.get_height() // 2))
+        tx += surf.get_width()
+
+    if active == "week" and last_week_initials:
+        subtitle = entry_font.render(f"Last week: {last_week_initials}", True, COLOR_GRAY)
+        _blit_center(screen, subtitle, (WIDTH // 2, 158))
+
+    if entries is None:
+        _blit_center(screen, entry_font.render("Could not connect to leaderboard.", True, COLOR_GRAY),
+                     (WIDTH // 2, HEIGHT // 2))
+    elif len(entries) == 0:
+        _blit_center(screen, entry_font.render(_EMPTY_TEXT[active], True, COLOR_GRAY),
+                     (WIDTH // 2, HEIGHT // 2))
+    else:
+        for i, entry in enumerate(entries):
+            rank = f"{i + 1}."
+            initials = entry["initials"]
+            score = str(entry["score"])
+            fill = max(0, LEADERBOARD_LINE_WIDTH - len(rank) - len(initials) - len(score))
+            line = f"{rank} {initials} {'.' * fill} {score}"
+            color = COLOR_YELLOW if i == 0 else COLOR_WHITE
+            _blit_center(screen, entry_font.render(line, True, color), (WIDTH // 2, 180 + i * 50))
+
+    hint = hint_font.render("LEFT/RIGHT: switch board   ESC/ENTER: back", True, COLOR_GRAY)
+    _blit_center(screen, hint, (WIDTH // 2, HEIGHT - 80))
+
+
+def _render_game_over(screen, score, is_new_best, game_won, identity_error=False):
+    """Draw one game-over/victory frame: glowing title (green win / red loss),
+    score, optional NEW BEST!, optional identity-error notice, and the hint."""
+    _draw_backdrop(screen)
+    title_font = theme.pixel_font(theme.SIZE_TITLE)
+    score_font = theme.pixel_font(theme.SIZE_MENU)
+    hint_font = theme.pixel_font(theme.SIZE_SMALL)
+
+    if game_won:
+        title = theme.glow_text("VICTORY!", title_font, COLOR_GREEN, radius=6)
+    else:
+        title = theme.glow_text("GAME OVER", title_font, COLOR_RED, radius=6)
+    _blit_center(screen, title, (WIDTH // 2, 250))
+
+    _blit_center(screen, score_font.render(f"Score: {score}", True, COLOR_WHITE), (WIDTH // 2, 400))
+
+    if is_new_best:
+        best = theme.glow_text("NEW BEST!", score_font, COLOR_YELLOW, radius=4)
+        _blit_center(screen, best, (WIDTH // 2, 480))
+
+    if identity_error:
+        _blit_center(screen, hint_font.render("Score not saved — identity error", True, COLOR_GRAY),
+                     (WIDTH // 2, 540))
+
+    _blit_center(screen, hint_font.render("Press SPACE for menu", True, COLOR_GRAY),
+                 (WIDTH // 2, HEIGHT - 100))
+
+
+def _show_loading(screen):
+    """Render the navy 'Loading...' frame (shown before a fetch)."""
+    _draw_backdrop(screen)
+    loading = theme.pixel_font(theme.SIZE_HEADING).render("Loading...", True, COLOR_WHITE)
+    _blit_center(screen, loading, (WIDTH // 2, HEIGHT // 2))
+    pygame.display.flip()
+
 
 def run_main_menu(screen, timer, banner_text=None):
     """Display main menu. Returns the selected option string: 'Play', 'Leaderboard', or 'Quit'.
@@ -26,32 +192,13 @@ def run_main_menu(screen, timer, banner_text=None):
     in run_game_over_screen. The string is built/capped by main.py (D-06); this only
     renders it. With ``banner_text=None`` the menu renders exactly as before.
     """
-    title_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
-    option_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
-    banner_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
     selected = 0
+    frame = 0
 
     while True:
         timer.tick(FPS)
-        screen.fill("black")
-
-        # Title
-        title = title_font.render("PAC-MAN", True, COLOR_YELLOW)
-        title_rect = title.get_rect(center=(WIDTH // 2, 150))
-        screen.blit(title, title_rect)
-
-        # Got-passed banner (D-06) — yellow, only when present (passive-notice idiom).
-        if banner_text:
-            banner = banner_font.render(banner_text, True, COLOR_YELLOW)
-            banner_rect = banner.get_rect(center=(WIDTH // 2, 230))
-            screen.blit(banner, banner_rect)
-
-        # Menu options
-        for i, option in enumerate(MENU_OPTIONS):
-            color = COLOR_YELLOW if i == selected else COLOR_WHITE
-            text = option_font.render(option, True, color)
-            text_rect = text.get_rect(center=(WIDTH // 2, 350 + i * 70))
-            screen.blit(text, text_rect)
+        frame += 1
+        _render_main_menu(screen, selected, banner_text, frame)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -69,10 +216,6 @@ def run_main_menu(screen, timer, banner_text=None):
 
 def run_initials_entry(screen, timer, current_initials=None):
     """Arcade-style 3-letter initials entry. Returns the 3-letter string (e.g. 'JAM')."""
-    header_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
-    letter_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
-    hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-
     if current_initials and len(current_initials) == 3:
         letters = [ord(c) - ord("A") for c in current_initials.upper()]
     else:
@@ -81,39 +224,7 @@ def run_initials_entry(screen, timer, current_initials=None):
 
     while True:
         timer.tick(FPS)
-        screen.fill("black")
-
-        # Header
-        header = header_font.render("ENTER YOUR INITIALS", True, COLOR_YELLOW)
-        header_rect = header.get_rect(center=(WIDTH // 2, 200))
-        screen.blit(header, header_rect)
-
-        # Letter slots
-        total_width = 3 * 80 + 2 * 40  # 3 slots, 2 gaps
-        start_x = (WIDTH - total_width) // 2
-        for i in range(3):
-            letter_char = chr(ord("A") + letters[i])
-            color = COLOR_YELLOW if i == slot else COLOR_WHITE
-            x = start_x + i * 120 + 40
-
-            # Draw bracket
-            bracket = letter_font.render(f"[ {letter_char} ]", True, color)
-            bracket_rect = bracket.get_rect(center=(x, 400))
-            screen.blit(bracket, bracket_rect)
-
-            # Draw up/down arrows for active slot
-            if i == slot:
-                arrow_up = hint_font.render("^", True, COLOR_GRAY)
-                arrow_up_rect = arrow_up.get_rect(center=(x, 330))
-                screen.blit(arrow_up, arrow_up_rect)
-                arrow_down = hint_font.render("v", True, COLOR_GRAY)
-                arrow_down_rect = arrow_down.get_rect(center=(x, 470))
-                screen.blit(arrow_down, arrow_down_rect)
-
-        # Hint
-        hint = hint_font.render("UP/DOWN: change letter   LEFT/RIGHT: move   ENTER: confirm", True, COLOR_GRAY)
-        hint_rect = hint.get_rect(center=(WIDTH // 2, 600))
-        screen.blit(hint, hint_rect)
+        _render_initials(screen, letters, slot)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -131,15 +242,6 @@ def run_initials_entry(screen, timer, current_initials=None):
                     return "".join(chr(ord("A") + l) for l in letters)
 
         pygame.display.flip()
-
-
-def _show_loading(screen, header_font):
-    """Render the existing white centered 'Loading...' frame (shown before a fetch)."""
-    screen.fill("black")
-    loading = header_font.render("Loading...", True, COLOR_WHITE)
-    loading_rect = loading.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-    screen.blit(loading, loading_rect)
-    pygame.display.flip()
 
 
 def run_leaderboard(screen, timer, api_service):
@@ -160,10 +262,6 @@ def run_leaderboard(screen, timer, api_service):
     instead of silently re-displaying the main menu (WR-01), matching the quit-propagation
     contract of every sibling screen.
     """
-    header_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
-    entry_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-    hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-
     # Per-view lazy cache. This Week is fetched on open; All Time stays _UNFETCHED
     # until the first toggle. None=offline, []=empty, [...]=data (truth table).
     views = {"week": _UNFETCHED, "all": _UNFETCHED}
@@ -171,80 +269,14 @@ def run_leaderboard(screen, timer, api_service):
 
     # Fetch This Week up front (open-on view, D-02), plus a best-effort last-week
     # champion fetch for the subtitle. last_week is independent of the toggle cache.
-    _show_loading(screen, header_font)
+    _show_loading(screen)
     views["week"] = api_service.get_leaderboard(scope="week")
     last_week = api_service.get_leaderboard(scope="last_week")
     last_week_initials = last_week[0]["initials"] if last_week else None
 
-    empty_text = {
-        "week": "No scores yet this week. Be the first!",
-        "all": "No scores yet. Be the first!",
-    }
-
     while True:
         timer.tick(FPS)
-        screen.fill("black")
-
-        entries = views[active]
-
-        # Header
-        header = header_font.render("LEADERBOARD", True, COLOR_YELLOW)
-        header_rect = header.get_rect(center=(WIDTH // 2, 80))
-        screen.blit(header, header_rect)
-
-        # Tab indicator: active side yellow, inactive side + separators gray (D-03).
-        # Rendered as three runs so only the active label is yellow.
-        prefix = entry_font.render("< ", True, COLOR_GRAY)
-        week_label = entry_font.render(
-            "This Week", True, COLOR_YELLOW if active == "week" else COLOR_GRAY
-        )
-        sep = entry_font.render(" | ", True, COLOR_GRAY)
-        all_label = entry_font.render(
-            "All Time", True, COLOR_YELLOW if active == "all" else COLOR_GRAY
-        )
-        suffix = entry_font.render(" >", True, COLOR_GRAY)
-        tab_w = (prefix.get_width() + week_label.get_width() + sep.get_width()
-                 + all_label.get_width() + suffix.get_width())
-        tx = WIDTH // 2 - tab_w // 2
-        ty = 128
-        for surf in (prefix, week_label, sep, all_label, suffix):
-            screen.blit(surf, (tx, ty - surf.get_height() // 2))
-            tx += surf.get_width()
-
-        # Last-week champion subtitle — This Week only, hidden when absent (D-16).
-        if active == "week" and last_week_initials:
-            subtitle = entry_font.render(
-                f"Last week: {last_week_initials}", True, COLOR_GRAY
-            )
-            subtitle_rect = subtitle.get_rect(center=(WIDTH // 2, 152))
-            screen.blit(subtitle, subtitle_rect)
-
-        if entries is None:
-            # Offline (per active view; the other cached view still renders when toggled)
-            msg = entry_font.render("Could not connect to leaderboard.", True, COLOR_GRAY)
-            msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-            screen.blit(msg, msg_rect)
-        elif len(entries) == 0:
-            msg = entry_font.render(empty_text[active], True, COLOR_GRAY)
-            msg_rect = msg.get_rect(center=(WIDTH // 2, HEIGHT // 2))
-            screen.blit(msg, msg_rect)
-        else:
-            for i, entry in enumerate(entries):
-                rank = f"{i + 1}."
-                initials = entry["initials"]
-                score = str(entry["score"])
-                fill = max(0, LEADERBOARD_LINE_WIDTH - len(rank) - len(initials) - len(score))
-                dots = "." * fill
-                line = f"{rank} {initials} {dots} {score}"
-                color = COLOR_YELLOW if i == 0 else COLOR_WHITE
-                text = entry_font.render(line, True, color)
-                text_rect = text.get_rect(center=(WIDTH // 2, 180 + i * 50))
-                screen.blit(text, text_rect)
-
-        # Hint
-        hint = hint_font.render("LEFT/RIGHT: switch board   ESC/ENTER: back", True, COLOR_GRAY)
-        hint_rect = hint.get_rect(center=(WIDTH // 2, HEIGHT - 80))
-        screen.blit(hint, hint_rect)
+        _render_leaderboard(screen, active, views[active], last_week_initials)
 
         for event in pygame.event.get():
             week_entries = views["week"] if views["week"] is not _UNFETCHED else None
@@ -255,9 +287,8 @@ def run_leaderboard(screen, timer, api_service):
                     return False, week_entries
                 elif event.key in (pygame.K_LEFT, pygame.K_RIGHT):
                     active = "all" if active == "week" else "week"
-                    # Lazy-fetch All Time the first time it becomes active (D-14).
                     if views[active] is _UNFETCHED:
-                        _show_loading(screen, header_font)
+                        _show_loading(screen)
                         views[active] = api_service.get_leaderboard(scope="all")
 
         pygame.display.flip()
@@ -271,44 +302,9 @@ def run_game_over_screen(screen, timer, score, is_new_best, game_won, identity_e
     player sees why the score did not reach the board. The game stays fully playable;
     this is a passive notice, not a modal.
     """
-    title_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_TITLE)
-    score_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_MENU)
-    hint_font = pygame.font.Font(resource_path("freesansbold.ttf"), FONT_SMALL)
-
     while True:
         timer.tick(FPS)
-        screen.fill("black")
-
-        # Title
-        if game_won:
-            title = title_font.render("VICTORY!", True, COLOR_GREEN)
-        else:
-            title = title_font.render("GAME OVER", True, COLOR_RED)
-        title_rect = title.get_rect(center=(WIDTH // 2, 250))
-        screen.blit(title, title_rect)
-
-        # Score
-        score_text = score_font.render(f"Score: {score}", True, COLOR_WHITE)
-        score_rect = score_text.get_rect(center=(WIDTH // 2, 400))
-        screen.blit(score_text, score_rect)
-
-        # New best
-        if is_new_best:
-            best_text = score_font.render("NEW BEST!", True, COLOR_YELLOW)
-            best_rect = best_text.get_rect(center=(WIDTH // 2, 480))
-            screen.blit(best_text, best_rect)
-
-        # Identity error — score could not be submitted (D-06). Gray, passive notice
-        # mirroring the "Could not connect to leaderboard." graceful-degrade tone.
-        if identity_error:
-            notice = hint_font.render("Score not saved — identity error", True, COLOR_GRAY)
-            notice_rect = notice.get_rect(center=(WIDTH // 2, 540))
-            screen.blit(notice, notice_rect)
-
-        # Hint
-        hint = hint_font.render("Press SPACE for menu", True, COLOR_GRAY)
-        hint_rect = hint.get_rect(center=(WIDTH // 2, HEIGHT - 100))
-        screen.blit(hint, hint_rect)
+        _render_game_over(screen, score, is_new_best, game_won, identity_error)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

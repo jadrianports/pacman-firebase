@@ -75,6 +75,7 @@ def main():
         "--onedir",
         "--windowed",
         "--add-data=assets;assets",
+        "--add-data=assets/fonts/PressStart2P-Regular.ttf;assets/fonts",
         "--add-data=freesansbold.ttf;.",
         "--add-data=_baked_secret.py;.",
         "--hidden-import=_baked_secret",
