@@ -70,6 +70,8 @@ def main():
     pygame.display.set_caption("PAC-MAN")
     timer = pygame.time.Clock()
 
+    render_surface = pygame.Surface([WIDTH, HEIGHT])
+
     api = ApiService(API_SUBMIT_SCORE_URL, API_LEADERBOARD_URL)
     secret = _load_hmac_secret()
 
@@ -116,7 +118,10 @@ def main():
             break
 
         elif choice == "Play":
-            game = Game(screen, timer)
+            import present as _present
+            game = Game(render_surface, timer)
+            game.juice = True
+            game.present_fn = lambda: _present.present(screen, render_surface, game.shake.update(1.0 / 60))
             result = game.run()
 
             if result is None:  # Window closed during game
