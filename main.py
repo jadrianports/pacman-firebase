@@ -66,6 +66,7 @@ def _format_banner(names):
 
 def main():
     pygame.init()
+    # Normal 2-D display for menus; upgraded to OPENGL per Play session (Task 6).
     screen = pygame.display.set_mode([WIDTH, HEIGHT])
     pygame.display.set_caption("PAC-MAN")
     timer = pygame.time.Clock()
@@ -119,10 +120,34 @@ def main():
 
         elif choice == "Play":
             import present as _present
+
+            # Task 6: attempt an OpenGL display for the zengl CRT shader.
+            # The play surface (_pscreen) is either an OPENGL|DOUBLEBUF window (GL
+            # path) or the existing normal window (overlay path).  Menus always use
+            # the normal surface so menu rendering is unaffected by this swap.
+            _pscreen = screen
+            try:
+                _gl_screen = pygame.display.set_mode(
+                    [WIDTH, HEIGHT], pygame.OPENGL | pygame.DOUBLEBUF
+                )
+                if _present.try_init_crt((WIDTH, HEIGHT)):
+                    _pscreen = _gl_screen
+                else:
+                    _pscreen = pygame.display.set_mode([WIDTH, HEIGHT])
+            except Exception:
+                _present._gl = None
+                _pscreen = pygame.display.set_mode([WIDTH, HEIGHT])
+
             game = Game(render_surface, timer)
             game.juice = True
-            game.present_fn = lambda: _present.present(screen, render_surface, game.shake.update(1.0 / 60))
+            game.present_fn = lambda: _present.present(
+                _pscreen, render_surface, game.shake.update(1.0 / 60)
+            )
             result = game.run()
+
+            # Restore normal display after the play session so menus work.
+            _present._gl = None
+            screen = pygame.display.set_mode([WIDTH, HEIGHT])
 
             if result is None:  # Window closed during game
                 break
