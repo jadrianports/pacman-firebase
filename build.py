@@ -80,6 +80,7 @@ def main():
     PyInstaller.__main__.run([
         "main.py",
         "--name=pacman",
+        "--noconfirm",            # overwrite a previous dist/ build without prompting
         "--onedir",
         "--windowed",
         "--icon=assets/icon.ico",
