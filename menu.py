@@ -72,19 +72,27 @@ def _render_initials(screen, letters, slot):
 
     letter_font = theme.pixel_font(theme.SIZE_TITLE)
     hint_font = theme.pixel_font(theme.SIZE_SMALL)
-    total_width = 3 * 80 + 2 * 40
-    start_x = (WIDTH - total_width) // 2
+    GAP = 36
+    # Render each slot first (yellow glow if active, else white), then lay the slots
+    # out left-to-right by their ACTUAL width, centered as a group. The pixel font is
+    # monospace and wide, so the old fixed-pitch layout overlapped — measured can't.
+    surfs = []
     for i in range(3):
-        letter_char = chr(ord("A") + letters[i])
-        x = start_x + i * 120 + 40
+        ch = chr(ord("A") + letters[i])
         if i == slot:
-            bracket = theme.glow_text(f"[ {letter_char} ]", letter_font, COLOR_YELLOW, radius=4)
-            _blit_center(screen, bracket, (x, 400))
-            _blit_center(screen, hint_font.render("^", True, COLOR_GRAY), (x, 330))
-            _blit_center(screen, hint_font.render("v", True, COLOR_GRAY), (x, 470))
+            surfs.append(theme.glow_text(f"[ {ch} ]", letter_font, COLOR_YELLOW, radius=4))
         else:
-            bracket = letter_font.render(f"[ {letter_char} ]", True, COLOR_WHITE)
-            _blit_center(screen, bracket, (x, 400))
+            surfs.append(letter_font.render(f"[ {ch} ]", True, COLOR_WHITE))
+
+    total = sum(s.get_width() for s in surfs) + GAP * (len(surfs) - 1)
+    x = (WIDTH - total) // 2
+    for i, s in enumerate(surfs):
+        rect = s.get_rect(midleft=(x, 400))
+        screen.blit(s, rect)
+        if i == slot:
+            _blit_center(screen, hint_font.render("^", True, COLOR_GRAY), (rect.centerx, 330))
+            _blit_center(screen, hint_font.render("v", True, COLOR_GRAY), (rect.centerx, 470))
+        x += s.get_width() + GAP
 
     hint = hint_font.render("UP/DOWN: change letter   LEFT/RIGHT: move   ENTER: confirm",
                             True, COLOR_GRAY)
