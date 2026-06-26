@@ -1,6 +1,7 @@
 import math
 import pygame
 import theme
+import display
 from settings import (
     WIDTH, HEIGHT, FPS,
     COLOR_YELLOW, COLOR_WHITE, COLOR_GRAY, COLOR_RED, COLOR_GREEN,
@@ -25,6 +26,8 @@ def _draw_backdrop(screen):
     starts here so the whole app shares one arcade canvas."""
     screen.fill(COLOR_BACKDROP)
     screen.blit(theme.scanline_overlay((WIDTH, HEIGHT), spacing=3, alpha=45), (0, 0))
+    hint = theme.pixel_font(theme.SIZE_SMALL).render("F11 FULLSCREEN", True, COLOR_GRAY)
+    screen.blit(hint, hint.get_rect(bottomright=(WIDTH - 16, HEIGHT - 12)))
 
 
 def _blit_center(screen, surface, center):
@@ -209,6 +212,8 @@ def run_main_menu(screen, timer, banner_text=None):
         _render_main_menu(screen, selected, banner_text, frame)
 
         for event in pygame.event.get():
+            if display.process_event(event):
+                continue
             if event.type == pygame.QUIT:
                 return "Quit"
             if event.type == pygame.KEYDOWN:
@@ -235,6 +240,8 @@ def run_initials_entry(screen, timer, current_initials=None):
         _render_initials(screen, letters, slot)
 
         for event in pygame.event.get():
+            if display.process_event(event):
+                continue
             if event.type == pygame.QUIT:
                 return None
             if event.type == pygame.KEYDOWN:
@@ -287,6 +294,8 @@ def run_leaderboard(screen, timer, api_service):
         _render_leaderboard(screen, active, views[active], last_week_initials)
 
         for event in pygame.event.get():
+            if display.process_event(event):
+                continue
             week_entries = views["week"] if views["week"] is not _UNFETCHED else None
             if event.type == pygame.QUIT:
                 return True, week_entries
@@ -315,6 +324,8 @@ def run_game_over_screen(screen, timer, score, is_new_best, game_won, identity_e
         _render_game_over(screen, score, is_new_best, game_won, identity_error)
 
         for event in pygame.event.get():
+            if display.process_event(event):
+                continue
             if event.type == pygame.QUIT:
                 return "quit"
             if event.type == pygame.KEYDOWN:

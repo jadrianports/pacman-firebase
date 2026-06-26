@@ -15,6 +15,7 @@ from paths import resource_path
 import marker
 import theme
 import updater
+import display
 
 
 def _load_hmac_secret():
@@ -74,8 +75,8 @@ def main():
         pygame.display.set_icon(pygame.image.load(resource_path("assets/icon.png")))
     except Exception:
         pass
-    # Normal 2-D display for menus; upgraded to OPENGL per Play session (Task 6).
-    screen = pygame.display.set_mode([WIDTH, HEIGHT])
+    # Normal 2-D SCALED display for menus; upgraded to OPENGL per Play session (Task 6).
+    screen = display.init()
     pygame.display.set_caption("PAC-MAN")
     timer = pygame.time.Clock()
 
@@ -137,23 +138,22 @@ def main():
 
         elif choice == "Play":
             import present as _present
-
-            # Task 6: attempt an OpenGL display for the zengl CRT shader.
-            # The play surface (_pscreen) is either an OPENGL|DOUBLEBUF window (GL
-            # path) or the existing normal window (overlay path).  Menus always use
-            # the normal surface so menu rendering is unaffected by this swap.
-            _pscreen = screen
-            try:
-                _gl_screen = pygame.display.set_mode(
-                    [WIDTH, HEIGHT], pygame.OPENGL | pygame.DOUBLEBUF
-                )
-                if _present.try_init_crt((WIDTH, HEIGHT)):
-                    _pscreen = _gl_screen
-                else:
-                    _pscreen = pygame.display.set_mode([WIDTH, HEIGHT])
-            except Exception:
+            if display.is_fullscreen():
+                # Fullscreen: overlay CRT only (OPENGL can't combine with SCALED letterbox).
                 _present._gl = None
-                _pscreen = pygame.display.set_mode([WIDTH, HEIGHT])
+                _pscreen = screen
+            else:
+                # Windowed: try the real zengl GL CRT, fall back to the SCALED overlay.
+                _pscreen = screen
+                try:
+                    _gl_screen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.OPENGL | pygame.DOUBLEBUF)
+                    if _present.try_init_crt((WIDTH, HEIGHT)):
+                        _pscreen = _gl_screen
+                    else:
+                        _pscreen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
+                except Exception:
+                    _present._gl = None
+                    _pscreen = pygame.display.set_mode([WIDTH, HEIGHT], pygame.SCALED)
 
             game = Game(render_surface, timer)
             game.juice = True
@@ -162,9 +162,9 @@ def main():
             )
             result = game.run()
 
-            # Restore normal display after the play session so menus work.
+            # Restore normal SCALED display after the play session so menus work.
             _present._gl = None
-            screen = pygame.display.set_mode([WIDTH, HEIGHT])
+            screen = display.init()
 
             if result is None:  # Window closed during game
                 break
