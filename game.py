@@ -1,4 +1,5 @@
 import copy
+import math
 import pygame
 from board import boards
 from ghost import Ghost
@@ -155,7 +156,7 @@ class Game:
                     cx = j * TILE_WIDTH + (0.5 * TILE_WIDTH)
                     cy = i * TILE_HEIGHT + (0.5 * TILE_HEIGHT)
                     if self.juice:
-                        pulse = 10 + int(2 * __import__("math").sin(self.counter * 0.3))
+                        pulse = 10 + int(2 * math.sin(self.counter * 0.3))
                         juice.glow_circle(self.screen, (int(cx), int(cy)), (255, 230, 180), pulse)
                     else:
                         pygame.draw.circle(self.screen, 'white', (cx, cy), 10)
@@ -235,12 +236,17 @@ class Game:
             if self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] == 1:
                 self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] = 0
                 self.score += 10
+                if self.juice:
+                    self.particles.spawn(self.player.center_x, self.player.center_y, (255, 240, 180), n=4)
                 self.sound.play_waka()
             elif not self.has_dot_nearby():
                 self.sound.stop_waka()
             if self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] == 2:
                 self.level[self.player.center_y // TILE_HEIGHT][self.player.center_x // TILE_WIDTH] = 0
                 self.score += 50
+                if self.juice:
+                    self.particles.spawn(self.player.center_x, self.player.center_y, (255, 220, 120), n=10)
+                    self.shake.kick(4)
                 self.powerup = True
                 self.power_counter = 0
                 self.eaten_ghost = [False, False, False, False]
@@ -543,12 +549,19 @@ class Game:
         self.draw_misc()
         self.draw_ready()
         if self.eat_freeze:
-            # Hide the eaten ghost's eyes by covering with black
             gx, gy = self.eat_freeze_pos
-            pygame.draw.rect(self.screen, 'black', (gx, gy, 45, 45))
-            score_text = self.score_popup_font.render(str(self.eat_freeze_score), True, 'cyan')
-            score_rect = score_text.get_rect(center=(gx + 23, gy + 24))
-            self.screen.blit(score_text, score_rect)
+            if self.juice:
+                # bloom burst behind the score pop; do NOT black out the eyes —
+                # draw the pop in glowing pixel font over a soft halo.
+                juice.glow_circle(self.screen, (gx + 23, gy + 24), (120, 200, 255), 16, glow=2.6)
+                pop = theme.pixel_font(theme.SIZE_BODY).render(str(self.eat_freeze_score), True, (180, 230, 255))
+                self.screen.blit(pop, pop.get_rect(center=(gx + 23, gy + 24)))
+                self.shake.kick(6)
+            else:
+                pygame.draw.rect(self.screen, 'black', (gx, gy, 45, 45))
+                score_text = self.score_popup_font.render(str(self.eat_freeze_score), True, 'cyan')
+                score_rect = score_text.get_rect(center=(gx + 23, gy + 24))
+                self.screen.blit(score_text, score_rect)
         self.targets = self.get_targets()
 
         # Tick box exit timers while gameplay is active
@@ -569,6 +582,10 @@ class Game:
         self.player.update_direction()
         self.player.wrap_around()
         self.check_ghost_in_box()
+
+        if self.juice:
+            self.particles.update(1.0 / FPS)
+            self.particles.draw(self.screen)
 
         self.present_fn()
         return running

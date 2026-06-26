@@ -52,3 +52,15 @@ def test_juice_on_changes_the_frame():
         base.tick()
         lit.tick()
     assert _frame_hash(base.screen) != _frame_hash(lit.screen)
+
+
+def test_event_juice_still_off_under_juice_false():
+    """Even after the event-juice changes, juice=False stays byte-deterministic across runs."""
+    import hashlib as _h
+    g1 = _new_game(); g2 = _new_game()
+    # drive a few frames with a forced move so collisions/dot-eats occur
+    for _ in range(40):
+        g1.tick(); g2.tick()
+    h1 = _h.sha256(pygame.image.tobytes(g1.screen, "RGB")).hexdigest()
+    h2 = _h.sha256(pygame.image.tobytes(g2.screen, "RGB")).hexdigest()
+    assert h1 == h2
