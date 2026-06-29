@@ -107,3 +107,13 @@ HMAC_SECRET_FILE_NAME = "hmac_secret.local"
 MARKER_FILE_NAME = "last_viewed.json"
 BANNER_FETCH_TIMEOUT_SECONDS = 2
 BANNER_NAME_CAP = 3
+
+# Phase 8 - Fairness Pass tunables (D-03/D-07/D-09). Each is a D-10 playtest dial:
+# trivially editable here, no inline magic numbers downstream. Pure integers - no
+# float, no new import - so the determinism guard (tests/test_determinism_guard.py)
+# stays green. PLAYER_SPEED is DELIBERATELY untouched (D-07): controls must feel
+# identical in the player's hands; fairness moves ghost outcomes, not player feel.
+GHOST_CATCH_DISTANCE = 15          # FAIR-01 center-to-center catch radius (px); HALF_TILE-ish, per D-02 ~14-16px
+GHOST_CHASE_SPEED_NUM = 37         # FAIR-02 integer-rational chase-step numerator
+GHOST_CHASE_SPEED_DEN = 20         # 37/20 = 1.85 px/frame avg; +1 to NUM is ~+0.05 px/frame for the D-10 dial
+PLAYER_TURN_WINDOW_MARGIN = 6      # FAIR-03 pre-turn widening each edge (px), ~4-6px early per D-09
