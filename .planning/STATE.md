@@ -4,13 +4,13 @@ milestone: v1.2
 milestone_name: Feels Right
 status: executing
 stopped_at: Phase 9 context gathered
-last_updated: "2026-06-29T23:14:46.604Z"
+last_updated: "2026-06-29T23:25:30.869Z"
 last_activity: 2026-06-29 -- Phase 09 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 9
-  completed_plans: 5
+  completed_plans: 6
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 09 (arcade-juice) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-06-29 -- Phase 09 execution started
 
@@ -47,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 08 P03 | 4min | 1 tasks | 2 files |
 | Phase 08 P04 | 26min | 3 tasks | 17 files |
 | Phase 09 P01 | 6min | 3 tasks | 5 files |
+| Phase 09 P02 | 4min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Full decision log in PROJECT.md (Key Decisions). Standing constraints governing 
 - [Phase ?]: Golden-trace re-bless deferred to a Linux/Docker pass after D-10; 10 baseline traces intentionally diverge
 - [Phase ?]: Phase 8 closed with one Linux/Docker golden-net re-bless (pygame 2.6.1) covering FAIR-01/02/03 under dialed constants 24/40/20/6; ghost.py byte-identical; death/ghost_eat terminals re-verified (no input re-authoring)
 - [Phase ?]: 09-01: Phase-9 FEEL test net + pure-int settings dials stood up golden-safe (no re-bless); RED feature tests target 09-02/03/04 symbols, GREEN guards pin FEEL-02/05
+- [Phase 09]: FEEL-01 death wedge is a juice-gated draw-only overlay (Game._draw_death); death_anim_frame increments only under dying+juice so juice=False dying stays byte-identical (golden-safe, no re-bless)
 
 ### Pending Todos
 
@@ -100,7 +102,7 @@ Carried forward (unchanged at v1.2 start):
 
 ## Session Continuity
 
-Last session: 2026-06-29T23:14:46.596Z
+Last session: 2026-06-29T23:24:49.819Z
 Stopped at: Phase 9 context gathered
 Resume file: .planning/phases/09-arcade-juice/09-CONTEXT.md
 

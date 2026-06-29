@@ -106,7 +106,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 2** *(blocked on Wave 1)*
 
-- [ ] 09-02-PLAN.md - FEEL-01 death wedge (juice-gated; golden-safe)
+- [x] 09-02-PLAN.md - FEEL-01 death wedge (juice-gated; golden-safe)
 
 **Wave 3** *(blocked on Wave 2)*
 
@@ -152,6 +152,6 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
 | 8. Fairness Pass | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 9. Arcade Juice | v1.2 | 1/5 | In Progress|  |
+| 9. Arcade Juice | v1.2 | 2/5 | In Progress|  |
 </content>
 </invoke>
