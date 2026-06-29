@@ -25,6 +25,14 @@ the client signs its submissions and stores a tamper-evident identity in `%LOCAL
 the weekly fight is visible both in-game (This Week / All Time toggle, last-week champion, got-passed
 launch banner) and on a public mobile-first web page live at `pacman-firebase.web.app`.
 
+**v1.2 Phase 8 (Fairness Pass) complete (2026-06-30).** FAIR-01 corner-kiss safety (center-distance
+catch, `GHOST_CATCH_DISTANCE=24`), FAIR-03 widened pre-turn cornering, and the FAIR-02 chase-speed
+accumulator all shipped behind named tunables in `settings.py`, with `ghost.py` byte-identical and the
+golden net re-blessed on Linux/Docker. Per the D-10 playtest sign-off the player dialed chase ghosts to
+2.0 px/frame (= player speed), so FAIR-02 ships as a tunable no-op — escape is cornering-based, not
+speed-based (accepted SC2 override). A code-review pass also fixed a pre/post-move catch-sampling skew
+(WR-03). Phase 9 (Arcade Juice) is next.
+
 ## Current Milestone: v1.2 Feels Right
 
 **Goal:** Make the game feel fair and alive — fix the unfair catches, let the player actually escape,
