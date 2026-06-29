@@ -4,6 +4,7 @@ from settings import (
     PLAYER_SPEED, PLAYER_START_X, PLAYER_START_Y, PLAYER_START_DIR,
     TILE_HEIGHT, TILE_WIDTH, HALF_TILE, BOARD_COLS,
     PLAYER_WRAP_RIGHT_EDGE, PLAYER_WRAP_RIGHT_TO, PLAYER_WRAP_LEFT_EDGE, PLAYER_WRAP_LEFT_TO,
+    PLAYER_TURN_WINDOW_MARGIN,
 )
 
 
@@ -62,23 +63,23 @@ class Player:
                     turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
-                if 12 <= centerx % TILE_WIDTH <= 18:
+                if (12 - PLAYER_TURN_WINDOW_MARGIN) <= centerx % TILE_WIDTH <= (18 + PLAYER_TURN_WINDOW_MARGIN):
                     if level[(centery + HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[3] = True
                     if level[(centery - HALF_TILE) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[2] = True
-                if 12 <= centery % TILE_HEIGHT <= 18:
+                if (12 - PLAYER_TURN_WINDOW_MARGIN) <= centery % TILE_HEIGHT <= (18 + PLAYER_TURN_WINDOW_MARGIN):
                     if level[centery // TILE_HEIGHT][(centerx - TILE_WIDTH) // TILE_WIDTH] < 3:
                         turns[1] = True
                     if level[centery // TILE_HEIGHT][(centerx + TILE_WIDTH) // TILE_WIDTH] < 3:
                         turns[0] = True
             if self.direction == 0 or self.direction == 1:
-                if 12 <= centerx % TILE_WIDTH <= 18:
+                if (12 - PLAYER_TURN_WINDOW_MARGIN) <= centerx % TILE_WIDTH <= (18 + PLAYER_TURN_WINDOW_MARGIN):
                     if level[(centery + TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[3] = True
                     if level[(centery - TILE_HEIGHT) // TILE_HEIGHT][centerx // TILE_WIDTH] < 3:
                         turns[2] = True
-                if 12 <= centery % TILE_HEIGHT <= 18:
+                if (12 - PLAYER_TURN_WINDOW_MARGIN) <= centery % TILE_HEIGHT <= (18 + PLAYER_TURN_WINDOW_MARGIN):
                     if level[centery // TILE_HEIGHT][(centerx - HALF_TILE) // TILE_WIDTH] < 3:
                         turns[1] = True
                     if level[centery // TILE_HEIGHT][(centerx + HALF_TILE) // TILE_WIDTH] < 3:

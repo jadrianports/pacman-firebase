@@ -106,8 +106,6 @@ def test_cornering_baseline_window(screen):
     assert turns[3] is True   # down corridor (row 7) granted
 
 
-@pytest.mark.xfail(strict=True,
-                   reason="RED until FAIR-03 widens the player window - Plan 08-03, Wave 2")
 def test_cornering_preturn_widened(screen):
     """WIDENED (xfail until FAIR-03): residue 8 (in 6..24, not 12..18) grants the turn.
 
