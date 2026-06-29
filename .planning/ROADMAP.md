@@ -69,6 +69,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
   3. Inputting a turn a few pixels before a junction rounds the corner smoothly instead of overshooting it (a pre-turn cornering window on the existing input buffer). (FAIR-03)
   4. Ghost **decision logic is byte-identical** — targeting and the per-ghost `*_PROFILE`s are unchanged; only outcomes (positions / who-catches-whom) move. (core-value guard)
   5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.
+
 **Plans**: 4 plans
 
 **Wave 1**
@@ -101,7 +102,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 1**
 
-- [ ] 09-01-PLAN.md - Failing-test net + FEEL tunables + FEEL-02/05 regression guards
+- [x] 09-01-PLAN.md - Failing-test net + FEEL tunables + FEEL-02/05 regression guards
 
 **Wave 2** *(blocked on Wave 1)*
 
@@ -151,6 +152,6 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
 | 8. Fairness Pass | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 9. Arcade Juice | v1.2 | 0/5 | Planned | - |
+| 9. Arcade Juice | v1.2 | 1/5 | In Progress|  |
 </content>
 </invoke>
