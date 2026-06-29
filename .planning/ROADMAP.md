@@ -67,7 +67,11 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
   3. Inputting a turn a few pixels before a junction rounds the corner smoothly instead of overshooting it (a pre-turn cornering window on the existing input buffer). (FAIR-03)
   4. Ghost **decision logic is byte-identical** — targeting and the per-ghost `*_PROFILE`s are unchanged; only outcomes (positions / who-catches-whom) move. (core-value guard)
   5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.
-**Plans**: TBD
+**Plans**: 4 plans
+- [ ] 08-01-PLAN.md - Tunables + failing test net (settings constants; player/fairness micro tests)
+- [ ] 08-02-PLAN.md - FAIR-01 center-distance catch + FAIR-02 escape-speed accumulator (game.py)
+- [ ] 08-03-PLAN.md - FAIR-03 pre-turn cornering window (player.py)
+- [ ] 08-04-PLAN.md - Playtest sign-off + terminal verify + single Linux/Docker re-bless
 
 #### Phase 9: Arcade Juice
 **Goal**: The game feels alive — death plays out, eating a ghost rewards you with a points popup + a distinct sound, frightened ghosts warn you they're about to turn, and every round opens on a "READY!" beat.
@@ -112,7 +116,7 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
-| 8. Fairness Pass | v1.2 | 0/TBD | Not started | - |
+| 8. Fairness Pass | v1.2 | 0/4 | Planned | - |
 | 9. Arcade Juice | v1.2 | 0/TBD | Not started | - |
 </content>
 </invoke>
