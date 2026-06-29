@@ -17,6 +17,7 @@ from settings import (
     PINKY_START_X, PINKY_START_Y, PINKY_START_DIR,
     CLYDE_START_X, CLYDE_START_Y, CLYDE_START_DIR,
     BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE,
+    GHOST_CATCH_DISTANCE,
 )
 from geometry import in_box, GHOST_BOX_BOUNDS
 
@@ -397,21 +398,30 @@ class Game:
         self.sound.stop_all()
         self.sound.play_death()
 
+    def _catches(self, ghost):
+        # FAIR-01: integer center-to-center squared-distance catch (D-01/D-02/D-04).
+        # Reads live centers off self.player (always current) rather than the passed
+        # player_circle (stale during eat_freeze). No math.sqrt, no float -> the
+        # determinism guard stays green. A diagonal corner-kiss reads SAFE.
+        dx = self.player.center_x - ghost.center_x
+        dy = self.player.center_y - ghost.center_y
+        return dx * dx + dy * dy <= GHOST_CATCH_DISTANCE * GHOST_CATCH_DISTANCE
+
     def check_ghost_collisions(self, player_circle):
         # Normal ghost kills player
         if not self.powerup:
-            if (player_circle.colliderect(self.blinky.rect) and not self.blinky.dead) or \
-                    (player_circle.colliderect(self.inky.rect) and not self.inky.dead) or \
-                    (player_circle.colliderect(self.pinky.rect) and not self.pinky.dead) or \
-                    (player_circle.colliderect(self.clyde.rect) and not self.clyde.dead):
+            if (self._catches(self.blinky) and not self.blinky.dead) or \
+                    (self._catches(self.inky) and not self.inky.dead) or \
+                    (self._catches(self.pinky) and not self.pinky.dead) or \
+                    (self._catches(self.clyde) and not self.clyde.dead):
                 self.start_dying()
 
         # Already-eaten ghost kills player during powerup
         if self.powerup and not self.dying:
-            if (player_circle.colliderect(self.blinky.rect) and self.eaten_ghost[0] and not self.blinky.dead) or \
-                    (player_circle.colliderect(self.inky.rect) and self.eaten_ghost[1] and not self.inky.dead) or \
-                    (player_circle.colliderect(self.pinky.rect) and self.eaten_ghost[2] and not self.pinky.dead) or \
-                    (player_circle.colliderect(self.clyde.rect) and self.eaten_ghost[3] and not self.clyde.dead):
+            if (self._catches(self.blinky) and self.eaten_ghost[0] and not self.blinky.dead) or \
+                    (self._catches(self.inky) and self.eaten_ghost[1] and not self.inky.dead) or \
+                    (self._catches(self.pinky) and self.eaten_ghost[2] and not self.pinky.dead) or \
+                    (self._catches(self.clyde) and self.eaten_ghost[3] and not self.clyde.dead):
                 self.start_dying()
 
         # Player eats ghost during powerup
@@ -422,7 +432,7 @@ class Game:
             (self.clyde, 'clyde_dead', 3, self.clyde_x, self.clyde_y),
         ]
         for ghost, dead_attr, idx, gx, gy in ghost_eat_checks:
-            if self.powerup and player_circle.colliderect(ghost.rect) and not ghost.dead and not self.eaten_ghost[idx]:
+            if self.powerup and self._catches(ghost) and not ghost.dead and not self.eaten_ghost[idx]:
                 setattr(self, dead_attr, True)
                 self.eaten_ghost[idx] = True
                 points = (2 ** self.eaten_ghost.count(True)) * 100

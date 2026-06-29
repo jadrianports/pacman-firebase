@@ -39,7 +39,12 @@ def screen():
     conftest.py forces SDL_VIDEODRIVER/SDL_AUDIODRIVER=dummy before pygame is
     imported, so this opens no real window.
     """
+    # Mirror harness/headless.py: Game.__init__ loads a font (pygame.font.Font)
+    # and constructs SoundManager (pygame.mixer.Sound), so both subsystems must be
+    # up. SDL_*=dummy (conftest) keeps this windowless/silent.
     pygame.display.init()
+    pygame.font.init()
+    pygame.mixer.init()
     surf = pygame.display.set_mode((900, 950))
     yield surf
 
@@ -73,14 +78,12 @@ def _fake_ghost(cx, cy):
 # Each case is xfail(strict) so AttributeError today reads as expected-RED.    #
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.xfail(strict=True, reason="RED until FAIR-01 adds Game._catches - Plan 08-02, Wave 2")
 def test_catch_same_tile_overlap(game):
     """Same-tile overlap (player center == ghost center) -> caught."""
     _place_player_center(game, 300, 300)
     assert game._catches(_fake_ghost(300, 300)) is True
 
 
-@pytest.mark.xfail(strict=True, reason="RED until FAIR-01 adds Game._catches - Plan 08-02, Wave 2")
 def test_catch_corner_kiss_is_safe(game):
     """Diagonal one-tile corner-kiss (~30x28, dist ~41px) -> NOT caught (D-02)."""
     _place_player_center(game, 300, 300)
@@ -88,14 +91,12 @@ def test_catch_corner_kiss_is_safe(game):
     assert game._catches(_fake_ghost(330, 328)) is False
 
 
-@pytest.mark.xfail(strict=True, reason="RED until FAIR-01 adds Game._catches - Plan 08-02, Wave 2")
 def test_catch_boundary_exactly_at_radius(game):
     """Centers exactly GHOST_CATCH_DISTANCE apart -> caught (d*d <= r*r)."""
     _place_player_center(game, 300, 300)
     assert game._catches(_fake_ghost(300 + GHOST_CATCH_DISTANCE, 300)) is True
 
 
-@pytest.mark.xfail(strict=True, reason="RED until FAIR-01 adds Game._catches - Plan 08-02, Wave 2")
 def test_catch_boundary_one_past_radius(game):
     """One pixel past GHOST_CATCH_DISTANCE -> NOT caught."""
     _place_player_center(game, 300, 300)
