@@ -68,7 +68,8 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
   2. On a straightaway the player visibly pulls away from a chasing ghost, and even at the high speed tier the ghosts never become an unbeatable ×2 — escape is always possible (Pac-Man a hair faster than ghosts; the ramp-to-4 tier retuned). (FAIR-02)
   3. Inputting a turn a few pixels before a junction rounds the corner smoothly instead of overshooting it (a pre-turn cornering window on the existing input buffer). (FAIR-03)
   4. Ghost **decision logic is byte-identical** — targeting and the per-ghost `*_PROFILE`s are unchanged; only outcomes (positions / who-catches-whom) move. (core-value guard)
-  5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.**Plans**: 4 plans
+  5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.
+**Plans**: 4 plans
 
 **Wave 1**
 
@@ -96,7 +97,27 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
   4. Each round opens on a "READY!" beat (text + brief pause) before Pac-Man and the ghosts start moving. (FEEL-05)
   5. All FEEL effects ride the existing juice firewall (`Game.juice`): the `juice=False` path stays byte-identical, so the golden state traces **and** the pixel frame-hash net stay green with **no re-bless**. In particular the eat-ghost "brief freeze" (FEEL-02) must not alter the deterministic sim under `juice=False` (a timing shift would break the `ghost_eat`/`death` goldens). (golden-safe guard)
 
-**Plans**: TBD
+**Plans**: 5 plans
+
+**Wave 1**
+
+- [ ] 09-01-PLAN.md - Failing-test net + FEEL tunables + FEEL-02/05 regression guards
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [ ] 09-02-PLAN.md - FEEL-01 death wedge (juice-gated; golden-safe)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [ ] 09-03-PLAN.md - FEEL-04 frightened-end white blink (game.py + ghost.py)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 09-04-PLAN.md - FEEL-03 eat-ghost sound (sound.py Channel(2) + ungated trigger)
+
+**Wave 5** *(blocked on Wave 4)*
+
+- [ ] 09-05-PLAN.md - SC5 golden gate + .wav asset/license + playtest sign-off
 
 ### 📋 More Fun (Planned)
 
@@ -130,6 +151,6 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
 | 8. Fairness Pass | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 9. Arcade Juice | v1.2 | 0/TBD | Not started | - |
+| 9. Arcade Juice | v1.2 | 0/5 | Planned | - |
 </content>
 </invoke>
