@@ -25,12 +25,33 @@ the client signs its submissions and stores a tamper-evident identity in `%LOCAL
 the weekly fight is visible both in-game (This Week / All Time toggle, last-week champion, got-passed
 launch banner) and on a public mobile-first web page live at `pacman-firebase.web.app`.
 
-## Next Milestone Goals
+## Current Milestone: v1.2 Feels Right
 
-**More Fun** (not yet broken into phases — run `/gsd-new-milestone` to define requirements). Gameplay
-depth: levels/mazes with a difficulty curve, fruit bonuses, new modes (time attack / endless), and an
-optional **arcade-accurate ghost mode** as an opt-in toggle (never the default — the hand-tuned AI
-stays the shipping spec). After that: **Easier to Share** (browser/web build, cross-platform, itch.io).
+**Goal:** Make the game feel fair and alive — fix the unfair catches, let the player actually escape,
+and add the arcade juice that's missing. No new content, no multiplayer — pure game feel.
+
+**Target features:**
+
+- **Fairness** (behavior changes, batched behind one golden-net re-bless on Linux/Docker):
+  cornering-collision fix (center-distance, kills diagonal corner-kiss catches), speed rebalance
+  (Pac-Man a hair faster than ghosts; retune the ×2 ghost tier so escape stays possible), and a
+  pre-turn cornering window (turns register a few px before the junction for smooth corner-cutting).
+- **Juice / FX** (cosmetic): Pac-Man death disintegrate animation synced to `death.wav`, eat-ghost
+  score popup (floating 200/400/800/1600 + brief freeze) with a distinct eat-ghost sound, a
+  frightened-end flash (ghosts blink white as the pellet expires — juice + fairness signal), and a
+  "READY!" intro beat before each round.
+
+**Key context:** Fairness changes alter ghost *outcomes* (positions, who-catches-whom) but **never**
+ghost *decision logic* (targeting/profiles stay byte-identical) — the core value is preserved. The
+diagnosis behind this milestone: hitboxes (40×40 / 36×36) are larger than a tile (30×28) and use AABB
+overlap, so diagonal corner-kisses register as catches; and Pac-Man is equal-speed (or slower, at the
+×2 tier) to the ghosts, so cornering is the *only* escape — and cornering is broken. Both get fixed.
+
+**Future milestones (sequenced after):** **More Fun** — gameplay depth (levels/mazes, difficulty
+curve, fruit, modes; optional arcade-accurate ghost toggle). **Multiplayer** — asymmetric 1v4
+(one Pac-Man, human-drivable ghosts, AI bot-fill for empty slots); built as a staircase
+(local couch → LAN lockstep, helped by the deterministic engine → online). **Easier to Share** —
+browser/web build (pygbag), cross-platform, itch.io.
 
 ## Requirements
 
@@ -55,13 +76,26 @@ stays the shipping spec). After that: **Easier to Share** (browser/web build, cr
 
 ### Active
 
-<!-- v1.0 and v1.1 shipped. Next milestone (More Fun) not yet defined — run /gsd-new-milestone. -->
+<!-- v1.2 Feels Right — game-feel & fairness polish. Requirements in .planning/REQUIREMENTS.md. -->
 
-No active milestone in flight. **v1.0 Solid Foundation** and **v1.1 More Competitive** are both shipped.
+**v1.2 Feels Right** (8 requirements):
+
+*Fairness (behavior — golden-net re-bless):*
+- [ ] **FAIR-01** — Cornering-collision fix (center-distance model)
+- [ ] **FAIR-02** — Speed rebalance (Pac-Man faster than ghosts; retune ×2 tier)
+- [ ] **FAIR-03** — Pre-turn cornering window
+
+*Juice / FX (cosmetic):*
+- [ ] **FEEL-01** — Pac-Man death disintegrate animation
+- [ ] **FEEL-02** — Eat-ghost score popup (+ brief freeze)
+- [ ] **FEEL-03** — Eat-ghost sound
+- [ ] **FEEL-04** — Frightened-end flash (ghosts blink white)
+- [ ] **FEEL-05** — "READY!" intro beat
 
 **Future milestones (sequenced next):**
 
-- [ ] **More Fun** — gameplay depth (levels/mazes, difficulty curve, fruit, modes); optional **arcade-accurate ghost mode** (opt-in toggle). Run `/gsd-new-milestone` to define requirements.
+- [ ] **More Fun** — gameplay depth (levels/mazes, difficulty curve, fruit, modes); optional **arcade-accurate ghost mode** (opt-in toggle)
+- [ ] **Multiplayer** — asymmetric 1v4 (human-drivable ghosts + AI bot-fill); staircase: local couch → LAN lockstep → online
 - [ ] **Easier to Share** — browser/web build (e.g. pygbag), cross-platform, itch.io release
 
 ### Out of Scope
@@ -74,6 +108,9 @@ No active milestone in flight. **v1.0 Solid Foundation** and **v1.1 More Competi
 - **Local-file encryption** beyond obfuscation + HMAC (v1.1) — client-side secrets are extractable; the server is the real enforcement boundary
 - **Replay-verification** of scores / re-running inputs server-side (v1.1) — considered as the unforgeable ceiling; deferred, HMAC + sanity ceiling is the right altitude for a friends board
 - **New gameplay** — levels, mazes, modes belong to the *More Fun* milestone, not Competitive
+- **Scatter/chase wave system** (v1.2) — alternating ghost scatter↔chase would change ghost **decision behavior**, the precious never-touch-silently zone; parked, not in Feels Right
+- **Bonus fruit + extra mazes/modes** (v1.2) — reward/content beats belong to *More Fun*, not the feel pass; kept Feels Right lean
+- **Real-time multiplayer** (v1.2) — the asymmetric 1v4 staircase needs a play group to validate fun; its own future milestone, not a feel-polish pass
 
 ## Context
 
@@ -118,6 +155,8 @@ No active milestone in flight. **v1.0 Solid Foundation** and **v1.1 More Competi
 | Server owns week math; scores bucketed by week-id (Monday-UTC) + scope-aware `get_leaderboard` (week/all/last_week) | One backend change powers all three competitive features; server-time avoids client-clock spoofing | ✓ Good — shipped v1.1 (Phases 4 & 6); weekly composite index live, `{initials,score}`-only projection so machine_id never leaks |
 | Identity stored obfuscated + HMAC-signed in `%LOCALAPPDATA%\PacMan\`, fail-closed on tamper — no local encryption beyond that | Client secrets are extractable; the server is the enforcement boundary, so stronger local crypto is theater | ✓ Good — shipped v1.1 (Phase 5); single blob, migrate-then-remove of legacy plaintext, TAMPERED sentinel blocks submit |
 | Web page opens on **All Time** by default (D-08), diverging from the in-game This Week default; deploy is a manual operator step | A first-time public visitor has no weekly context; All Time is the meaningful first view. Manual deploy matches the function-redeploy pattern | ✓ Good — shipped v1.1 (Phase 7); live at `pacman-firebase.web.app` |
+| v1.2 fairness changes may alter ghost **outcomes** (positions, catches) but never ghost **decision logic** (targeting/profiles) — re-bless goldens, don't rewrite personalities | The core value is the four personalities, not their pixel-exact trajectories; speed/collision are tuning + rules, not targeting. Treat like the v1.0 Phase-3 box-fix: sanctioned change, isolated, oracle-scoped, re-blessed on Linux | — Pending (v1.2) |
+| Game-feel before content/multiplayer; keep Feels Right lean | Death-anim + unfair-catch were the user's actual pain; feel is 100% solo-testable (no 4 friends, no asset pile), high ROI, rides existing golden-net discipline | — Pending (v1.2) |
 
 ## Evolution
 
@@ -137,4 +176,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-06-27 after v1.1 More Competitive milestone — server enforcement boundary, tamper-evident client identity, in-game weekly boards + got-passed banner, and a live public web leaderboard delivered across Phases 4-7*
+*Last updated: 2026-06-29 — started milestone v1.2 Feels Right (game-feel & fairness polish: cornering-collision fix, speed rebalance, pre-turn cornering, death animation, eat-ghost popup + sound, frightened-end flash, READY! intro)*
