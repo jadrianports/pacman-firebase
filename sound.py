@@ -11,10 +11,12 @@ class SoundManager:
         self.waka_sound = self._load_sound('wakawaka.wav', volume=0.5)
         self.powerup_sound = self._load_sound('powerup.wav', volume=0.4)
         self.death_sound = self._load_sound('death.wav', volume=0.5)
+        self.eat_ghost_sound = self._load_sound('eat_ghost.wav', volume=0.5)
 
         # Dedicated channels for sounds that need control
         self._waka_channel = pygame.mixer.Channel(0)
         self._powerup_channel = pygame.mixer.Channel(1)
+        self._eat_channel = pygame.mixer.Channel(2)
 
     def _load_sound(self, filename, volume=0.5):
         path = resource_path(os.path.join(AUDIO_DIR, filename))
@@ -55,6 +57,13 @@ class SoundManager:
     def unpause_powerup(self):
         if self._powerup_channel:
             self._powerup_channel.unpause()
+
+    def play_eat_ghost(self):
+        # FEEL-03: one-shot bite cue on a dedicated channel (D-02 ungated).
+        # None-guarded so a missing eat_ghost.wav (lands in 09-05) degrades
+        # silently; no loops=-1 -> single play, never stolen by waka/powerup.
+        if self.eat_ghost_sound:
+            self._eat_channel.play(self.eat_ghost_sound)
 
     def play_death(self):
         if self.death_sound:
