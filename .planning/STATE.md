@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Feels Right
-status: executing
-stopped_at: Phase 8 context gathered
-last_updated: "2026-06-29T18:32:10.423Z"
+status: verifying
+stopped_at: Completed 08-04-PLAN.md (Phase 8 fairness pass complete)
+last_updated: "2026-06-29T19:02:15.702Z"
 last_activity: 2026-06-29 -- Phase 08 execution started
 progress:
   total_phases: 2
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
-  percent: 0
+  completed_plans: 4
+  percent: 50
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 
 Phase: 08 (fairness-pass) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-29 -- Phase 08 execution started
 
 Progress: [░░░░░░░░░░] 0%
@@ -45,6 +45,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 08 P01 | 12min | 3 tasks | 3 files |
 | Phase 08 P02 | 6min | 2 tasks | 2 files |
 | Phase 08 P03 | 4min | 1 tasks | 2 files |
+| Phase 08 P04 | 26min | 3 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -66,6 +67,7 @@ Full decision log in PROJECT.md (Key Decisions). Standing constraints governing 
 
 - [Phase ?]: FAIR-01/02 implemented entirely in game.py; ghost.py left byte-identical (oracle-scoped)
 - [Phase ?]: Golden-trace re-bless deferred to a Linux/Docker pass after D-10; 10 baseline traces intentionally diverge
+- [Phase ?]: Phase 8 closed with one Linux/Docker golden-net re-bless (pygame 2.6.1) covering FAIR-01/02/03 under dialed constants 24/40/20/6; ghost.py byte-identical; death/ghost_eat terminals re-verified (no input re-authoring)
 
 ### Pending Todos
 
@@ -82,6 +84,8 @@ None.
   service** once signed clients have propagated (D-02); keep the HMAC secret backed up. Unrelated to
   v1.2 code but still open.
 
+- [Out-of-scope, pre-existing] pygame vs pygame-ce gaussian_blur conflict: requirements.txt pins pygame-ce==2.5.7 (has gaussian_blur) but requirements-dev.txt pins pygame==2.6.1 (lacks it, installed last) -> 12 UI/juice/theme render tests fail in CI env (theme.py:45). Not a fairness regression; reconcile the pygame pin. See 08 deferred-items.md.
+
 ## Deferred Items
 
 Carried forward (unchanged at v1.2 start):
@@ -94,9 +98,9 @@ Carried forward (unchanged at v1.2 start):
 
 ## Session Continuity
 
-Last session: 2026-06-29T18:31:41.099Z
-Stopped at: Phase 8 context gathered
-Resume file: .planning/phases/08-fairness-pass/08-CONTEXT.md
+Last session: 2026-06-29T19:02:04.425Z
+Stopped at: Completed 08-04-PLAN.md (Phase 8 fairness pass complete)
+Resume file: None
 
 ## Operator Next Steps
 

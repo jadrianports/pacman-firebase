@@ -81,7 +81,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 08-04-PLAN.md - Playtest sign-off + terminal verify + single Linux/Docker re-bless
+- [x] 08-04-PLAN.md - Playtest sign-off + terminal verify + single Linux/Docker re-bless
 
 #### Phase 9: Arcade Juice
 
@@ -129,7 +129,7 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
-| 8. Fairness Pass | v1.2 | 3/4 | In Progress|  |
+| 8. Fairness Pass | v1.2 | 4/4 | Complete   | 2026-06-29 |
 | 9. Arcade Juice | v1.2 | 0/TBD | Not started | - |
 </content>
 </invoke>
