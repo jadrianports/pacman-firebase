@@ -275,15 +275,17 @@ Use the **squared** comparison (no `math.sqrt`) to stay integer-exact and avoid 
 | A3 | Symmetric window widening (both edges) is acceptable for FAIR-03 vs strictly-early | Pattern 3 | Low — tunable/reversible during D-10; strictly-early variant documented as fallback. |
 | A4 | The `death` and `ghost_eat` scenarios may need input re-authoring (not just `--bless`) — stated as a *risk to verify*, not a certainty | Pitfall 2 | Med — must be checked empirically at bless time; the plan should include the verification task regardless. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does the `death` scenario still reach `game_over` after FAIR-01+FAIR-02?**
    - What we know: it's the only `game_over` terminal, frame_cap 4200; tighter catch + slower ghosts make death less likely.
    - What's unclear: whether its recorded inputs still force contact within the cap.
    - Recommendation: verify empirically during the bless task; if not, re-record `tests/golden/death/input.jsonl`. (Same check for `ghost_eat`.)
+   - **RESOLVED (planning):** Handled operationally by plan **08-04 Task 2** — the Linux/Docker re-bless task includes an explicit terminal-scenario verification loop that confirms `death`/`ghost_eat` still reach their scripted outcomes before trusting `pytest --bless`, and re-authors `tests/golden/{death,ghost_eat}/input.jsonl` if they do not (Pitfall 2). Empirical confirmation is deferred to bless time by design; the plan owns the fallback.
 
 2. **Should the eaten-revived chaser be slowed (A2)?**
    - Recommendation: yes, slow every `==2` tier uniformly; confirm with user during planning/playtest.
+   - **RESOLVED (planning):** Yes. Plan **08-02 Task 2** applies the slowed-chase tier uniformly to every `==2` (active chasing) ghost in `update_ghost_speeds` (`game.py:333-353`), consistent with D-04's symmetry principle and D-08 (eyes-return `4` and frightened `1` tiers left untouched). The user can still re-confirm the feel during the D-10 playtest, since the speed is a named `settings.py` tunable.
 
 ## Environment Availability
 

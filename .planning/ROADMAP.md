@@ -58,31 +58,44 @@ frame-hash replays run `juice=False` and stay byte-identical), so the FEEL-* ite
 re-bless** — provided every effect (including the eat-ghost freeze) is gated behind that firewall.
 
 #### Phase 8: Fairness Pass
+
 **Goal**: The player can actually escape — corner-kiss catches are gone, Pac-Man outpaces the ghosts, and corners turn smoothly — all without changing a single ghost personality.
 **Depends on**: Phase 7 (golden net + frame-hash manifests already the merge gate on `main`)
 **Requirements**: FAIR-01, FAIR-02, FAIR-03
 **Success Criteria** (what must be TRUE):
+
   1. A ghost passing diagonally past a corner no longer catches the player — a catch registers only when the two are genuinely adjacent, using center-to-center distance instead of the old 40×40/36×36 bounding-box overlap (`player_circle.colliderect(ghost.rect)`). (FAIR-01)
   2. On a straightaway the player visibly pulls away from a chasing ghost, and even at the high speed tier the ghosts never become an unbeatable ×2 — escape is always possible (Pac-Man a hair faster than ghosts; the ramp-to-4 tier retuned). (FAIR-02)
   3. Inputting a turn a few pixels before a junction rounds the corner smoothly instead of overshooting it (a pre-turn cornering window on the existing input buffer). (FAIR-03)
   4. Ghost **decision logic is byte-identical** — targeting and the per-ghost `*_PROFILE`s are unchanged; only outcomes (positions / who-catches-whom) move. (core-value guard)
-  5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.
-**Plans**: 4 plans
+  5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.**Plans**: 4 plans
+
+**Wave 1**
+
 - [ ] 08-01-PLAN.md - Tunables + failing test net (settings constants; player/fairness micro tests)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 08-02-PLAN.md - FAIR-01 center-distance catch + FAIR-02 escape-speed accumulator (game.py)
 - [ ] 08-03-PLAN.md - FAIR-03 pre-turn cornering window (player.py)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 08-04-PLAN.md - Playtest sign-off + terminal verify + single Linux/Docker re-bless
 
 #### Phase 9: Arcade Juice
+
 **Goal**: The game feels alive — death plays out, eating a ghost rewards you with a points popup + a distinct sound, frightened ghosts warn you they're about to turn, and every round opens on a "READY!" beat.
 **Depends on**: Phase 8
 **Requirements**: FEEL-01, FEEL-02, FEEL-03, FEEL-04, FEEL-05
 **Success Criteria** (what must be TRUE):
+
   1. On death, Pac-Man plays a disintegrate/wedge animation in sync with `death.wav` before the round resets. (FEEL-01)
   2. Eating a frightened ghost floats the points earned (200/400/800/1600) at the eat location with a brief freeze, then play resumes, and a distinct eat-ghost sound plays on the bite. (FEEL-02, FEEL-03)
   3. Frightened ghosts blink white as the power-pellet timer is about to expire, signalling when it is no longer safe to chase. (FEEL-04)
   4. Each round opens on a "READY!" beat (text + brief pause) before Pac-Man and the ghosts start moving. (FEEL-05)
   5. All FEEL effects ride the existing juice firewall (`Game.juice`): the `juice=False` path stays byte-identical, so the golden state traces **and** the pixel frame-hash net stay green with **no re-bless**. In particular the eat-ghost "brief freeze" (FEEL-02) must not alter the deterministic sim under `juice=False` (a timing shift would break the `ghost_eat`/`death` goldens). (golden-safe guard)
+
 **Plans**: TBD
 
 ### 📋 More Fun (Planned)
