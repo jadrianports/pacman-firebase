@@ -521,6 +521,7 @@ class Game:
                 self.eat_freeze_pos = (gx, gy)
                 self.sound.stop_waka()
                 self.sound.pause_powerup()
+                self.sound.play_eat_ghost()  # FEEL-03: bite cue, ungated (D-02)
                 break
 
     def check_ghost_in_box(self):
