@@ -4,13 +4,13 @@ milestone: v1.2
 milestone_name: Feels Right
 status: executing
 stopped_at: Phase 8 context gathered
-last_updated: "2026-06-29T18:14:45.403Z"
+last_updated: "2026-06-29T18:27:53.670Z"
 last_activity: 2026-06-29 -- Phase 08 execution started
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 08 (fairness-pass) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Last activity: 2026-06-29 -- Phase 08 execution started
 
@@ -43,6 +43,7 @@ Progress: [░░░░░░░░░░] 0%
 | 8 Fairness Pass | v1.2 | TBD | - |
 | 9 Arcade Juice | v1.2 | TBD | - |
 | Phase 08 P01 | 12min | 3 tasks | 3 files |
+| Phase 08 P02 | 6min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,9 @@ Full decision log in PROJECT.md (Key Decisions). Standing constraints governing 
 - **Frame-hash net hashes PIXELS** (`sha256(tobytes(surface,'RGB'))`). Phase 9's juice rides the
   **existing juice firewall** (`Game.juice`, default `False`; golden/frame-hash replays run
   `juice=False`) → FEEL-* ship with **no re-bless** if every effect is gated behind the firewall.
+
+- [Phase ?]: FAIR-01/02 implemented entirely in game.py; ghost.py left byte-identical (oracle-scoped)
+- [Phase ?]: Golden-trace re-bless deferred to a Linux/Docker pass after D-10; 10 baseline traces intentionally diverge
 
 ### Pending Todos
 
@@ -89,7 +93,7 @@ Carried forward (unchanged at v1.2 start):
 
 ## Session Continuity
 
-Last session: 2026-06-29T18:14:19.304Z
+Last session: 2026-06-29T18:27:11.233Z
 Stopped at: Phase 8 context gathered
 Resume file: .planning/phases/08-fairness-pass/08-CONTEXT.md
 
