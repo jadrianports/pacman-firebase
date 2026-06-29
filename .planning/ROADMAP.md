@@ -129,7 +129,7 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
-| 8. Fairness Pass | v1.2 | 4/4 | Complete   | 2026-06-29 |
+| 8. Fairness Pass | v1.2 | 4/4 | Complete    | 2026-06-29 |
 | 9. Arcade Juice | v1.2 | 0/TBD | Not started | - |
 </content>
 </invoke>
