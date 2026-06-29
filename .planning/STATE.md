@@ -4,13 +4,13 @@ milestone: v1.2
 milestone_name: Feels Right
 status: executing
 stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-06-29T23:32:02.509Z"
+last_updated: "2026-06-29T23:37:48.521Z"
 last_activity: 2026-06-29 -- Phase 09 execution started
 progress:
   total_phases: 2
   completed_phases: 1
   total_plans: 9
-  completed_plans: 7
+  completed_plans: 8
   percent: 50
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-06-29)
 ## Current Position
 
 Phase: 09 (arcade-juice) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-29 -- Phase 09 execution started
 
@@ -49,6 +49,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 09 P01 | 6min | 3 tasks | 5 files |
 | Phase 09 P02 | 4min | 2 tasks | 1 files |
 | Phase 09 P03 | 5min | 2 tasks | 2 files |
+| Phase 09 P04 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,7 @@ Full decision log in PROJECT.md (Key Decisions). Standing constraints governing 
 - [Phase ?]: 09-01: Phase-9 FEEL test net + pure-int settings dials stood up golden-safe (no re-bless); RED feature tests target 09-02/03/04 symbols, GREEN guards pin FEEL-02/05
 - [Phase 09]: FEEL-01 death wedge is a juice-gated draw-only overlay (Game._draw_death); death_anim_frame increments only under dying+juice so juice=False dying stays byte-identical (golden-safe, no re-bless)
 - [Phase ?]: FEEL-04 fright-flash: dumb-Ghost keyword-default params + smart-Game juice-gated blink_white compute (D-06); white tint via BLEND_RGB_ADD, no new asset (D-07)
+- [Phase ?]: FEEL-03 eat-ghost sound: one-shot on dedicated Channel(2), ungated (D-02); real .wav asset deferred to 09-05
 
 ### Pending Todos
 
@@ -104,7 +106,7 @@ Carried forward (unchanged at v1.2 start):
 
 ## Session Continuity
 
-Last session: 2026-06-29T23:32:02.498Z
+Last session: 2026-06-29T23:37:30.891Z
 Stopped at: Completed 09-03-PLAN.md
 Resume file: None
 
