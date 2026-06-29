@@ -20,6 +20,7 @@ from settings import (
     GHOST_CATCH_DISTANCE,
     GHOST_CHASE_SPEED_NUM, GHOST_CHASE_SPEED_DEN,
     DEATH_ANIM_FRAMES,
+    FRIGHT_FLASH_START, FRIGHT_FLASH_INTERVAL,
 )
 from geometry import in_box, GHOST_BOX_BOUNDS
 
@@ -39,6 +40,11 @@ class Game:
         self.clyde_img = pygame.transform.scale(pygame.image.load(resource_path('assets/ghosts/orange.png')), (45, 45))
         self.spooked_img = pygame.transform.scale(pygame.image.load(resource_path('assets/ghosts/powerup.png')), (45, 45))
         self.dead_img = pygame.transform.scale(pygame.image.load(resource_path('assets/ghosts/dead.png')), (45, 45))
+        # FEEL-04/D-07: pre-tint a white-leaning copy of the spooked sprite once (no new
+        # asset). BLEND_RGB_ADD exists in both pygame editions (Pitfall 5); add-color
+        # tuned in the 09-05 playtest.
+        self.spooked_white_img = self.spooked_img.copy()
+        self.spooked_white_img.fill((90, 90, 120, 0), special_flags=pygame.BLEND_RGB_ADD)
 
         # Player
         self.player = Player(self.screen)
@@ -385,18 +391,29 @@ class Game:
                     self.ghost_speeds[i] = step
 
     def create_ghosts(self):
+        # FEEL-04/D-06/D-08: all juice + threshold + cadence logic lives here (the Ghost
+        # is rebuilt every frame and stays dumb). The `self.juice and ...` guard keeps
+        # juice=False frames byte-identical (firewall, golden-safe); cadence is purely
+        # frame-counter driven (no nondeterministic timing source).
+        blink_white = (self.juice and self.powerup
+                       and self.power_counter > FRIGHT_FLASH_START
+                       and (self.power_counter // FRIGHT_FLASH_INTERVAL) % 2 == 0)
         self.blinky = Ghost(self.blinky_x, self.blinky_y, self.targets[0], self.ghost_speeds[0], self.blinky_img,
                             self.blinky_direction, self.blinky_dead, self.blinky_box, 0,
-                            self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level)
+                            self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level,
+                            blink_white=blink_white, spooked_white_img=self.spooked_white_img)
         self.inky = Ghost(self.inky_x, self.inky_y, self.targets[1], self.ghost_speeds[1], self.inky_img,
                           self.inky_direction, self.inky_dead, self.inky_box, 1,
-                          self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level)
+                          self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level,
+                          blink_white=blink_white, spooked_white_img=self.spooked_white_img)
         self.pinky = Ghost(self.pinky_x, self.pinky_y, self.targets[2], self.ghost_speeds[2], self.pinky_img,
                            self.pinky_direction, self.pinky_dead, self.pinky_box, 2,
-                           self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level)
+                           self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level,
+                           blink_white=blink_white, spooked_white_img=self.spooked_white_img)
         self.clyde = Ghost(self.clyde_x, self.clyde_y, self.targets[3], self.ghost_speeds[3], self.clyde_img,
                            self.clyde_direction, self.clyde_dead, self.clyde_box, 3,
-                           self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level)
+                           self.screen, self.powerup, self.eaten_ghost, self.spooked_img, self.dead_img, self.level,
+                           blink_white=blink_white, spooked_white_img=self.spooked_white_img)
 
     def _ghost_can_exit_box(self, ghost_id):
         delays = [0, BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE]
