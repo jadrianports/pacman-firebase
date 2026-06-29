@@ -19,6 +19,7 @@ from settings import (
     BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE,
     GHOST_CATCH_DISTANCE,
     GHOST_CHASE_SPEED_NUM, GHOST_CHASE_SPEED_DEN,
+    DEATH_ANIM_FRAMES,
 )
 from geometry import in_box, GHOST_BOX_BOUNDS
 
@@ -86,6 +87,10 @@ class Game:
         self.start_sound_played = False
         self.dying = False
         self.dying_delay = 0
+        # FEEL-01: juice-gated wedge-collapse cursor; advances only while dying and
+        # juice (Pattern 1 / D-05). Not a captured-state field, so it can never enter
+        # the golden state trace.
+        self.death_anim_frame = 0
         self.eat_freeze = False
         self.eat_freeze_timer = 0
         self.eat_freeze_score = 0
@@ -140,6 +145,7 @@ class Game:
     def reset_after_death(self):
         self.powerup = False
         self.power_counter = 0
+        self.death_anim_frame = 0
         self.box_exit_timers = [0, 0, 0, 0]
         self.player.reset()
         self.reset_ghost_positions()
@@ -419,9 +425,34 @@ class Game:
     def start_dying(self):
         self.dying = True
         self.dying_delay = 0
+        self.death_anim_frame = 0
         self.moving = False
         self.sound.stop_all()
         self.sound.play_death()
+
+    def _draw_death(self, anim_frame=None):
+        """Classic arcade wedge collapse — juice-only (D-05, FEEL-01).
+
+        Draws a filled circle minus a growing mouth: the mouth half-angle grows
+        from 0 to pi as anim_frame/DEATH_ANIM_FRAMES goes 0->1, so the wedge closes
+        to nothing then vanishes. Draw-only overlay; never dereferences player_circle
+        (Pitfall 4). Frame-counter + math driven only, with no nondeterministic timing
+        source, so the determinism guard stays green (Pitfall 3).
+        """
+        if anim_frame is None:
+            anim_frame = self.death_anim_frame
+        cx, cy, r = self.player.center_x, self.player.center_y, 21
+        p = min(1.0, anim_frame / DEATH_ANIM_FRAMES)
+        mouth = p * math.pi            # half-mouth 0 -> pi (full close)
+        if mouth >= math.pi:
+            return                     # fully collapsed -> nothing drawn (vanished)
+        facing = {0: 0.0, 1: math.pi, 2: -math.pi / 2, 3: math.pi / 2}[self.player.direction]
+        pts = [(cx, cy)]
+        start, end, steps = facing + mouth, facing + (2 * math.pi - mouth), 24
+        for i in range(steps + 1):
+            a = start + (end - start) * i / steps
+            pts.append((cx + r * math.cos(a), cy + r * math.sin(a)))
+        pygame.draw.polygon(self.screen, (255, 222, 0), pts)
 
     def _catches(self, ghost, player_circle):
         # FAIR-01: integer center-to-center squared-distance catch (D-01/D-02/D-04).
