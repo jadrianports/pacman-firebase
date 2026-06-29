@@ -87,13 +87,13 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 #### Phase 9: Arcade Juice
 
-**Goal**: The game feels alive — death plays out, eating a ghost rewards you with a points popup + a distinct sound, frightened ghosts warn you they're about to turn, and every round opens on a "READY!" beat.
+**Goal**: The game feels alive — death plays out, eating a ghost rewards you with a points popup, frightened ghosts warn you they're about to turn, and every round opens on a "READY!" beat.
 **Depends on**: Phase 8
-**Requirements**: FEEL-01, FEEL-02, FEEL-03, FEEL-04, FEEL-05
+**Requirements**: FEEL-01, FEEL-02, FEEL-04, FEEL-05 (FEEL-03 cut — descoped)
 **Success Criteria** (what must be TRUE):
 
   1. On death, Pac-Man plays a disintegrate/wedge animation in sync with `death.wav` before the round resets. (FEEL-01)
-  2. Eating a frightened ghost floats the points earned (200/400/800/1600) at the eat location with a brief freeze, then play resumes, and a distinct eat-ghost sound plays on the bite. (FEEL-02, FEEL-03)
+  2. Eating a frightened ghost floats the points earned (200/400/800/1600) at the eat location with a brief freeze, then play resumes. (FEEL-02)
   3. Frightened ghosts blink white as the power-pellet timer is about to expire, signalling when it is no longer safe to chase. (FEEL-04)
   4. Each round opens on a "READY!" beat (text + brief pause) before Pac-Man and the ghosts start moving. (FEEL-05)
   5. All FEEL effects ride the existing juice firewall (`Game.juice`): the `juice=False` path stays byte-identical, so the golden state traces **and** the pixel frame-hash net stay green with **no re-bless**. In particular the eat-ghost "brief freeze" (FEEL-02) must not alter the deterministic sim under `juice=False` (a timing shift would break the `ghost_eat`/`death` goldens). (golden-safe guard)
@@ -114,11 +114,11 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 4** *(blocked on Wave 3)*
 
-- [x] 09-04-PLAN.md - FEEL-03 eat-ghost sound (sound.py Channel(2) + ungated trigger)
+- [~] 09-04-PLAN.md - FEEL-03 eat-ghost sound — **REVERTED** (FEEL-03 cut/descoped; wiring removed)
 
 **Wave 5** *(blocked on Wave 4)*
 
-- [ ] 09-05-PLAN.md - SC5 golden gate + .wav asset/license + playtest sign-off
+- [ ] 09-05-PLAN.md - SC5 golden gate + playtest sign-off (cadence + blink; eat-sound dial cut)
 
 ### 📋 More Fun (Planned)
 

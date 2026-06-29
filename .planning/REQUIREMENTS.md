@@ -24,7 +24,7 @@ masters re-blessed on Linux/Docker (the v1.0 Phase-3 box-fix pattern).
 
 - [x] **FEEL-01**: On death, the player sees Pac-Man play a disintegrate/wedge animation synced to `death.wav` before the round resets
 - [x] **FEEL-02**: When the player eats a frightened ghost, the points earned (200/400/800/1600) pop up at the eat location with a brief freeze before play resumes
-- [x] **FEEL-03**: When the player eats a ghost, a distinct eat-ghost sound plays
+- [~] **FEEL-03**: ~~When the player eats a ghost, a distinct eat-ghost sound plays~~ — **CUT** (Phase 9): descoped; sourcing/licensing a `.wav` not worth the chore. Eat-ghost audio wiring removed.
 - [x] **FEEL-04**: Frightened ghosts blink white as the power-pellet timer is about to expire, signalling when it is no longer safe to chase
 - [x] **FEEL-05**: Before each round begins, the player sees a "READY!" beat (text + brief pause) before the ghosts and Pac-Man start moving
 
@@ -71,7 +71,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FAIR-03 | Phase 8 — Fairness Pass | Complete |
 | FEEL-01 | Phase 9 — Arcade Juice | Complete |
 | FEEL-02 | Phase 9 — Arcade Juice | Complete |
-| FEEL-03 | Phase 9 — Arcade Juice | Complete |
+| FEEL-03 | Phase 9 — Arcade Juice | Cut (descoped) |
 | FEEL-04 | Phase 9 — Arcade Juice | Complete |
 | FEEL-05 | Phase 9 — Arcade Juice | Complete |
 
