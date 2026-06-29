@@ -66,20 +66,21 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FAIR-01 | Phase TBD | Pending |
-| FAIR-02 | Phase TBD | Pending |
-| FAIR-03 | Phase TBD | Pending |
-| FEEL-01 | Phase TBD | Pending |
-| FEEL-02 | Phase TBD | Pending |
-| FEEL-03 | Phase TBD | Pending |
-| FEEL-04 | Phase TBD | Pending |
-| FEEL-05 | Phase TBD | Pending |
+| FAIR-01 | Phase 8 — Fairness Pass | Pending |
+| FAIR-02 | Phase 8 — Fairness Pass | Pending |
+| FAIR-03 | Phase 8 — Fairness Pass | Pending |
+| FEEL-01 | Phase 9 — Arcade Juice | Pending |
+| FEEL-02 | Phase 9 — Arcade Juice | Pending |
+| FEEL-03 | Phase 9 — Arcade Juice | Pending |
+| FEEL-04 | Phase 9 — Arcade Juice | Pending |
+| FEEL-05 | Phase 9 — Arcade Juice | Pending |
 
 **Coverage:**
 - v1.2 requirements: 8 total
-- Mapped to phases: 0 (roadmap pending)
-- Unmapped: 8 ⚠️ (filled by roadmapper)
+- Mapped to phases: 8 (Phase 8: 3 · Phase 9: 5) ✓
+- Unmapped: 0 — full coverage, no orphans, no duplicates
 
 ---
 *Requirements defined: 2026-06-29*
-*Last updated: 2026-06-29 after initial definition for v1.2 Feels Right*
+*Last updated: 2026-06-29 — roadmap created; all 8 v1.2 requirements mapped (FAIR-* → Phase 8, FEEL-* → Phase 9)*
+</content>
