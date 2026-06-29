@@ -113,7 +113,7 @@ BANNER_NAME_CAP = 3
 # float, no new import - so the determinism guard (tests/test_determinism_guard.py)
 # stays green. PLAYER_SPEED is DELIBERATELY untouched (D-07): controls must feel
 # identical in the player's hands; fairness moves ghost outcomes, not player feel.
-GHOST_CATCH_DISTANCE = 15          # FAIR-01 center-to-center catch radius (px); HALF_TILE-ish, per D-02 ~14-16px
-GHOST_CHASE_SPEED_NUM = 37         # FAIR-02 integer-rational chase-step numerator
+GHOST_CATCH_DISTANCE = 24          # FAIR-01 center-to-center catch radius (px); D-10 dial. Keep < TILE_HEIGHT(28) so a one-tile-off corner-kiss stays safe; 15 felt too forgiving head-on
+GHOST_CHASE_SPEED_NUM = 40         # FAIR-02 chase-step numerator; D-10 dial. 40/20 = 2.0 px/frame = same as PLAYER_SPEED (FAIR-02 reset to original chase speed)
 GHOST_CHASE_SPEED_DEN = 20         # 37/20 = 1.85 px/frame avg; +1 to NUM is ~+0.05 px/frame for the D-10 dial
 PLAYER_TURN_WINDOW_MARGIN = 6      # FAIR-03 pre-turn widening each edge (px), ~4-6px early per D-09
