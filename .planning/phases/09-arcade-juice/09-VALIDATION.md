@@ -1,8 +1,8 @@
 ---
 phase: 9
 slug: arcade-juice
-status: draft
-nyquist_compliant: false
+status: approved
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-06-30
 ---
@@ -93,6 +93,6 @@ created: 2026-06-30
 - [ ] No watch-mode flags
 - [ ] Feedback latency < 10s (quick command)
 - [ ] Golden state traces + frame-hash manifest green with NO `--bless`
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-06-30 (body complete; every plan task carries an automated verify. `wave_0_complete` flips after plan 09-01 executes the failing-test net.)

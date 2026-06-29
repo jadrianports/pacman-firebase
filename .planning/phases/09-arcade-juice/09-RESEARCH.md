@@ -417,19 +417,25 @@ do not assume it; use `draw.polygon`. The Namco eat-ghost sound is copyrighted �
 | A4 | `build.py`/PyInstaller spec already globs `assets/audio/*` so the new wav ships in the exe | Runtime State Inventory | Medium — if the spec lists files explicitly, the new wav must be added or it's silently missing in the build (game degrades: no eat sound, still playable). Verify. |
 | A5 | The bite is audible on `Channel(2)` over the paused siren without a `set_num_channels` call | Pattern 2 / Pitfall 6 | Low — default mixer is 8 channels; verify in playtest. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Exact `death.wav` length → `DEATH_ANIM_FRAMES`.**
    - What we know: dying blocks on `is_death_playing()` (`death.wav` length × FPS) then +60 frames.
    - What's unclear: the wav's exact duration (not measured here).
    - Recommendation: at implementation, read `int(sound.death_sound.get_length()*FPS)` once to pick
      `DEATH_ANIM_FRAMES` (or just measure the file), then hard-code the int in `settings.py`.
+   - **RESOLVED:** Handled as a provisional `settings.py` dial (`DEATH_ANIM_FRAMES=75`) tuned at the
+     09-05 playtest (D-04). Plan 09-02 implements the frame-counter; 09-05 Task closes the timing.
 2. **Specific eat-ghost `.wav` + license record.**
    - What we know: must be CC0/permissive or self-authored; recorded at add time (D-09/D-10).
    - Recommendation: author in bfxr/jsfxr (zero license risk) OR pull a CC0 clip from
      freesound.org (License = CC0 filter) / Kenney.nl audio / OpenGameArt (CC0); commit a NOTICE
      line with source+author+license. Do NOT fabricate a URL; user selects during playtest.
+   - **RESOLVED:** Deferred to the 09-05 human-action checkpoint (`autonomous: false`) — the user
+     selects/verifies the file and a NOTICE line is committed at add time (D-09/D-10).
 3. **PyInstaller asset bundling (A4).** Confirm the spec ships the new wav.
+   - **RESOLVED:** `build.py` uses `--add-data=assets;assets` (globs the whole tree), so the new
+     `.wav` ships automatically — no `build.py` edit needed. Confirmation folded into 09-05 Task 3.
 
 ## Environment Availability
 
