@@ -110,7 +110,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 09-03-PLAN.md - FEEL-04 frightened-end white blink (game.py + ghost.py)
+- [x] 09-03-PLAN.md - FEEL-04 frightened-end white blink (game.py + ghost.py)
 
 **Wave 4** *(blocked on Wave 3)*
 
@@ -152,6 +152,6 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
 | 8. Fairness Pass | v1.2 | 4/4 | Complete    | 2026-06-29 |
-| 9. Arcade Juice | v1.2 | 2/5 | In Progress|  |
+| 9. Arcade Juice | v1.2 | 3/5 | In Progress|  |
 </content>
 </invoke>
