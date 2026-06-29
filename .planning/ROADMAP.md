@@ -72,7 +72,7 @@ re-bless** — provided every effect (including the eat-ghost freeze) is gated b
 
 **Wave 1**
 
-- [ ] 08-01-PLAN.md - Tunables + failing test net (settings constants; player/fairness micro tests)
+- [x] 08-01-PLAN.md - Tunables + failing test net (settings constants; player/fairness micro tests)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -129,7 +129,7 @@ Phases executed in numeric order: 1 → 2 → 3 (v1.0), 4 → 5 → 6 → 7 (v1.
 | 5. Client Identity Hardening | v1.1 | 3/3 | Complete | 2026-06-19 |
 | 6. In-Game Weekly Boards & Got-Passed Banner | v1.1 | 4/4 | Complete | 2026-06-19 |
 | 7. Web Leaderboard Page | v1.1 | 4/4 | Complete | 2026-06-25 |
-| 8. Fairness Pass | v1.2 | 0/4 | Planned | - |
+| 8. Fairness Pass | v1.2 | 1/4 | In Progress|  |
 | 9. Arcade Juice | v1.2 | 0/TBD | Not started | - |
 </content>
 </invoke>

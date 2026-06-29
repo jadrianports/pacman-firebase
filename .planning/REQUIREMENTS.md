@@ -14,9 +14,9 @@ masters re-blessed on Linux/Docker (the v1.0 Phase-3 box-fix pattern).
 
 <!-- Behavior changes — pinned by the golden net; batch behind one re-bless. -->
 
-- [ ] **FAIR-01**: A ghost does not catch the player during a corner turn unless they are genuinely adjacent — collision uses center-to-center distance, not bounding-box overlap, so diagonal corner-kisses no longer register as catches
-- [ ] **FAIR-02**: The player can pull away from a chasing ghost on a straightaway — Pac-Man moves slightly faster than the ghosts, and the high-tier ghost speed-up is retuned so escape remains possible (never an unbeatable ×2)
-- [ ] **FAIR-03**: The player can round a corner by inputting the turn slightly before reaching the junction — a pre-turn window registers the queued direction a few pixels early for smooth corner-cutting
+- [x] **FAIR-01**: A ghost does not catch the player during a corner turn unless they are genuinely adjacent — collision uses center-to-center distance, not bounding-box overlap, so diagonal corner-kisses no longer register as catches
+- [x] **FAIR-02**: The player can pull away from a chasing ghost on a straightaway — Pac-Man moves slightly faster than the ghosts, and the high-tier ghost speed-up is retuned so escape remains possible (never an unbeatable ×2)
+- [x] **FAIR-03**: The player can round a corner by inputting the turn slightly before reaching the junction — a pre-turn window registers the queued direction a few pixels early for smooth corner-cutting
 
 ### Juice / FX
 
@@ -66,9 +66,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FAIR-01 | Phase 8 — Fairness Pass | Pending |
-| FAIR-02 | Phase 8 — Fairness Pass | Pending |
-| FAIR-03 | Phase 8 — Fairness Pass | Pending |
+| FAIR-01 | Phase 8 — Fairness Pass | Complete |
+| FAIR-02 | Phase 8 — Fairness Pass | Complete |
+| FAIR-03 | Phase 8 — Fairness Pass | Complete |
 | FEEL-01 | Phase 9 — Arcade Juice | Pending |
 | FEEL-02 | Phase 9 — Arcade Juice | Pending |
 | FEEL-03 | Phase 9 — Arcade Juice | Pending |
@@ -76,6 +76,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FEEL-05 | Phase 9 — Arcade Juice | Pending |
 
 **Coverage:**
+
 - v1.2 requirements: 8 total
 - Mapped to phases: 8 (Phase 8: 3 · Phase 9: 5) ✓
 - Unmapped: 0 — full coverage, no orphans, no duplicates

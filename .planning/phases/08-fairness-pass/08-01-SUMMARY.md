@@ -102,6 +102,11 @@ Tasks 2 and 3 are `tdd="true"` but produce test-only artifacts that are RED-by-d
 - Each Wave-2 plan has a ready, deterministic, sub-second proof artifact: removing its xfail marker should flip the test green.
 - Golden re-bless remains deferred to a single Linux/Docker pass after D-10 (unchanged).
 
+## Self-Check: PASSED
+
+- All 3 created/modified files exist on disk.
+- All 3 task commits (66fa26a, b4cfaa9, 43b7171) present in git history.
+
 ---
 *Phase: 08-fairness-pass*
 *Completed: 2026-06-30*
