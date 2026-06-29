@@ -117,3 +117,13 @@ GHOST_CATCH_DISTANCE = 24          # FAIR-01 center-to-center catch radius (px);
 GHOST_CHASE_SPEED_NUM = 40         # FAIR-02 chase-step numerator; D-10 dial. 40/20 = 2.0 px/frame = same as PLAYER_SPEED (FAIR-02 reset to original chase speed)
 GHOST_CHASE_SPEED_DEN = 20         # chase-step denominator; NUM/DEN = px/frame avg. -1 to NUM is ~-0.05 px/frame; dial NUM < 40 to make chasers slower than the player
 PLAYER_TURN_WINDOW_MARGIN = 6      # FAIR-03 pre-turn widening each edge (px), ~4-6px early per D-09
+
+# Phase 9 - Arcade Juice tunables (FEEL-01/FEEL-04; D-04/D-06/D-07). Each is a
+# D-10 playtest dial, same style as the Phase-8 block: pure integers, no float,
+# no new import, so the determinism guard (tests/test_determinism_guard.py) stays
+# green. These are inert tunables — the juice features in 09-02/03/04 consume them
+# only behind the juice firewall, so juice=False golden/frame-hash replays are
+# unchanged (SC5, no re-bless).
+DEATH_ANIM_FRAMES = 75             # FEEL-01/D-04 wedge collapse frame budget; ~1.25s at 60 FPS; provisional, dialed to death.wav length during the 09-05 playtest
+FRIGHT_FLASH_START = 480           # FEEL-04/D-06 blink when power_counter > 480, i.e. the last 120 of the 600-frame power window (~2s)
+FRIGHT_FLASH_INTERVAL = 8          # FEEL-04/D-07 frames per blink half-cycle
