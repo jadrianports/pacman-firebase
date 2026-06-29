@@ -18,6 +18,7 @@ from settings import (
     CLYDE_START_X, CLYDE_START_Y, CLYDE_START_DIR,
     BOX_EXIT_DELAY_INKY, BOX_EXIT_DELAY_PINKY, BOX_EXIT_DELAY_CLYDE,
     GHOST_CATCH_DISTANCE,
+    GHOST_CHASE_SPEED_NUM, GHOST_CHASE_SPEED_DEN,
 )
 from geometry import in_box, GHOST_BOX_BOUNDS
 
@@ -76,6 +77,10 @@ class Game:
         self.targets = [(self.player.x, self.player.y)] * 4
         self.moving = False
         self.ghost_speeds = [2, 2, 2, 2]
+        # FAIR-02: per-ghost integer-rational chase-step accumulator. Keeps every
+        # chasing ghost averaging GHOST_CHASE_SPEED_NUM/GHOST_CHASE_SPEED_DEN px/frame
+        # (1.85) while each per-frame step stays a strict integer in {1, 2}.
+        self.ghost_step_acc = [0, 0, 0, 0]
         self.starting = True
         self.start_sound_played = False
         self.dying = False
@@ -139,6 +144,9 @@ class Game:
         self.reset_ghost_positions()
         self.starting = True
         self.start_sound_played = False
+        # FAIR-02: drop banked chase-step credit so no phantom speed carries across
+        # a death/respawn pause (Pitfall 4).
+        self.ghost_step_acc = [0, 0, 0, 0]
 
     def draw_board(self):
         # Tile dims centralized (TILE_HEIGHT was num1, TILE_WIDTH was num2). The
@@ -352,6 +360,22 @@ class Game:
             self.ghost_speeds[2] = 4
         if self.clyde_dead:
             self.ghost_speeds[3] = 4
+
+        # FAIR-02: refine ONLY the lethal-chase tier (speed == 2, which uniquely
+        # marks the chaser in both the default-chase and eaten-revived-during-powerup
+        # cases) into an integer-rational step averaging GHOST_CHASE_SPEED_NUM/DEN
+        # (1.85) px/frame. Each step floors to {1, 2}; positions stay strict integers.
+        # Advance the accumulator only on moving frames so no credit banks across
+        # pauses (Pitfall 4); frightened (1) and eyes-return (4) tiers stay untouched
+        # (D-08). On non-moving frames the tier is left at 2 but ghosts do not move,
+        # so it is inert.
+        if self.moving and not self.eat_freeze:
+            for i in range(4):
+                if self.ghost_speeds[i] == 2:
+                    self.ghost_step_acc[i] += GHOST_CHASE_SPEED_NUM
+                    step = self.ghost_step_acc[i] // GHOST_CHASE_SPEED_DEN
+                    self.ghost_step_acc[i] -= step * GHOST_CHASE_SPEED_DEN
+                    self.ghost_speeds[i] = step
 
     def create_ghosts(self):
         self.blinky = Ghost(self.blinky_x, self.blinky_y, self.targets[0], self.ghost_speeds[0], self.blinky_img,

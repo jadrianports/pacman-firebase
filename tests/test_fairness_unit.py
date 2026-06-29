@@ -108,7 +108,6 @@ def test_catch_boundary_one_past_radius(game):
 # Today update_ghost_speeds yields 2 every frame (20-sum 40 != 37).           #
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.xfail(strict=True, reason="RED until FAIR-02 adds the integer-rational step - Plan 08-02, Wave 2")
 def test_chase_accumulator_averages_to_num_over_den_frames(game):
     """20 moving chase frames yield steps in {1,2} summing to GHOST_CHASE_SPEED_NUM.
 
