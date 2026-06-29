@@ -278,7 +278,8 @@ CLYDE_PROFILE = {
 
 class Ghost:
     def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id,
-                 screen, powerup, eaten_ghost, spooked_img, dead_img, level):
+                 screen, powerup, eaten_ghost, spooked_img, dead_img, level,
+                 blink_white=False, spooked_white_img=None):
         self.x_pos = x_coord
         self.y_pos = y_coord
         self.center_x = self.x_pos + 22
@@ -296,6 +297,8 @@ class Ghost:
         self.spooked_img = spooked_img
         self.dead_img = dead_img
         self.level = level
+        self.blink_white = blink_white
+        self.spooked_white_img = spooked_white_img
         self.turns, self.in_box = self.check_collisions()
         self.rect = self.draw()
 
@@ -303,7 +306,8 @@ class Ghost:
         if (not self.powerup and not self.dead) or (self.eaten_ghost[self.id] and self.powerup and not self.dead):
             self.screen.blit(self.img, (self.x_pos, self.y_pos))
         elif self.powerup and not self.dead and not self.eaten_ghost[self.id]:
-            self.screen.blit(self.spooked_img, (self.x_pos, self.y_pos))
+            img = self.spooked_white_img if self.blink_white else self.spooked_img
+            self.screen.blit(img, (self.x_pos, self.y_pos))
         else:
             self.screen.blit(self.dead_img, (self.x_pos, self.y_pos))
         ghost_rect = pygame.rect.Rect((self.center_x - 18, self.center_y - 18), (36, 36))
