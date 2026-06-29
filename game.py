@@ -615,7 +615,15 @@ class Game:
         self.check_win()
 
         if not self.eat_freeze:
-            player_circle = self.player.draw(self.counter)
+            if self.dying and self.juice:
+                # FEEL-01 (D-05): wedge-collapse overlay replaces the held player
+                # sprite, but ONLY under juice. The counter increment lives strictly
+                # inside this juice branch so the juice=False dying sim/render stays
+                # byte-identical and the death golden/frame-hash net needs no re-bless.
+                self.death_anim_frame += 1
+                self._draw_death(self.death_anim_frame)
+            else:
+                player_circle = self.player.draw(self.counter)
         self.create_ghosts()
         self.draw_misc()
         self.draw_ready()
