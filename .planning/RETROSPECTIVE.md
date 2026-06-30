@@ -88,6 +88,45 @@
 
 ---
 
+## Milestone: v1.2 — Feels Right
+
+**Shipped:** 2026-06-30
+**Phases:** 2 (Phases 8-9) | **Plans:** 9 | **Tasks:** 20 | **Commits:** ~43 (incl. docs) | **Span:** ~1 day
+**Verification:** golden net green with no re-bless (FEEL-*) / one deliberate re-bless (FAIR-*); death-cadence + blink-readability playtest human-approved
+
+### What Was Built
+- **Fairness pass (Phase 8):** corner-kiss catches removed via an integer center-to-center squared-distance check against `GHOST_CATCH_DISTANCE` (FAIR-01), a widened pre-turn cornering window registering queued turns ~4-6px early (FAIR-03), and a per-ghost integer-rational chase-speed accumulator (FAIR-02) — all in `game.py`/`player.py`/`settings.py` with `ghost.py` byte-identical, batched behind one Linux/Docker golden re-bless (24/40/20/6).
+- **Arcade juice (Phase 9):** a death wedge-spin collapse (FEEL-01), eat-ghost points popup 200/400/800/1600 + brief freeze (FEEL-02), frightened-end white blink (FEEL-04), and a "READY!" round-open beat (FEEL-05) — every effect gated behind the `Game.juice` firewall so the `juice=False` replay path stayed byte-identical and shipped with no re-bless.
+
+### What Worked
+- **The juice firewall let cosmetic work ship for free.** Gating every FEEL effect behind `Game.juice` (default `False`, the path goldens + frame-hash replays run) meant four visible features landed with zero re-bless — the firewall pattern paid for itself exactly as designed, including the deterministic eat-ghost freeze.
+- **Batching all behavior changes behind one re-bless.** The three FAIR-* items shipped together behind a single deliberate Linux/Docker re-bless — the v1.0 Phase-3 box-fix discipline reused, keeping the intended outcome-shift cleanly separable from any accidental regression.
+- **`ghost.py` byte-identical as a hard guard.** Confining all fairness logic to `game.py`/`player.py` kept the precious targeting/profile code untouched and provable — the core-value guard never had to be argued, only diffed.
+- **RED feature tests pinned to exact future symbols.** 09-01 stood up RED tests naming the 09-02/03/04 symbols before they existed, so each later wave had a green target and the firewall/determinism guards stayed live throughout.
+
+### What Was Inefficient
+- **FEEL-03 was wired then reverted.** A full plan (09-04) implemented the eat-ghost sound before the asset question was settled; sourcing/licensing a fit-for-purpose `.wav` wasn't worth it, so the wiring was cut and reverted. Asset availability should gate the plan, not surface mid-implementation.
+- **FAIR-02 was built before the playtest proved it was needed.** The chase-speed accumulator shipped, then the D-10 playtest dialed chase ghosts to player speed (2.0 px/frame), making FAIR-02 a tunable no-op — with FAIR-01 + FAIR-03 fixed, cornering alone was a sufficient escape. The mechanism preceded the evidence it was necessary.
+- **The pygame vs pygame-ce pin conflict persists.** `requirements.txt` pins pygame-ce (has `gaussian_blur`) but `requirements-dev.txt` pins pygame (lacks it, installed last), so ~12 UI/juice/theme render tests fail in the dev/CI env — carried unresolved, tracked in 08 deferred-items.
+
+### Patterns Established
+- **Firewall-gated cosmetics.** Any subsystem whose byte-identity is golden-gated can absorb new visual/audio work for free if every effect gates behind the default-off flag the replays run through. Generalizes beyond juice.
+- **Playtest-gated tuning constants.** Ship behavior as named `settings.py` dials and let the human set them at sign-off (fairness constants 24/40/20/6; FAIR-02 dialed to a no-op). The tunable survives even when this milestone's value is "off."
+- **Validate the asset before planning the feature.** A feature that needs an external asset (sound, sprite) should confirm the asset exists/licenses cleanly before a plan wires it.
+
+### Key Lessons
+1. **Validate asset availability before planning an asset-dependent feature.** FEEL-03 cost a wire-then-revert cycle because the `.wav` sourcing was never settled up front.
+2. **Don't implement a mechanism before the playtest proves it's needed.** FAIR-02's accumulator became a no-op once cornering (FAIR-01/03) was confirmed sufficient — the cheaper fix subsumed the expensive one.
+3. **The firewall pattern is the reusable asset, not just a v1.2 trick.** A default-off flag the goldens replay through turns an entire class of risky-looking changes (cosmetics) into no-re-bless work.
+4. **A behavior dial that ships "off" is still worth keeping.** FAIR-02 as a tunable no-op leaves the lever in place for a future difficulty pass without re-deriving it.
+
+### Cost Observations
+- Model profile: `quality` (opus-heavy) per `.planning/config.json`.
+- Model mix / per-session token cost: not instrumented this milestone.
+- Notable: zero new dependencies — juice rendered with `pygame.draw` primitives + `BLEND_RGB_ADD` (white tint), no new asset; fastest milestone yet (2 phases / 9 plans in ~1 day).
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -96,6 +135,7 @@
 |-----------|--------|-------|------------|
 | v1.0 Solid Foundation | 3 | 11 | Established the safety-net-first / Cardinal-Rule discipline and CI merge gate |
 | v1.1 More Competitive | 4 | 15 | Server became the enforcement boundary; one-backend-seam-first sequencing; split-mechanism shared contracts |
+| v1.2 Feels Right | 2 | 9 | Firewall-gated cosmetics (no re-bless); playtest-gated tuning dials; fastest milestone (~1 day) |
 
 ### Cumulative Quality
 
@@ -103,6 +143,7 @@
 |-----------|------------------------|---------|--------------------|
 | v1.0 Solid Foundation | 61 passed / 9 skipped | ✅ merge-blocking on `main` | blit montage capture |
 | v1.1 More Competitive | 146 passed / 9 skipped | ✅ merge-blocking on `main` | stdlib-only HMAC/obfuscation; no-dependency ESM web page |
+| v1.2 Feels Right | golden net green (1 FAIR re-bless · 0 FEEL re-bless) | ✅ merge-blocking on `main` | `pygame.draw` + `BLEND_RGB_ADD` juice, no new asset |
 
 ### Top Lessons (Verified Across Milestones)
 

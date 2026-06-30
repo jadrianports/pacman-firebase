@@ -4,7 +4,7 @@
 
 - ✅ **v1.0 Solid Foundation** — Phases 1-3 (shipped 2026-06-12)
 - ✅ **v1.1 More Competitive** — Phases 4-7 (shipped 2026-06-26)
-- 🚧 **v1.2 Feels Right** — Phases 8-9 (in progress)
+- ✅ **v1.2 Feels Right** — Phases 8-9 (shipped 2026-06-30)
 - 📋 **More Fun** — gameplay depth (planned)
 - 📋 **Multiplayer** — asymmetric 1v4 (planned)
 - 📋 **Easier to Share** — web/cross-platform build (planned)
@@ -42,83 +42,23 @@ and on a public mobile-first web page. Full detail archived in
 
 </details>
 
-### 🚧 v1.2 Feels Right (In Progress)
+<details>
+<summary>✅ v1.2 Feels Right (Phases 8-9) — SHIPPED 2026-06-30</summary>
 
-**Milestone Goal:** Make the game feel fair and alive — fix the unfair corner-kiss catches, let the
-player actually escape, and add the arcade juice that's missing. No new content, no multiplayer:
-pure game feel. Fairness changes alter ghost *outcomes* (positions, who-catches-whom) but **never**
-ghost *decision logic* (targeting/profiles stay byte-identical) — the precious core value is held.
+Made the game feel fair and alive without touching a single ghost personality: corner-kiss catches
+are gone (integer center-to-center collision vs `GHOST_CATCH_DISTANCE`), cornering registers a few
+pixels early, and the missing arcade juice (death wedge-spin, eat-ghost points popup, frightened-end
+white blink, READY! beat) all rides the existing juice firewall (`Game.juice`) so it shipped with
+**no golden re-bless**. The three FAIR-* behavior changes batched behind one deliberate Linux/Docker
+re-bless; `ghost.py` held byte-identical throughout. FEEL-03 (eat-ghost sound) was cut/descoped.
+FAIR-02 ships as a tunable no-op (player dialed chase ghosts to 2.0 px/frame per the D-10 playtest —
+escape is cornering-based, not speed-based). Full detail archived in
+[`milestones/v1.2-ROADMAP.md`](milestones/v1.2-ROADMAP.md).
 
-**Sequencing rationale:** Two phases, derived from two distinct risk classes. Phase 8 batches all
-three behavior changes (the FAIR-* items, pinned by the CI golden net) so a **single** deliberate
-re-bless on Linux/Docker covers all of them — the established v1.0 Phase-3 box-fix pattern (isolated,
-oracle-scoped, sanctioned change, re-bless once, never per-change, never on Windows). Phase 9 is
-purely cosmetic and rides the **existing juice firewall** (`Game.juice`, default `False`; golden +
-frame-hash replays run `juice=False` and stay byte-identical), so the FEEL-* items ship with **no
-re-bless** — provided every effect (including the eat-ghost freeze) is gated behind that firewall.
+- [x] Phase 8: Fairness Pass (4/4 plans) — completed 2026-06-29
+- [x] Phase 9: Arcade Juice (5/5 plans) — completed 2026-06-30
 
-#### Phase 8: Fairness Pass
-
-**Goal**: The player can actually escape — corner-kiss catches are gone, Pac-Man outpaces the ghosts, and corners turn smoothly — all without changing a single ghost personality.
-**Depends on**: Phase 7 (golden net + frame-hash manifests already the merge gate on `main`)
-**Requirements**: FAIR-01, FAIR-02, FAIR-03
-**Success Criteria** (what must be TRUE):
-
-  1. A ghost passing diagonally past a corner no longer catches the player — a catch registers only when the two are genuinely adjacent, using center-to-center distance instead of the old 40×40/36×36 bounding-box overlap (`player_circle.colliderect(ghost.rect)`). (FAIR-01)
-  2. On a straightaway the player visibly pulls away from a chasing ghost, and even at the high speed tier the ghosts never become an unbeatable ×2 — escape is always possible (Pac-Man a hair faster than ghosts; the ramp-to-4 tier retuned). (FAIR-02)
-  3. Inputting a turn a few pixels before a junction rounds the corner smoothly instead of overshooting it (a pre-turn cornering window on the existing input buffer). (FAIR-03)
-  4. Ghost **decision logic is byte-identical** — targeting and the per-ghost `*_PROFILE`s are unchanged; only outcomes (positions / who-catches-whom) move. (core-value guard)
-  5. The golden net (9 traces + 15 micro tests + frame-hash + determinism guard) is green on CI again after **one** deliberate re-bless on Linux/Docker that covers all three fairness changes together — never re-blessed on Windows, never per-change.
-
-**Plans**: 4 plans
-
-**Wave 1**
-
-- [x] 08-01-PLAN.md - Tunables + failing test net (settings constants; player/fairness micro tests)
-
-**Wave 2** *(blocked on Wave 1 completion)*
-
-- [x] 08-02-PLAN.md - FAIR-01 center-distance catch + FAIR-02 escape-speed accumulator (game.py)
-- [x] 08-03-PLAN.md - FAIR-03 pre-turn cornering window (player.py)
-
-**Wave 3** *(blocked on Wave 2 completion)*
-
-- [x] 08-04-PLAN.md - Playtest sign-off + terminal verify + single Linux/Docker re-bless
-
-#### Phase 9: Arcade Juice
-
-**Goal**: The game feels alive — death plays out, eating a ghost rewards you with a points popup, frightened ghosts warn you they're about to turn, and every round opens on a "READY!" beat.
-**Depends on**: Phase 8
-**Requirements**: FEEL-01, FEEL-02, FEEL-04, FEEL-05 (FEEL-03 cut — descoped)
-**Success Criteria** (what must be TRUE):
-
-  1. On death, Pac-Man plays a disintegrate/wedge animation in sync with `death.wav` before the round resets. (FEEL-01)
-  2. Eating a frightened ghost floats the points earned (200/400/800/1600) at the eat location with a brief freeze, then play resumes. (FEEL-02)
-  3. Frightened ghosts blink white as the power-pellet timer is about to expire, signalling when it is no longer safe to chase. (FEEL-04)
-  4. Each round opens on a "READY!" beat (text + brief pause) before Pac-Man and the ghosts start moving. (FEEL-05)
-  5. All FEEL effects ride the existing juice firewall (`Game.juice`): the `juice=False` path stays byte-identical, so the golden state traces **and** the pixel frame-hash net stay green with **no re-bless**. In particular the eat-ghost "brief freeze" (FEEL-02) must not alter the deterministic sim under `juice=False` (a timing shift would break the `ghost_eat`/`death` goldens). (golden-safe guard)
-
-**Plans**: 5 plans
-
-**Wave 1**
-
-- [x] 09-01-PLAN.md - Failing-test net + FEEL tunables + FEEL-02/05 regression guards
-
-**Wave 2** *(blocked on Wave 1)*
-
-- [x] 09-02-PLAN.md - FEEL-01 death wedge (juice-gated; golden-safe)
-
-**Wave 3** *(blocked on Wave 2)*
-
-- [x] 09-03-PLAN.md - FEEL-04 frightened-end white blink (game.py + ghost.py)
-
-**Wave 4** *(blocked on Wave 3)*
-
-- [~] 09-04-PLAN.md - FEEL-03 eat-ghost sound — **REVERTED** (FEEL-03 cut/descoped; wiring removed)
-
-**Wave 5** *(blocked on Wave 4)*
-
-- [x] 09-05-PLAN.md - SC5 golden gate + playtest sign-off (cadence + blink; eat-sound dial cut)
+</details>
 
 ### 📋 More Fun (Planned)
 

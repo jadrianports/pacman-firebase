@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Feels Right
-status: executing
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-06-30T00:11:37.028Z"
-last_activity: 2026-06-30
+status: Awaiting next milestone
+stopped_at: v1.2 Feels Right milestone complete + archived
+last_updated: "2026-06-30T00:51:01.515Z"
+last_activity: 2026-06-30 — Milestone v1.2 completed and archived
 progress:
   total_phases: 2
   completed_phases: 2
@@ -18,19 +18,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-29)
+See: .planning/PROJECT.md (updated 2026-06-30)
 
 **Core value:** It feels like real Pac-Man — four ghosts with distinct, hand-tuned personalities the player can read and outplay. That behavior is precious and must never silently regress.
-**Current focus:** Phase 09 — arcade-juice
+**Current focus:** Planning the next milestone (likely More Fun) — run `/gsd-new-milestone`.
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-06-30
-
-Progress: [░░░░░░░░░░] 0%
+Phase: Milestone v1.2 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-06-30 — Milestone v1.2 completed and archived
 
 ## Performance Metrics
 
@@ -40,8 +38,8 @@ Progress: [░░░░░░░░░░] 0%
 |-------|-----------|-------|-----------|
 | 1-3 | v1.0 | 11 | 2026-06-12 |
 | 4-7 | v1.1 | 15 | 2026-06-25 |
-| 8 Fairness Pass | v1.2 | TBD | - |
-| 9 Arcade Juice | v1.2 | TBD | - |
+| 8 Fairness Pass | v1.2 | 4 | 2026-06-29 |
+| 9 Arcade Juice | v1.2 | 5 | 2026-06-30 |
 | Phase 08 P01 | 12min | 3 tasks | 3 files |
 | Phase 08 P02 | 6min | 2 tasks | 2 files |
 | Phase 08 P03 | 4min | 1 tasks | 2 files |
@@ -55,38 +53,27 @@ Progress: [░░░░░░░░░░] 0%
 
 ### Decisions
 
-Full decision log in PROJECT.md (Key Decisions). Standing constraints governing v1.2:
+Full decision log in PROJECT.md (Key Decisions); v1.2 detail archived in `milestones/v1.2-ROADMAP.md`.
 
-- **Ghost decision logic is the spec — never change it silently.** v1.2 fairness may move ghost
-  *outcomes* (positions, who-catches-whom) but the targeting / per-ghost `*_PROFILE`s stay
-  byte-identical. Treat like the v1.0 Phase-3 box-fix: sanctioned, isolated, oracle-scoped.
+**Standing constraints (carry into every future milestone):**
+
+- **Ghost decision logic is the spec — never change it silently.** Targeting / per-ghost `*_PROFILE`s
+  stay byte-identical; only *outcomes* may move, and only as a sanctioned, isolated, oracle-scoped
+  change. Held through v1.0 (box-fix), v1.2 (fairness) — `ghost.py` untouched.
 
 - **Golden net is the merge gate on `main`** (9 traces + 15 micro tests + frame-hash + determinism
-  guard). Re-bless **only on Linux/Docker, never Windows.** Phase 8 batches all 3 FAIR-* behavior
-  changes behind **one** re-bless (never per-change).
+  guard). Re-bless **only on Linux/Docker, never Windows**, and batch behavior changes behind **one**
+  re-bless (never per-change).
 
-- **Frame-hash net hashes PIXELS** (`sha256(tobytes(surface,'RGB'))`). Phase 9's juice rides the
-  **existing juice firewall** (`Game.juice`, default `False`; golden/frame-hash replays run
-  `juice=False`) → FEEL-* ship with **no re-bless** if every effect is gated behind the firewall.
-
-- [Phase ?]: FAIR-01/02 implemented entirely in game.py; ghost.py left byte-identical (oracle-scoped)
-- [Phase ?]: Golden-trace re-bless deferred to a Linux/Docker pass after D-10; 10 baseline traces intentionally diverge
-- [Phase ?]: Phase 8 closed with one Linux/Docker golden-net re-bless (pygame 2.6.1) covering FAIR-01/02/03 under dialed constants 24/40/20/6; ghost.py byte-identical; death/ghost_eat terminals re-verified (no input re-authoring)
-- [Phase ?]: 09-01: Phase-9 FEEL test net + pure-int settings dials stood up golden-safe (no re-bless); RED feature tests target 09-02/03/04 symbols, GREEN guards pin FEEL-02/05
-- [Phase 09]: FEEL-01 death wedge is a juice-gated draw-only overlay (Game._draw_death); death_anim_frame increments only under dying+juice so juice=False dying stays byte-identical (golden-safe, no re-bless)
-- [Phase ?]: FEEL-04 fright-flash: dumb-Ghost keyword-default params + smart-Game juice-gated blink_white compute (D-06); white tint via BLEND_RGB_ADD, no new asset (D-07)
-- [Phase ?]: FEEL-03 eat-ghost sound: one-shot on dedicated Channel(2), ungated (D-02); real .wav asset deferred to 09-05
+- **Juice firewall ships cosmetics for free.** Any visual/audio effect gated behind `Game.juice`
+  (default `False`, the path goldens/frame-hash replays run) stays byte-identical → no re-bless. Proven
+  by v1.2 FEEL-01/02/04/05.
 
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
-
-- **[Phase 9 risk] eat-ghost "brief freeze" (FEEL-02) must not alter the deterministic sim under
-  `juice=False`** — a timing shift would break the `ghost_eat`/`death` golden traces. Keep the freeze
-  (and the death animation, FEEL-01) gated behind the juice firewall. `eat_freeze*` state scaffolding
-  already exists in game.py (lines 82-85) — wire it juice-gated.
 
 - **OPERATOR (carried from v1.1) — flip `REQUIRE_SIGNATURE` to `true` on the `pacman` Cloud Run
   service** once signed clients have propagated (D-02); keep the HMAC secret backed up. Unrelated to
@@ -96,7 +83,7 @@ None.
 
 ## Deferred Items
 
-Carried forward (unchanged at v1.2 start):
+Carried forward (no new deferrals at v1.2 close; the pygame/pygame-ce pin conflict remains open under Blockers/Concerns):
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
@@ -106,12 +93,10 @@ Carried forward (unchanged at v1.2 start):
 
 ## Session Continuity
 
-Last session: 2026-06-29T23:37:30.891Z
-Stopped at: Completed 09-03-PLAN.md
+Last session: 2026-06-30 — v1.2 Feels Right milestone completed and archived
+Stopped at: Milestone close (ROADMAP/REQUIREMENTS archived, PROJECT.md evolved, retrospective written, tagged)
 Resume file: None
 
 ## Operator Next Steps
 
-- Plan the first v1.2 phase: `/gsd-plan-phase 8`
-
-</content>
+- Start the next milestone with /gsd-new-milestone

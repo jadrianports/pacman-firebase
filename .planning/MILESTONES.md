@@ -1,5 +1,23 @@
 # Milestones
 
+## v1.2 Feels Right (Shipped: 2026-06-30)
+
+**Delivered:** Made the game feel fair and alive without touching a single ghost personality — corner-kiss catches are gone (center-to-center collision), cornering registers a few pixels early, and the arcade juice that was missing (death animation, eat-ghost popup, frightened-end warning, READY! beat) all rides the existing juice firewall so it shipped with no golden re-bless.
+
+**Stats:** 2 phases (8-9) · 9 plans · 20 tasks · 1 day (2026-06-29 → 2026-06-30) · git range `feat(08-01)` → `docs(09-05)`
+
+**Key accomplishments:**
+
+- **Corner-kisses are fair (FAIR-01)** — collision switched to an integer center-to-center squared-distance check against `GHOST_CATCH_DISTANCE` (24), replacing the 40×40 / 36×36 AABB overlap, so a ghost passing diagonally past a corner no longer registers a catch. Implemented entirely in `game.py`; `ghost.py` left byte-identical.
+- **Smooth cornering (FAIR-03)** — widened the four player-only pre-turn windows in `Player.check_position` by `PLAYER_TURN_WINDOW_MARGIN` so a queued turn registers ~4-6px before the junction; the ghost windows are byte-identical.
+- **Escape rebalance scaffolding (FAIR-02)** — added a per-ghost integer-rational step accumulator for the lethal chase tier. Per the D-10 playtest the player dialed chase ghosts to 2.0 px/frame (= player speed), so FAIR-02 ships as a **tunable no-op**: escape is cornering-based, not speed-based (accepted SC2 override).
+- **Arcade juice, all firewall-gated (FEEL-01/02/04/05)** — death wedge-spin collapse (`pygame.draw.polygon`), eat-ghost points popup (200/400/800/1600) with a brief freeze, frightened-end white blink over the last ~2s of the power window, and a "READY!" round-open beat — every effect gated behind `Game.juice` so the `juice=False` path stays byte-identical.
+- **Core value held, golden-safe** — `ghost.py` byte-identical throughout; one deliberate Linux/Docker (`python:3.12`, pygame 2.6.1) re-bless of all 9 traces + frame-hash manifests under the D-10 fairness constants (24 / 40 / 20 / 6) covered all three FAIR changes together; every FEEL effect shipped with **no re-bless**.
+
+**Requirements:** 7/8 v1.2 requirements complete (FAIR-01/02/03, FEEL-01/02/04/05). **FEEL-03** (distinct eat-ghost sound) **cut/descoped** — wired in 09-04 then reverted; sourcing/licensing a `.wav` wasn't worth the chore. A code-review pass also fixed a pre/post-move catch-sampling skew (WR-03).
+
+---
+
 ## v1.1 More Competitive (Shipped: 2026-06-26)
 
 **Delivered:** Turned the client-trusted leaderboard into something friends can actually compete on — the server became the enforcement boundary (HMAC-verified, sanity-ceilinged, server-locked initials, week-bucketed), the client signs its submissions and hides a tamper-evident identity, and the weekly fight surfaces both in-game and on a public mobile web page.
